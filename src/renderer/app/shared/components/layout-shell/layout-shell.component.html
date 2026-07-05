@@ -1,0 +1,44 @@
+<div class="shell-container">
+  <!-- Top Header Toolbar -->
+  <header class="shell-header">
+    <div class="header-left">
+      <mat-icon class="logo-icon">scissors</mat-icon>
+      <span class="shop-name">Darzi Pro</span>
+    </div>
+    <div class="header-right" *ngIf="authState.currentUser() as user">
+      <span class="user-welcome">Welcome, <strong>{{ user.fullName }}</strong> ({{ user.role }})</span>
+      <button mat-icon-button (click)="logout()" title="Logout">
+        <mat-icon>logout</mat-icon>
+      </button>
+    </div>
+  </header>
+
+  <!-- Left Sidebar Sidenav Layout -->
+  <div class="shell-body">
+    <aside class="shell-sidebar">
+      <nav class="sidebar-nav">
+        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+          <mat-icon>dashboard</mat-icon>
+          <span>Dashboard</span>
+        </a>
+        <a routerLink="/customers" routerLinkActive="active" class="nav-item">
+          <mat-icon>people</mat-icon>
+          <span>Customers</span>
+        </a>
+        <a routerLink="/orders" routerLinkActive="active" class="nav-item">
+          <mat-icon>shopping_basket</mat-icon>
+          <span>Orders</span>
+        </a>
+        <a routerLink="/settings" routerLinkActive="active" class="nav-item" *ngIf="authState.isOwner()">
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </a>
+      </nav>
+    </aside>
+
+    <!-- Main Content Panel -->
+    <main class="shell-content">
+      <ng-content></ng-content>
+    </main>
+  </div>
+</div>

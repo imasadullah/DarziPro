@@ -1,0 +1,31 @@
+<div class="pinpad-container">
+  <!-- Numeric Indicators row -->
+  <div class="pinpad-indicators">
+    <span 
+      *ngFor="let idx of [].constructor(maxLength); let i = index" 
+      class="pin-dot" 
+      [class.active]="i < length()">
+    </span>
+  </div>
+
+  <!-- Keypad grid -->
+  <div class="pinpad-grid">
+    <button type="button" class="pin-btn" (click)="pressKey('1')">1</button>
+    <button type="button" class="pin-btn" (click)="pressKey('2')">2</button>
+    <button type="button" class="pin-btn" (click)="pressKey('3')">3</button>
+
+    <button type="button" class="pin-btn" (click)="pressKey('4')">4</button>
+    <button type="button" class="pin-btn" (click)="pressKey('5')">5</button>
+    <button type="button" class="pin-btn" (click)="pressKey('6')">6</button>
+
+    <button type="button" class="pin-btn" (click)="pressKey('7')">7</button>
+    <button type="button" class="pin-btn" (click)="pressKey('8')">8</button>
+    <button type="button" class="pin-btn" (click)="pressKey('9')">9</button>
+
+    <button type="button" class="pin-btn clear-btn" (click)="clear()">Clear</button>
+    <button type="button" class="pin-btn" (click)="pressKey('0')">0</button>
+    <button type="button" class="pin-btn delete-btn" (click)="deleteDigit()">
+      <mat-icon>backspace</mat-icon>
+    </button>
+  </div>
+</div>

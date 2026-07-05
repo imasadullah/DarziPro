@@ -1,0 +1,56 @@
+<div class="login-container">
+  <mat-card class="login-card">
+    <div class="login-header">
+      <mat-icon class="scissors-icon">scissors</mat-icon>
+      <h1>Darzi Pro</h1>
+      <p class="subtitle">Tailor Shop Management System</p>
+    </div>
+
+    <!-- Toggle Selector -->
+    <div class="mode-toggle">
+      <mat-button-toggle-group 
+        [value]="loginMode()" 
+        (change)="loginMode.set($event.value)" 
+        aria-label="Login Mode">
+        <mat-button-toggle value="password">Password</mat-button-toggle>
+        <mat-button-toggle value="pin">PIN</mat-button-toggle>
+      </mat-button-toggle-group>
+    </div>
+
+    <mat-card-content class="form-content">
+      <!-- Username/Password Login Form -->
+      <form 
+        *ngIf="loginMode() === 'password'" 
+        [formGroup]="loginForm" 
+        (ngSubmit)="onPasswordSubmit()" 
+        class="login-form">
+        
+        <mat-form-field appearance="outline">
+          <mat-label>Username</mat-label>
+          <input matInput formControlName="username" placeholder="e.g. admin" autocomplete="username">
+          <mat-error *ngIf="loginForm.get('username')?.hasError('required')">Username is required</mat-error>
+        </mat-form-field>
+
+        <mat-form-field appearance="outline">
+          <mat-label>Password</mat-label>
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" autocomplete="current-password">
+          <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+          </button>
+          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">Password is required</mat-error>
+        </mat-form-field>
+
+        <button mat-raised-button color="primary" type="submit" class="submit-btn" [disabled]="loginForm.invalid || loading()">
+          <span *ngIf="!loading()">Login</span>
+          <span *ngIf="loading()">Logging in...</span>
+        </button>
+      </form>
+
+      <!-- PIN Code Login Pad -->
+      <div *ngIf="loginMode() === 'pin'" class="pin-form">
+        <p class="pin-instruction">Enter your 4-6 digit login PIN code</p>
+        <app-numeric-pad [maxLength]="6" (pinEntered)="onPINEntered($event)"></app-numeric-pad>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

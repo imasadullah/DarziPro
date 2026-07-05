@@ -1,0 +1,47 @@
+<app-layout-shell>
+  <div class="dashboard-container">
+    <header class="dashboard-header">
+      <h1>Dashboard Overview</h1>
+      <p class="welcome-text">Logged in as: <strong>{{ authState.currentUser()?.fullName }}</strong></p>
+    </header>
+
+    <!-- KPI Card Grid -->
+    <div class="kpi-grid">
+      <mat-card class="kpi-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="kpi-icon blue">people</mat-icon>
+          <mat-card-title>Total Customers</mat-card-title>
+          <mat-card-subtitle>Active Client Base</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="kpi-value">0</mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="kpi-icon green">shopping_basket</mat-icon>
+          <mat-card-title>Active Orders</mat-card-title>
+          <mat-card-subtitle>Currently In Pipeline</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="kpi-value">0</mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="kpi-icon yellow">monetization_on</mat-icon>
+          <mat-card-title>Revenue (Month)</mat-card-title>
+          <mat-card-subtitle>Total Income Tracked</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="kpi-value">Rs. 0.00</mat-card-content>
+      </mat-card>
+
+      <mat-card class="kpi-card">
+        <mat-card-header>
+          <mat-icon mat-card-avatar class="kpi-icon red">assignment_late</mat-icon>
+          <mat-card-title>Orders Due Today</mat-card-title>
+          <mat-card-subtitle>Immediate Actions Needed</mat-card-subtitle>
+        </mat-card-header>
+        <mat-card-content class="kpi-value">0</mat-card-content>
+      </mat-card>
+    </div>
+  </div>
+</app-layout-shell>
