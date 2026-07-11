@@ -1,7 +1,7 @@
 <div class="setup-container">
   <mat-card class="setup-card">
     <div class="setup-header">
-      <mat-icon class="scissors-icon">scissors</mat-icon>
+      <mat-icon class="scissors-icon">content_cut</mat-icon>
       <h1>Configure Darzi Pro</h1>
       <p class="subtitle">Welcome! Set up your Tailor Shop Owner Account to get started.</p>
     </div>
@@ -13,7 +13,8 @@
           <mat-label>Owner Full Name</mat-label>
           <input matInput formControlName="fullName" placeholder="e.g. Muhammad Asad" autocomplete="name">
           <mat-error *ngIf="setupForm.get('fullName')?.hasError('required')">Name is required</mat-error>
-          <mat-error *ngIf="setupForm.get('fullName')?.hasError('minlength')">Name must be at least 3 characters</mat-error>
+          <mat-error *ngIf="setupForm.get('fullName')?.hasError('minlength')">Name must be at least 3
+            characters</mat-error>
         </mat-form-field>
 
         <!-- Username -->
@@ -21,24 +22,28 @@
           <mat-label>Username</mat-label>
           <input matInput formControlName="username" placeholder="e.g. owner_admin" autocomplete="username">
           <mat-error *ngIf="setupForm.get('username')?.hasError('required')">Username is required</mat-error>
-          <mat-error *ngIf="setupForm.get('username')?.hasError('minlength')">Username must be at least 3 characters</mat-error>
+          <mat-error *ngIf="setupForm.get('username')?.hasError('minlength')">Username must be at least 3
+            characters</mat-error>
         </mat-form-field>
 
         <!-- Password -->
         <mat-form-field appearance="outline">
           <mat-label>Password</mat-label>
-          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password" autocomplete="new-password">
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+            autocomplete="new-password">
           <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
             <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
           <mat-error *ngIf="setupForm.get('password')?.hasError('required')">Password is required</mat-error>
-          <mat-error *ngIf="setupForm.get('password')?.hasError('minlength')">Password must be at least 6 characters</mat-error>
+          <mat-error *ngIf="setupForm.get('password')?.hasError('minlength')">Password must be at least 6
+            characters</mat-error>
         </mat-form-field>
 
         <!-- Confirm Password -->
         <mat-form-field appearance="outline">
           <mat-label>Confirm Password</mat-label>
-          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="confirmPassword" autocomplete="new-password">
+          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="confirmPassword"
+            autocomplete="new-password">
           <mat-error *ngIf="setupForm.hasError('mismatch')">Passwords do not match</mat-error>
         </mat-form-field>
 
@@ -51,7 +56,8 @@
           <mat-error *ngIf="setupForm.get('pin')?.hasError('pattern')">PIN must be 4 to 6 numeric digits</mat-error>
         </mat-form-field>
 
-        <button mat-raised-button color="primary" type="submit" class="submit-btn" [disabled]="setupForm.invalid || loading()">
+        <button mat-raised-button color="primary" type="submit" class="submit-btn"
+          [disabled]="setupForm.invalid || loading()">
           <span *ngIf="!loading()">Complete Registration</span>
           <span *ngIf="loading()">Registering Account...</span>
         </button>

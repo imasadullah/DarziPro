@@ -8,10 +8,6 @@ import { MatSidenavModule } from '@angular/material/sidenav';
 import { MatListModule } from '@angular/material/list';
 import { AuthStateService } from '../../../core/store/auth-state.service';
 import { AuthService } from '../../../core/services/auth.service';
-
-// import { AuthStateService } from '../../core/store/auth-state.service';
-// import { AuthService } from '../../core/services/auth.service';
-
 @Component({
   selector: 'app-layout-shell',
   standalone: true,
