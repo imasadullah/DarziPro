@@ -2,12 +2,22 @@
   <!-- Top Header Toolbar -->
   <header class="shell-header">
     <div class="header-left">
-      <mat-icon class="logo-icon">content_cut</mat-icon>
-      <span class="shop-name">Darzi Pro</span>
+      <div class="logo-badge">
+        <mat-icon class="logo-icon">content_cut</mat-icon>
+      </div>
+      <div class="brand-text">
+        <span class="shop-name">Darzi Pro</span>
+        <span class="shop-tagline">Tailoring Management</span>
+      </div>
     </div>
+
     <div class="header-right" *ngIf="authState.currentUser() as user">
-      <span class="user-welcome">Welcome, <strong>{{ user.fullName }}</strong> ({{ user.role }})</span>
-      <button mat-icon-button (click)="logout()" title="Logout">
+      <div class="user-info">
+        <span class="user-welcome">Welcome back, <strong>{{ user.fullName }}</strong></span>
+        <span class="user-role">{{ user.role }}</span>
+      </div>
+      <div class="user-avatar">{{ user.fullName.charAt(0) }}</div>
+      <button mat-icon-button (click)="logout()" title="Logout" class="logout-btn">
         <mat-icon>logout</mat-icon>
       </button>
     </div>
