@@ -10,5 +10,9 @@
   "include": [
     "src/main/**/*",
     "src/preload/**/*"
+  ],
+  "exclude": [
+    "src/main/**/*.spec.ts",
+    "src/main/**/*.test.ts"
   ]
 }

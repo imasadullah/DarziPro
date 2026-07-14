@@ -3,7 +3,9 @@ import { app } from 'electron';
 import * as path from 'path';
 import { User } from '../database/entities/user.entity';
 import { Setting } from '../database/entities/setting.entity';
+import { Customer } from '../database/entities/customer.entity';
 import { InitialMigration1710000000000 } from '../database/migrations/1710000000000-InitialMigration';
+import { AddCustomerTable1720000000000 } from '../database/migrations/1720000000000-AddCustomerTable';
 
 const getDatabasePath = () => {
   try {
@@ -20,8 +22,8 @@ export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
   database: getDatabasePath(),
   synchronize: false,
-  entities: [User, Setting],
-  migrations: [InitialMigration1710000000000],
+  entities: [User, Setting, Customer],
+  migrations: [InitialMigration1710000000000, AddCustomerTable1720000000000],
   migrationsRun: true,
   logging: false
 });

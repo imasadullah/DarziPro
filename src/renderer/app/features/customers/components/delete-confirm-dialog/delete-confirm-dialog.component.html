@@ -1,0 +1,27 @@
+<div class="dialog-container">
+  <div class="dialog-icon-wrap">
+    <mat-icon class="dialog-icon">warning</mat-icon>
+  </div>
+
+  <h2 class="dialog-title">Delete Customer</h2>
+
+  <p class="dialog-message">
+    Are you sure you want to delete
+    <strong>{{ data.customerName }}</strong>
+    <span class="customer-code">({{ data.customerCode }})</span>?
+  </p>
+
+  <p class="dialog-warning">
+    This action cannot be undone.
+  </p>
+
+  <div class="dialog-actions">
+    <button mat-stroked-button (click)="onCancel()" class="btn-cancel">
+      Cancel
+    </button>
+    <button mat-flat-button color="warn" (click)="onConfirm()" class="btn-delete">
+      <mat-icon>delete</mat-icon>
+      Delete Customer
+    </button>
+  </div>
+</div>

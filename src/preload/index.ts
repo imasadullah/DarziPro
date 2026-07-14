@@ -9,6 +9,14 @@ contextBridge.exposeInMainWorld('api', {
     logout: () => ipcRenderer.invoke('auth:logout'),
     getCurrentUser: () => ipcRenderer.invoke('auth:getCurrentUser')
   },
+  customers: {
+    getAll: (params?: any) => ipcRenderer.invoke('customer:getAll', params),
+    getById: (id: number) => ipcRenderer.invoke('customer:getById', id),
+    search: (query: string) => ipcRenderer.invoke('customer:search', query),
+    create: (data: any) => ipcRenderer.invoke('customer:create', data),
+    update: (id: number, data: any) => ipcRenderer.invoke('customer:update', { id, data }),
+    delete: (id: number) => ipcRenderer.invoke('customer:delete', id)
+  },
   system: {
     getSettings: () => ipcRenderer.invoke('system:getSettings'),
     saveSettings: (settings: any) => ipcRenderer.invoke('system:saveSettings', settings)

@@ -1,5 +1,25 @@
-import { describe, it, expect } from 'vitest';
-import { AuthService } from './auth.service';
+import { describe, it, expect, vi } from 'vitest';
+
+// Mock TypeORM entities and data-source to avoid decorator evaluation in esbuild
+vi.mock('../database/entities/user.entity', () => ({
+  User: class User {}
+}));
+
+vi.mock('../config/data-source', () => ({
+  AppDataSource: {
+    getRepository: vi.fn(() => ({
+      findOne: vi.fn(),
+      findOneBy: vi.fn(),
+      find: vi.fn(),
+      count: vi.fn(),
+      save: vi.fn(),
+      remove: vi.fn()
+    }))
+  }
+}));
+
+const { AuthService } = await import('./auth.service');
+
 
 describe('AuthService Cryptography & Sessions (Main Process)', () => {
   describe('hash & verify', () => {
