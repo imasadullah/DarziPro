@@ -1,0 +1,190 @@
+<app-layout-shell>
+  <div class="page-container">
+
+    <!-- ── Loading State ─────────────────────────────────────────────────── -->
+    <div class="loading-overlay" *ngIf="store.loading()">
+      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
+      <span>Loading customer profile…</span>
+    </div>
+
+    <!-- ── Error State ───────────────────────────────────────────────────── -->
+    <div class="error-state" *ngIf="store.error() && !store.loading()">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>{{ store.error() }}</p>
+      <button mat-stroked-button (click)="navigateBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Customers
+      </button>
+    </div>
+
+    <ng-container *ngIf="!store.loading() && !store.error() && store.selectedCustomer() as customer">
+
+      <!-- ── Page Navigation ──────────────────────────────────────────────── -->
+      <div class="page-nav">
+        <button mat-icon-button class="back-btn" (click)="navigateBack()" id="back-btn" aria-label="Back to customers list">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span class="breadcrumb">
+          <a class="breadcrumb-link" (click)="navigateBack()">Customers</a>
+          <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+          <span class="breadcrumb-current">{{ customer.fullName }}</span>
+        </span>
+      </div>
+
+      <!-- ── Profile Header Card ──────────────────────────────────────────── -->
+      <div class="profile-header">
+        <div class="profile-avatar-wrap">
+          <div class="profile-avatar">
+            {{ getInitials(customer.fullName) }}
+          </div>
+        </div>
+
+        <div class="profile-info">
+          <div class="profile-name-row">
+            <h1 class="profile-name">{{ customer.fullName }}</h1>
+            <span class="customer-code-badge">{{ customer.customerCode }}</span>
+          </div>
+
+          <div class="profile-meta">
+            <div class="meta-item">
+              <mat-icon class="meta-icon">phone</mat-icon>
+              <span>{{ customer.phoneNumber }}</span>
+            </div>
+            <div class="meta-item" *ngIf="customer.address">
+              <mat-icon class="meta-icon">location_on</mat-icon>
+              <span>{{ customer.address }}</span>
+            </div>
+            <div class="meta-item">
+              <mat-icon class="meta-icon">calendar_today</mat-icon>
+              <span>Customer since {{ formatDate(customer.created_at) }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-actions">
+          <button
+            mat-flat-button
+            color="primary"
+            class="btn-edit"
+            (click)="navigateToEdit()"
+            id="edit-customer-btn">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Tabs Panel ────────────────────────────────────────────────────── -->
+      <div class="tabs-container">
+        <mat-tab-group animationDuration="200ms" class="customer-tabs">
+
+          <!-- Profile Tab -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">person</mat-icon>
+              Profile
+            </ng-template>
+
+            <div class="tab-content">
+              <div class="info-grid">
+
+                <div class="info-card">
+                  <h3 class="info-card-title">Customer Details</h3>
+                  <div class="info-rows">
+                    <div class="info-row">
+                      <span class="info-label">Customer Code</span>
+                      <span class="info-value code-value">{{ customer.customerCode }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Full Name</span>
+                      <span class="info-value">{{ customer.fullName }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Phone Number</span>
+                      <span class="info-value phone-value">{{ customer.phoneNumber }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Address</span>
+                      <span class="info-value">{{ customer.address || '—' }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Added On</span>
+                      <span class="info-value">{{ formatDate(customer.created_at) }}</span>
+                    </div>
+                    <div class="info-row">
+                      <span class="info-label">Last Updated</span>
+                      <span class="info-value">{{ formatDate(customer.updated_at) }}</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="info-card" *ngIf="customer.notes">
+                  <h3 class="info-card-title">Notes</h3>
+                  <p class="notes-text">{{ customer.notes }}</p>
+                </div>
+
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Orders Tab (Placeholder) -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">shopping_basket</mat-icon>
+              Orders
+            </ng-template>
+            <div class="tab-content">
+              <div class="placeholder-panel">
+                <mat-icon class="placeholder-icon">shopping_basket</mat-icon>
+                <h3>Orders coming in Phase 4</h3>
+                <p>
+                  Customer order history and management will be available once
+                  the Orders module is implemented.
+                </p>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Measurements Tab (Placeholder) -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">straighten</mat-icon>
+              Measurements
+            </ng-template>
+            <div class="tab-content">
+              <div class="placeholder-panel">
+                <mat-icon class="placeholder-icon">straighten</mat-icon>
+                <h3>Measurements coming in Phase 3</h3>
+                <p>
+                  Customer body measurements and tailoring profiles will be
+                  available once the Measurements module is implemented.
+                </p>
+              </div>
+            </div>
+          </mat-tab>
+
+          <!-- Payments Tab (Placeholder) -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">payments</mat-icon>
+              Payments
+            </ng-template>
+            <div class="tab-content">
+              <div class="placeholder-panel">
+                <mat-icon class="placeholder-icon">payments</mat-icon>
+                <h3>Payments coming in Phase 5</h3>
+                <p>
+                  Customer payment history and outstanding balances will be
+                  available once the Payments module is implemented.
+                </p>
+              </div>
+            </div>
+          </mat-tab>
+
+        </mat-tab-group>
+      </div>
+
+    </ng-container>
+
+  </div>
+</app-layout-shell>

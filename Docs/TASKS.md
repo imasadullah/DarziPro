@@ -1,7 +1,7 @@
 [x] Project Setup
 [x] Authentication
 [x] Dashboard
-[ ] Customers
+[x] Customers
 [ ] Measurements
 [ ] Orders
 [ ] Payments

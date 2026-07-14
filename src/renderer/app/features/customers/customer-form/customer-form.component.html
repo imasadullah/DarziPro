@@ -1,0 +1,154 @@
+<app-layout-shell>
+  <div class="page-container">
+
+    <!-- ── Page Header ──────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <button mat-icon-button class="back-btn" (click)="onCancel()" id="back-btn" aria-label="Go back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="page-header-text">
+        <h1 class="page-title">{{ pageTitle() }}</h1>
+        <span class="page-subtitle">
+          {{ isEditMode() ? 'Update customer information' : 'Enter new customer details' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ── Loading Existing Customer ────────────────────────────────────── -->
+    <div class="loading-overlay" *ngIf="isEditMode() && isLoadingCustomer">
+      <mat-progress-spinner mode="indeterminate" diameter="36" color="primary" />
+      <span>Loading customer data…</span>
+    </div>
+
+    <!-- ── Form Card ─────────────────────────────────────────────────────── -->
+    <div class="form-card" *ngIf="!isEditMode() || !isLoadingCustomer">
+      <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+        <div class="form-section">
+          <h2 class="section-title">
+            <mat-icon class="section-icon">person</mat-icon>
+            Personal Information
+          </h2>
+
+          <div class="form-row">
+            <!-- Full Name -->
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>Full Name</mat-label>
+              <mat-icon matPrefix>badge</mat-icon>
+              <input
+                matInput
+                formControlName="fullName"
+                placeholder="e.g. Muhammad Ali"
+                id="fullName-input"
+                autocomplete="off" />
+              <mat-error *ngIf="getFieldError('fullName')">
+                {{ getFieldError('fullName') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <!-- Phone Number -->
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>Phone Number</mat-label>
+              <mat-icon matPrefix>phone</mat-icon>
+              <input
+                matInput
+                formControlName="phoneNumber"
+                placeholder="e.g. 0300-1234567"
+                id="phoneNumber-input"
+                autocomplete="tel" />
+              <mat-error *ngIf="getFieldError('phoneNumber')">
+                {{ getFieldError('phoneNumber') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+
+          <div class="form-row">
+            <!-- Address -->
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>Address <span class="optional-label">(optional)</span></mat-label>
+              <mat-icon matPrefix>location_on</mat-icon>
+              <textarea
+                matInput
+                formControlName="address"
+                placeholder="Home or business address"
+                rows="2"
+                id="address-input">
+              </textarea>
+              <mat-error *ngIf="getFieldError('address')">
+                {{ getFieldError('address') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h2 class="section-title">
+            <mat-icon class="section-icon">notes</mat-icon>
+            Notes
+          </h2>
+
+          <div class="form-row">
+            <!-- Notes -->
+            <mat-form-field appearance="outline" class="field-full">
+              <mat-label>Notes <span class="optional-label">(optional)</span></mat-label>
+              <textarea
+                matInput
+                formControlName="notes"
+                placeholder="Any additional notes about this customer..."
+                rows="3"
+                id="notes-input">
+              </textarea>
+              <mat-hint align="end">
+                {{ form.get('notes')?.value?.length ?? 0 }} / 500
+              </mat-hint>
+              <mat-error *ngIf="getFieldError('notes')">
+                {{ getFieldError('notes') }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+        </div>
+
+        <!-- ── Server Error ─────────────────────────────────────────────── -->
+        <div class="server-error" *ngIf="serverError()">
+          <mat-icon>error_outline</mat-icon>
+          {{ serverError() }}
+        </div>
+
+        <!-- ── Form Actions ────────────────────────────────────────────── -->
+        <div class="form-actions">
+          <button
+            type="button"
+            mat-stroked-button
+            class="btn-cancel"
+            (click)="onCancel()"
+            [disabled]="isSaving"
+            id="cancel-btn">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            mat-flat-button
+            color="primary"
+            class="btn-submit"
+            [disabled]="isSaving"
+            id="submit-btn">
+            <mat-progress-spinner
+              *ngIf="isSaving"
+              mode="indeterminate"
+              diameter="18"
+              color="accent">
+            </mat-progress-spinner>
+            <mat-icon *ngIf="!isSaving">
+              {{ isEditMode() ? 'save' : 'person_add' }}
+            </mat-icon>
+            {{ isSaving ? 'Saving…' : (isEditMode() ? 'Save Changes' : 'Add Customer') }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+
+  </div>
+</app-layout-shell>

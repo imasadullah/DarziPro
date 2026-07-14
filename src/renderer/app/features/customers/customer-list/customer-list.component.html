@@ -1,0 +1,184 @@
+<app-layout-shell>
+  <div class="page-container">
+
+    <!-- ── Page Header ──────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">Customers</h1>
+        <span class="page-subtitle">
+          {{ store.totalCount() }} total customers
+        </span>
+      </div>
+      <button
+        mat-flat-button
+        color="primary"
+        class="btn-add"
+        (click)="navigateToAdd()"
+        id="add-customer-btn">
+        <mat-icon>person_add</mat-icon>
+        Add Customer
+      </button>
+    </div>
+
+    <!-- ── Search Bar ────────────────────────────────────────────────────── -->
+    <div class="search-bar-container">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search customers...</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          [formControl]="searchControl"
+          placeholder="Name, phone, or customer code"
+          id="customer-search-input"
+          autocomplete="off" />
+        <button
+          *ngIf="searchControl.value"
+          mat-icon-button
+          matSuffix
+          (click)="searchControl.setValue('')"
+          aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+
+    <!-- ── Loading State ─────────────────────────────────────────────────── -->
+    <div class="loading-overlay" *ngIf="store.loading()">
+      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
+      <span>Loading customers…</span>
+    </div>
+
+    <!-- ── Error State ───────────────────────────────────────────────────── -->
+    <div class="error-state" *ngIf="store.error() && !store.loading()">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>{{ store.error() }}</p>
+      <button mat-stroked-button (click)="store.loadCustomers()">Retry</button>
+    </div>
+
+    <!-- ── Empty State ───────────────────────────────────────────────────── -->
+    <div
+      class="empty-state"
+      *ngIf="!store.loading() && !store.error() && !store.hasCustomers()">
+      <mat-icon class="empty-icon">people_outline</mat-icon>
+      <h3>No customers yet</h3>
+      <p *ngIf="!searchControl.value">
+        Add your first customer to get started.
+      </p>
+      <p *ngIf="searchControl.value">
+        No customers match "<strong>{{ searchControl.value }}</strong>".
+      </p>
+      <button
+        *ngIf="!searchControl.value"
+        mat-flat-button
+        color="primary"
+        (click)="navigateToAdd()">
+        <mat-icon>person_add</mat-icon>
+        Add Customer
+      </button>
+    </div>
+
+    <!-- ── Data Table ────────────────────────────────────────────────────── -->
+    <div
+      class="table-container"
+      *ngIf="!store.loading() && !store.error() && store.hasCustomers()">
+      <table
+        mat-table
+        [dataSource]="store.customers()"
+        matSort
+        class="customers-table"
+        aria-label="Customers table">
+
+        <!-- Customer Code Column -->
+        <ng-container matColumnDef="customerCode">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Code</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="customer-code-badge">{{ row.customerCode }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Full Name Column -->
+        <ng-container matColumnDef="fullName">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Name</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="name-cell">
+              <div class="avatar">{{ getInitials(row.fullName) }}</div>
+              <span class="customer-name">{{ row.fullName }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Phone Number Column -->
+        <ng-container matColumnDef="phoneNumber">
+          <th mat-header-cell *matHeaderCellDef>Phone</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="phone-number">{{ row.phoneNumber }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Address Column -->
+        <ng-container matColumnDef="address">
+          <th mat-header-cell *matHeaderCellDef>Address</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="address-text" [title]="row.address || ''">
+              {{ row.address || '—' }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Created At Column -->
+        <ng-container matColumnDef="created_at">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header>Added On</th>
+          <td mat-cell *matCellDef="let row">
+            <span class="date-text">{{ formatDate(row.created_at) }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+          <td mat-cell *matCellDef="let row" class="actions-cell">
+            <button
+              mat-icon-button
+              class="action-btn edit-btn"
+              matTooltip="Edit customer"
+              (click)="navigateToEdit($event, row)"
+              [id]="'edit-btn-' + row.id"
+              aria-label="Edit customer">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              class="action-btn delete-btn"
+              matTooltip="Delete customer"
+              (click)="openDeleteDialog($event, row)"
+              [id]="'delete-btn-' + row.id"
+              aria-label="Delete customer">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns"
+          class="table-row"
+          (click)="navigateToDetail(row)"
+          [id]="'customer-row-' + row.id">
+        </tr>
+      </table>
+
+      <!-- ── Paginator ──────────────────────────────────────────────────── -->
+      <mat-paginator
+        [length]="store.totalCount()"
+        [pageSize]="store.pageSize()"
+        [pageSizeOptions]="[10, 20, 50, 100]"
+        [pageIndex]="store.page() - 1"
+        (page)="onPageChange($event)"
+        showFirstLastButtons
+        aria-label="Select page of customers">
+      </mat-paginator>
+    </div>
+
+  </div>
+</app-layout-shell>

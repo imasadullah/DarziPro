@@ -3,6 +3,7 @@ import * as path from 'path';
 import { AppDataSource } from './config/data-source';
 import { registerAuthIPCHandlers } from './ipc/auth.ipc';
 import { registerSystemIPCHandlers } from './ipc/system.ipc';
+import { registerCustomerIPCHandlers } from './ipc/customer.ipc';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -32,6 +33,7 @@ function createWindow() {
   // Register IPC Routing Listeners
   registerAuthIPCHandlers();
   registerSystemIPCHandlers();
+  registerCustomerIPCHandlers();
 
   const isDev = process.env['NODE_ENV'] === 'development' || !app.isPackaged;
 

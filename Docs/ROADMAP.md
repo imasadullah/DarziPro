@@ -1,8 +1,8 @@
-Phase 1
+Phase 1 ✓
 - Foundation
 - Authentication
 
-Phase 2
+Phase 2 ✓
 - Customers
 
 Phase 3

@@ -1,0 +1,72 @@
+.dialog-container {
+  padding: 32px;
+  max-width: 420px;
+  text-align: center;
+}
+
+.dialog-icon-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: rgba(220, 38, 38, 0.1);
+  margin: 0 auto 20px;
+}
+
+.dialog-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #dc2626;
+}
+
+.dialog-title {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0 0 12px;
+}
+
+.dialog-message {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0 0 8px;
+}
+
+.customer-code {
+  color: #94a3b8;
+  font-size: 13px;
+}
+
+.dialog-warning {
+  font-size: 13px;
+  color: #dc2626;
+  font-weight: 500;
+  margin: 0 0 28px;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+
+.btn-cancel {
+  min-width: 100px;
+  color: #475569;
+  border-color: #e2e8f0;
+}
+
+.btn-delete {
+  min-width: 160px;
+  gap: 6px;
+}
+
+.btn-delete mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
