@@ -4,8 +4,11 @@ import * as path from 'path';
 import { User } from '../database/entities/user.entity';
 import { Setting } from '../database/entities/setting.entity';
 import { Customer } from '../database/entities/customer.entity';
+import { Measurement } from '../database/entities/measurement.entity';
+import { MeasurementValue } from '../database/entities/measurement-value.entity';
 import { InitialMigration1710000000000 } from '../database/migrations/1710000000000-InitialMigration';
 import { AddCustomerTable1720000000000 } from '../database/migrations/1720000000000-AddCustomerTable';
+import { AddMeasurementTables1730000000000 } from '../database/migrations/1730000000000-AddMeasurementTables';
 
 const getDatabasePath = () => {
   try {
@@ -22,8 +25,12 @@ export const AppDataSource = new DataSource({
   type: 'better-sqlite3',
   database: getDatabasePath(),
   synchronize: false,
-  entities: [User, Setting, Customer],
-  migrations: [InitialMigration1710000000000, AddCustomerTable1720000000000],
+  entities: [User, Setting, Customer, Measurement, MeasurementValue],
+  migrations: [
+    InitialMigration1710000000000,
+    AddCustomerTable1720000000000,
+    AddMeasurementTables1730000000000
+  ],
   migrationsRun: true,
   logging: false
 });

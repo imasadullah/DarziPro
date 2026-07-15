@@ -1,0 +1,298 @@
+<app-layout-shell>
+  <div class="page-container">
+
+    <!-- ── Page Header ─────────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="page-title-group">
+        <h1 class="page-title">{{ pageTitle() }}</h1>
+        <span class="page-subtitle">
+          {{ isEditMode() ? 'Update existing measurement record' : 'Create a new measurement record for a customer' }}
+        </span>
+      </div>
+    </div>
+
+    <!-- ── Loading (edit mode fetch) ──────────────────────────────────────── -->
+    <div class="loading-overlay" *ngIf="isLoading && isEditMode()">
+      <mat-progress-spinner mode="indeterminate" diameter="36" color="primary" />
+      <span>Loading measurement…</span>
+    </div>
+
+    <!-- ── Customer Info Banner (edit mode only) ──────────────────────────── -->
+    <div class="customer-banner" *ngIf="isEditMode() && selectedCustomer()">
+      <mat-icon class="banner-icon">person</mat-icon>
+      <div class="banner-info">
+        <span class="banner-name">{{ selectedCustomer()!.fullName }}</span>
+        <span class="banner-phone">{{ selectedCustomer()!.phoneNumber }}</span>
+      </div>
+      <span class="banner-label">Editing measurement for this customer</span>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" *ngIf="!isLoading || !isEditMode()">
+
+      <!-- ── Step 1: Customer Selection (create mode only) ───────────────── -->
+      <div class="form-section" *ngIf="!isEditMode()">
+        <div class="section-header">
+          <div class="step-badge">1</div>
+          <div>
+            <h2 class="section-title">Select Customer</h2>
+            <p class="section-subtitle">Search for the customer this measurement belongs to</p>
+          </div>
+        </div>
+
+        <div class="customer-selector">
+          <!-- Customer already selected -->
+          <div class="selected-customer-card" *ngIf="selectedCustomer()">
+            <div class="customer-avatar">
+              {{ selectedCustomer()!.fullName.charAt(0).toUpperCase() }}
+            </div>
+            <div class="customer-info">
+              <span class="customer-name">{{ selectedCustomer()!.fullName }}</span>
+              <span class="customer-phone">{{ selectedCustomer()!.phoneNumber }}</span>
+            </div>
+            <button
+              type="button"
+              mat-icon-button
+              (click)="clearCustomer()"
+              id="clear-customer-btn"
+              matTooltip="Change customer">
+              <mat-icon>close</mat-icon>
+            </button>
+          </div>
+
+          <!-- Customer search -->
+          <div *ngIf="!selectedCustomer()">
+            <mat-form-field appearance="outline" class="customer-search-field">
+              <mat-label>Search customer by name or phone</mat-label>
+              <mat-icon matPrefix>search</mat-icon>
+              <input
+                matInput
+                formControlName="customerSearch"
+                (input)="onCustomerSearchInput($any($event.target).value)"
+                placeholder="e.g. Ali Khan or 0300-..."
+                id="customer-search-input"
+                autocomplete="off" />
+              <mat-hint *ngIf="form.get('customerId')?.errors?.['required'] && form.get('customerId')?.touched">
+                Customer is required.
+              </mat-hint>
+            </mat-form-field>
+
+            <!-- Search Results -->
+            <div class="search-results" *ngIf="customerSearchResults().length > 0">
+              <button
+                type="button"
+                class="result-item"
+                *ngFor="let c of customerSearchResults()"
+                (click)="selectCustomer(c)"
+                id="select-customer-{{ c.id }}">
+                <div class="result-avatar">{{ c.fullName.charAt(0).toUpperCase() }}</div>
+                <div class="result-info">
+                  <span class="result-name">{{ c.fullName }}</span>
+                  <span class="result-phone">{{ c.phoneNumber }}</span>
+                </div>
+                <span class="result-code">{{ c.customerCode }}</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Step 2: Garment Type ─────────────────────────────────────────── -->
+      <div class="form-section">
+        <div class="section-header">
+          <div class="step-badge">{{ isEditMode() ? '1' : '2' }}</div>
+          <div>
+            <h2 class="section-title">Garment Type</h2>
+            <p class="section-subtitle">Select the type of garment being measured</p>
+          </div>
+        </div>
+
+        <div class="type-grid">
+          <button
+            type="button"
+            class="type-card"
+            *ngFor="let t of templates"
+            [class.active]="form.get('measurementType')?.value === t.type"
+            (click)="onTypeSelect(t.type)"
+            [id]="'type-card-' + t.type">
+            <mat-icon class="type-card-icon">{{ t.icon }}</mat-icon>
+            <span class="type-card-label">{{ t.label }}</span>
+          </button>
+        </div>
+
+        <div
+          class="field-error-msg"
+          *ngIf="form.get('measurementType')?.errors?.['required'] && form.get('measurementType')?.touched">
+          Please select a garment type.
+        </div>
+      </div>
+
+      <!-- ── Step 3: Measurement Values ───────────────────────────────────── -->
+      <div class="form-section" *ngIf="selectedTemplate()">
+        <div class="section-header">
+          <div class="step-badge">{{ isEditMode() ? '2' : '3' }}</div>
+          <div>
+            <h2 class="section-title">Measurements</h2>
+            <p class="section-subtitle">Enter values in inches</p>
+          </div>
+        </div>
+
+        <div formArrayName="values">
+
+          <!-- Standard template fields -->
+          <div class="values-grid" *ngIf="!isCustomType()">
+            <div
+              class="value-row"
+              *ngFor="let ctrl of valueControls; let i = index"
+              [formGroupName]="i">
+              <mat-form-field appearance="outline" class="value-field">
+                <mat-label>{{ ctrl.get('fieldLabel')?.value }}</mat-label>
+                <input
+                  matInput
+                  formControlName="fieldValue"
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  [id]="'field-' + ctrl.get('fieldName')?.value"
+                  placeholder="0" />
+                <span matSuffix class="unit-suffix">{{ ctrl.get('fieldUnit')?.value }}</span>
+                <mat-error>
+                  {{ getValueError(ctrl.get('fieldValue')!) }}
+                </mat-error>
+              </mat-form-field>
+            </div>
+          </div>
+
+          <!-- Custom user-defined fields -->
+          <div class="custom-fields" *ngIf="isCustomType()">
+            <div
+              class="custom-field-row"
+              *ngFor="let ctrl of valueControls; let i = index"
+              [formGroupName]="i">
+              <mat-form-field appearance="outline" class="custom-name-field">
+                <mat-label>Field Name</mat-label>
+                <input
+                  matInput
+                  formControlName="fieldName"
+                  placeholder="e.g. Knee Width"
+                  [id]="'custom-field-name-' + i" />
+                <mat-error *ngIf="ctrl.get('fieldName')?.errors?.['required']">
+                  Field name is required.
+                </mat-error>
+              </mat-form-field>
+
+              <mat-form-field appearance="outline" class="custom-value-field">
+                <mat-label>Value (inches)</mat-label>
+                <input
+                  matInput
+                  formControlName="fieldValue"
+                  type="number"
+                  min="0"
+                  step="0.5"
+                  placeholder="0"
+                  [id]="'custom-field-value-' + i" />
+                <span matSuffix class="unit-suffix">in</span>
+                <mat-error>{{ getValueError(ctrl.get('fieldValue')!) }}</mat-error>
+              </mat-form-field>
+
+              <button
+                type="button"
+                mat-icon-button
+                color="warn"
+                class="remove-field-btn"
+                (click)="removeCustomField(i)"
+                [disabled]="valueControls.length <= 1"
+                matTooltip="Remove field">
+                <mat-icon>remove_circle_outline</mat-icon>
+              </button>
+            </div>
+
+            <button
+              type="button"
+              mat-stroked-button
+              class="add-field-btn"
+              (click)="addCustomField()"
+              id="add-custom-field-btn">
+              <mat-icon>add</mat-icon>
+              Add Field
+            </button>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ── Step 4: Notes ────────────────────────────────────────────────── -->
+      <div class="form-section notes-section">
+        <div class="section-header">
+          <div class="step-badge">{{ isEditMode() ? '3' : '4' }}</div>
+          <div>
+            <h2 class="section-title">Notes &amp; Instructions</h2>
+            <p class="section-subtitle">Optional fabric and stitching details</p>
+          </div>
+        </div>
+
+        <div class="notes-grid">
+          <mat-form-field appearance="outline">
+            <mat-label>General Notes</mat-label>
+            <textarea
+              matInput
+              formControlName="notes"
+              rows="3"
+              placeholder="Any special notes about this customer's fitting..."
+              id="notes-input"></textarea>
+            <mat-error>{{ getFieldError('notes') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline">
+            <mat-label>Fabric Notes</mat-label>
+            <textarea
+              matInput
+              formControlName="fabricNotes"
+              rows="3"
+              placeholder="Fabric type, shrinkage, pressing instructions..."
+              id="fabric-notes-input"></textarea>
+            <mat-error>{{ getFieldError('fabricNotes') }}</mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="outline" class="full-width-field">
+            <mat-label>Stitching Instructions</mat-label>
+            <textarea
+              matInput
+              formControlName="stitchingInstructions"
+              rows="3"
+              placeholder="Pocket style, collar design, pleat details..."
+              id="stitching-input"></textarea>
+            <mat-error>{{ getFieldError('stitchingInstructions') }}</mat-error>
+          </mat-form-field>
+        </div>
+      </div>
+
+      <!-- ── Server Error ─────────────────────────────────────────────────── -->
+      <div class="server-error" *ngIf="serverError()">
+        <mat-icon>error_outline</mat-icon>
+        <span>{{ serverError() }}</span>
+      </div>
+
+      <!-- ── Form Actions ─────────────────────────────────────────────────── -->
+      <div class="form-actions">
+        <button
+          type="button"
+          mat-stroked-button
+          (click)="onCancel()"
+          id="cancel-btn">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          mat-flat-button
+          color="primary"
+          [disabled]="isSaving"
+          id="submit-btn">
+          <mat-spinner *ngIf="isSaving" diameter="18" color="accent" class="btn-spinner"></mat-spinner>
+          {{ isSaving ? 'Saving…' : (isEditMode() ? 'Update Measurement' : 'Save Measurement') }}
+        </button>
+      </div>
+
+    </form>
+
+  </div>
+</app-layout-shell>

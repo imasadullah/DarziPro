@@ -2,7 +2,7 @@
 [x] Authentication
 [x] Dashboard
 [x] Customers
-[ ] Measurements
+[x] Measurements
 [ ] Orders
 [ ] Payments
 [ ] Reports

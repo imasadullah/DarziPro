@@ -324,3 +324,195 @@
   line-height: 1.6;
   margin: 0;
 }
+
+/* ── Measurements Tab ─────────────────────────────────────────────────────── */
+.tab-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 20px;
+}
+
+.tab-section-title {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.btn-add-measurement {
+  height: 38px;
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.measurements-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 40px;
+  justify-content: center;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.measurements-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 60px 40px;
+  text-align: center;
+  color: #64748b;
+}
+
+.measurements-empty .empty-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #cbd5e1;
+}
+
+.measurements-empty h4 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 600;
+  color: #334155;
+}
+
+.measurements-empty p {
+  margin: 0;
+  font-size: 13px;
+}
+
+.tab-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 10px;
+  background: #2563eb;
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  margin-left: 6px;
+}
+
+/* ── Measurement Cards ────────────────────────────────────────────────────── */
+.measurement-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.measurement-card {
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 18px 20px;
+  cursor: pointer;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.measurement-card:hover {
+  border-color: #93c5fd;
+  box-shadow: 0 2px 12px rgba(37,99,235,0.08);
+}
+
+.mcard-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.mcard-type {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mcard-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #64748b;
+}
+
+.mcard-type-badge {
+  display: inline-flex;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.badge-shirt    { background: #dbeafe; color: #1d4ed8; }
+.badge-pant     { background: #dcfce7; color: #15803d; }
+.badge-shalwar  { background: #fef9c3; color: #a16207; }
+.badge-coat     { background: #fce7f3; color: #9d174d; }
+.badge-waistcoat { background: #ede9fe; color: #6d28d9; }
+.badge-custom   { background: #f1f5f9; color: #475569; }
+
+.mcard-date {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.mcard-values {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.mcard-value {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.mcard-value-label {
+  font-size: 11px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-weight: 500;
+}
+
+.mcard-value-num {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.mcard-notes {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.5;
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+}
+
+.mcard-actions {
+  display: flex;
+  gap: 8px;
+  border-top: 1px solid #f1f5f9;
+  padding-top: 12px;
+}
+
+.btn-copy,
+.btn-view {
+  border-radius: 8px;
+  height: 34px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
