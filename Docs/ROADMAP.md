@@ -5,7 +5,7 @@ Phase 1 ✓
 Phase 2 ✓
 - Customers
 
-Phase 3
+Phase 3 ✓
 - Measurements
 
 Phase 4

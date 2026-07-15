@@ -1,0 +1,171 @@
+<app-layout-shell>
+  <div class="page-container">
+
+    <!-- ── Page Header ─────────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="page-title-group">
+        <h1 class="page-title">Measurements</h1>
+        <span class="page-subtitle">All customer body measurements</span>
+      </div>
+      <button
+        mat-flat-button
+        color="primary"
+        class="btn-new"
+        id="new-measurement-btn"
+        (click)="navigateToNew()">
+        <mat-icon>add</mat-icon>
+        New Measurement
+      </button>
+    </div>
+
+    <!-- ── Search Bar ──────────────────────────────────────────────────────── -->
+    <div class="toolbar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search measurements</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input
+          matInput
+          [ngModel]="searchQuery()"
+          (ngModelChange)="onSearch($event)"
+          placeholder="Search by type or customer..."
+          id="measurement-search-input"
+          autocomplete="off" />
+        <button
+          *ngIf="searchQuery()"
+          matSuffix
+          mat-icon-button
+          (click)="onSearch('')"
+          aria-label="Clear search">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+    </div>
+
+    <!-- ── Loading Spinner ─────────────────────────────────────────────────── -->
+    <div class="loading-overlay" *ngIf="loading()">
+      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
+      <span>Loading measurements…</span>
+    </div>
+
+    <!-- ── Empty State ─────────────────────────────────────────────────────── -->
+    <div class="empty-state" *ngIf="!loading() && rows().length === 0">
+      <mat-icon class="empty-icon">straighten</mat-icon>
+      <h3>No measurements found</h3>
+      <p>Add your first measurement to get started.</p>
+      <button mat-flat-button color="primary" (click)="navigateToNew()">
+        <mat-icon>add</mat-icon>
+        Add Measurement
+      </button>
+    </div>
+
+    <!-- ── Data Table ──────────────────────────────────────────────────────── -->
+    <div class="table-card" *ngIf="!loading() && rows().length > 0">
+      <table
+        mat-table
+        [dataSource]="rows()"
+        matSort
+        (matSortChange)="onSort($event)"
+        class="measurements-table">
+
+        <!-- Type Column -->
+        <ng-container matColumnDef="type">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="measurementType">
+            Garment Type
+          </th>
+          <td mat-cell *matCellDef="let row" class="type-cell">
+            <div class="type-badge-wrap">
+              <mat-icon class="type-icon">{{ getTypeIcon(row.measurementType) }}</mat-icon>
+              <span class="type-badge" [ngClass]="getTypeBadge(row.measurementType)">
+                {{ getTypeLabel(row.measurementType) }}
+              </span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Customer Name Column -->
+        <ng-container matColumnDef="customerName">
+          <th mat-header-cell *matHeaderCellDef>Customer</th>
+          <td mat-cell *matCellDef="let row">
+            <div class="customer-cell">
+              <span class="customer-name-text">{{ getCustomerName(row) }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Phone Column -->
+        <ng-container matColumnDef="phone">
+          <th mat-header-cell *matHeaderCellDef>Phone</th>
+          <td mat-cell *matCellDef="let row" class="phone-cell">
+            {{ getCustomerPhone(row) }}
+          </td>
+        </ng-container>
+
+        <!-- Date Column -->
+        <ng-container matColumnDef="created_at">
+          <th mat-header-cell *matHeaderCellDef mat-sort-header="created_at">
+            Created Date
+          </th>
+          <td mat-cell *matCellDef="let row" class="date-cell">
+            {{ formatDate(row.created_at) }}
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
+          <td mat-cell *matCellDef="let row" class="actions-cell" (click)="$event.stopPropagation()">
+            <button
+              mat-icon-button
+              [matTooltip]="'View Details'"
+              (click)="navigateToDetail(row.id)"
+              id="view-measurement-{{ row.id }}">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'Edit'"
+              (click)="navigateToEdit(row.id, $event)"
+              id="edit-measurement-{{ row.id }}">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'Copy Measurement'"
+              [disabled]="copying() === row.id"
+              (click)="copyMeasurement(row.id, $event)"
+              id="copy-measurement-{{ row.id }}">
+              <mat-icon>content_copy</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'Delete'"
+              color="warn"
+              (click)="deleteMeasurement(row.id, $event)"
+              id="delete-measurement-{{ row.id }}">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          class="table-row"
+          (click)="navigateToDetail(row.id)"></tr>
+      </table>
+
+      <!-- Paginator -->
+      <mat-paginator
+        [length]="totalCount()"
+        [pageSize]="pageSize()"
+        [pageIndex]="page() - 1"
+        [pageSizeOptions]="[10, 20, 50]"
+        showFirstLastButtons
+        (page)="onPageChange($event)"
+        class="table-paginator">
+      </mat-paginator>
+    </div>
+
+  </div>
+</app-layout-shell>

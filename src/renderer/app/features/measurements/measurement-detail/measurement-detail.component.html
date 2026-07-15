@@ -1,0 +1,165 @@
+<app-layout-shell>
+  <div class="page-container">
+
+    <!-- ── Loading ──────────────────────────────────────────────────────────── -->
+    <div class="loading-overlay" *ngIf="loading()">
+      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
+      <span>Loading measurement…</span>
+    </div>
+
+    <!-- ── Error ────────────────────────────────────────────────────────────── -->
+    <div class="error-state" *ngIf="error() && !loading()">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="navigateBack()">
+        <mat-icon>arrow_back</mat-icon>
+        Back to Measurements
+      </button>
+    </div>
+
+    <ng-container *ngIf="!loading() && !error() && measurement() as m">
+
+      <!-- ── Breadcrumb ──────────────────────────────────────────────────────── -->
+      <div class="page-nav">
+        <button mat-icon-button class="back-btn" (click)="navigateBack()" aria-label="Back">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span class="breadcrumb">
+          <a class="breadcrumb-link" (click)="navigateBack()">Measurements</a>
+          <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+          <span class="breadcrumb-current">{{ getTypeLabel(m.measurementType) }} Details</span>
+        </span>
+      </div>
+
+      <!-- ── Header Card ─────────────────────────────────────────────────────── -->
+      <div class="detail-header">
+        <div class="header-left">
+          <div class="type-icon-wrap">
+            <mat-icon class="type-icon-lg">{{ getTypeIcon(m.measurementType) }}</mat-icon>
+          </div>
+          <div class="header-info">
+            <div class="header-title-row">
+              <h1 class="header-title">{{ getTypeLabel(m.measurementType) }}</h1>
+              <span class="type-badge" [ngClass]="getTypeBadge(m.measurementType)">
+                {{ getTypeLabel(m.measurementType) }}
+              </span>
+            </div>
+            <div class="header-meta">
+              <span class="meta-item">
+                <mat-icon class="meta-icon">person</mat-icon>
+                {{ m.customer?.fullName ?? ('Customer #' + m.customerId) }}
+              </span>
+              <span class="meta-item" *ngIf="m.customer?.phoneNumber">
+                <mat-icon class="meta-icon">phone</mat-icon>
+                {{ m.customer!.phoneNumber }}
+              </span>
+              <span class="meta-item">
+                <mat-icon class="meta-icon">calendar_today</mat-icon>
+                {{ formatDate(m.created_at) }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="header-actions">
+          <button
+            mat-stroked-button
+            [disabled]="copying()"
+            (click)="copyMeasurement()"
+            id="copy-measurement-btn"
+            matTooltip="Create a copy of these measurements">
+            <mat-icon>content_copy</mat-icon>
+            {{ copying() ? 'Copying…' : 'Copy Measurements' }}
+          </button>
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="navigateToEdit()"
+            id="edit-measurement-btn">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button
+            mat-icon-button
+            color="warn"
+            (click)="deleteMeasurement()"
+            id="delete-measurement-btn"
+            matTooltip="Delete measurement">
+            <mat-icon>delete_outline</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Measurement Values Grid ─────────────────────────────────────────── -->
+      <div class="section-card">
+        <h2 class="section-title">Measurements</h2>
+        <div class="values-grid">
+          <div
+            class="value-item"
+            *ngFor="let v of getOrderedValues(m)">
+            <span class="value-label">{{ v.label }}</span>
+            <span class="value-number">{{ v.value }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Notes Section ───────────────────────────────────────────────────── -->
+      <div class="notes-row">
+
+        <div class="section-card flex-1" *ngIf="m.notes">
+          <h2 class="section-title">
+            <mat-icon class="section-icon">notes</mat-icon>
+            Notes
+          </h2>
+          <p class="notes-text">{{ m.notes }}</p>
+        </div>
+
+        <div class="section-card flex-1" *ngIf="m.fabricNotes">
+          <h2 class="section-title">
+            <mat-icon class="section-icon">texture</mat-icon>
+            Fabric Notes
+          </h2>
+          <p class="notes-text">{{ m.fabricNotes }}</p>
+        </div>
+
+        <div class="section-card flex-1" *ngIf="m.stitchingInstructions">
+          <h2 class="section-title">
+            <mat-icon class="section-icon">design_services</mat-icon>
+            Stitching Instructions
+          </h2>
+          <p class="notes-text">{{ m.stitchingInstructions }}</p>
+        </div>
+
+      </div>
+
+      <!-- ── History Info ────────────────────────────────────────────────────── -->
+      <div class="section-card history-card">
+        <h2 class="section-title">Record Information</h2>
+        <div class="info-rows">
+          <div class="info-row">
+            <span class="info-label">Record ID</span>
+            <span class="info-value code-value">#{{ m.id }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Customer</span>
+            <span class="info-value">{{ m.customer?.fullName ?? ('Customer #' + m.customerId) }}</span>
+          </div>
+          <div class="info-row" *ngIf="m.customer?.phoneNumber">
+            <span class="info-label">Phone</span>
+            <span class="info-value">{{ m.customer!.phoneNumber }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Created</span>
+            <span class="info-value">{{ formatDate(m.created_at) }}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Last Updated</span>
+            <span class="info-value">{{ formatDate(m.updated_at) }}</span>
+          </div>
+        </div>
+      </div>
+
+    </ng-container>
+
+  </div>
+</app-layout-shell>

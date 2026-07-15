@@ -1,25 +1,25 @@
 <app-layout-shell>
   <div class="page-container">
 
-    <!-- ── Loading State ─────────────────────────────────────────────────── -->
-    <div class="loading-overlay" *ngIf="store.loading()">
+    <!-- ── Loading State ─────────────────────────────────────────────────────── -->
+    <div class="loading-overlay" *ngIf="loading()">
       <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
       <span>Loading customer profile…</span>
     </div>
 
-    <!-- ── Error State ───────────────────────────────────────────────────── -->
-    <div class="error-state" *ngIf="store.error() && !store.loading()">
+    <!-- ── Error State ───────────────────────────────────────────────────────── -->
+    <div class="error-state" *ngIf="error() && !loading()">
       <mat-icon class="error-icon">error_outline</mat-icon>
-      <p>{{ store.error() }}</p>
+      <p>{{ error() }}</p>
       <button mat-stroked-button (click)="navigateBack()">
         <mat-icon>arrow_back</mat-icon>
         Back to Customers
       </button>
     </div>
 
-    <ng-container *ngIf="!store.loading() && !store.error() && store.selectedCustomer() as customer">
+    <ng-container *ngIf="!loading() && !error() && selectedCustomer() as customer">
 
-      <!-- ── Page Navigation ──────────────────────────────────────────────── -->
+      <!-- ── Page Navigation ──────────────────────────────────────────────────── -->
       <div class="page-nav">
         <button mat-icon-button class="back-btn" (click)="navigateBack()" id="back-btn" aria-label="Back to customers list">
           <mat-icon>arrow_back</mat-icon>
@@ -31,7 +31,7 @@
         </span>
       </div>
 
-      <!-- ── Profile Header Card ──────────────────────────────────────────── -->
+      <!-- ── Profile Header Card ──────────────────────────────────────────────── -->
       <div class="profile-header">
         <div class="profile-avatar-wrap">
           <div class="profile-avatar">
@@ -74,7 +74,7 @@
         </div>
       </div>
 
-      <!-- ── Tabs Panel ────────────────────────────────────────────────────── -->
+      <!-- ── Tabs Panel ────────────────────────────────────────────────────────── -->
       <div class="tabs-container">
         <mat-tab-group animationDuration="200ms" class="customer-tabs">
 
@@ -127,7 +127,112 @@
             </div>
           </mat-tab>
 
-          <!-- Orders Tab (Placeholder) -->
+          <!-- ── Measurements Tab ────────────────────────────────────────────── -->
+          <mat-tab>
+            <ng-template mat-tab-label>
+              <mat-icon class="tab-icon">straighten</mat-icon>
+              Measurements
+              <span class="tab-count" *ngIf="measurements().length > 0">{{ measurements().length }}</span>
+            </ng-template>
+
+            <div class="tab-content">
+
+              <!-- Measurements Tab Header -->
+              <div class="tab-toolbar">
+                <h3 class="tab-section-title">Measurement History</h3>
+                <button
+                  mat-flat-button
+                  color="primary"
+                  class="btn-add-measurement"
+                  (click)="navigateToNewMeasurement()"
+                  id="add-measurement-btn">
+                  <mat-icon>add</mat-icon>
+                  Add Measurement
+                </button>
+              </div>
+
+              <!-- Loading measurements -->
+              <div class="measurements-loading" *ngIf="measurementsLoading()">
+                <mat-progress-spinner mode="indeterminate" diameter="32" color="primary" />
+                <span>Loading measurements…</span>
+              </div>
+
+              <!-- Empty state -->
+              <div class="measurements-empty" *ngIf="!measurementsLoading() && measurements().length === 0">
+                <mat-icon class="empty-icon">straighten</mat-icon>
+                <h4>No measurements yet</h4>
+                <p>Add the first measurement for this customer.</p>
+                <button
+                  mat-stroked-button
+                  color="primary"
+                  (click)="navigateToNewMeasurement()"
+                  id="add-first-measurement-btn">
+                  <mat-icon>add</mat-icon>
+                  Add Measurement
+                </button>
+              </div>
+
+              <!-- Measurement Cards -->
+              <div
+                class="measurement-cards"
+                *ngIf="!measurementsLoading() && measurements().length > 0">
+
+                <div
+                  class="measurement-card"
+                  *ngFor="let m of measurements()"
+                  (click)="navigateToMeasurement(m.id)"
+                  [id]="'measurement-card-' + m.id">
+
+                  <div class="mcard-header">
+                    <div class="mcard-type">
+                      <mat-icon class="mcard-icon">{{ getTypeIcon(m.measurementType) }}</mat-icon>
+                      <span class="mcard-type-badge" [ngClass]="getTypeBadge(m.measurementType)">
+                        {{ getTypeLabel(m.measurementType) }}
+                      </span>
+                    </div>
+                    <span class="mcard-date">{{ formatShortDate(m.created_at) }}</span>
+                  </div>
+
+                  <!-- Top measurement values preview -->
+                  <div class="mcard-values" *ngIf="getTopValues(m).length > 0">
+                    <div class="mcard-value" *ngFor="let v of getTopValues(m)">
+                      <span class="mcard-value-label">{{ v.label }}</span>
+                      <span class="mcard-value-num">{{ v.value }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Notes preview -->
+                  <p class="mcard-notes" *ngIf="m.notes">{{ m.notes }}</p>
+
+                  <!-- Card Actions -->
+                  <div class="mcard-actions" (click)="$event.stopPropagation()">
+                    <button
+                      mat-stroked-button
+                      class="btn-copy"
+                      [disabled]="copyingId() === m.id"
+                      (click)="copyMeasurement(m.id)"
+                      [id]="'copy-from-detail-' + m.id"
+                      matTooltip="Create a copy of these measurements">
+                      <mat-icon>content_copy</mat-icon>
+                      {{ copyingId() === m.id ? 'Copying…' : 'Copy' }}
+                    </button>
+                    <button
+                      mat-stroked-button
+                      class="btn-view"
+                      (click)="navigateToMeasurement(m.id)"
+                      [id]="'view-from-detail-' + m.id">
+                      <mat-icon>open_in_new</mat-icon>
+                      View
+                    </button>
+                  </div>
+                </div>
+
+              </div>
+
+            </div>
+          </mat-tab>
+
+          <!-- Orders Tab (Placeholder for Phase 4) -->
           <mat-tab>
             <ng-template mat-tab-label>
               <mat-icon class="tab-icon">shopping_basket</mat-icon>
@@ -145,25 +250,7 @@
             </div>
           </mat-tab>
 
-          <!-- Measurements Tab (Placeholder) -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon class="tab-icon">straighten</mat-icon>
-              Measurements
-            </ng-template>
-            <div class="tab-content">
-              <div class="placeholder-panel">
-                <mat-icon class="placeholder-icon">straighten</mat-icon>
-                <h3>Measurements coming in Phase 3</h3>
-                <p>
-                  Customer body measurements and tailoring profiles will be
-                  available once the Measurements module is implemented.
-                </p>
-              </div>
-            </div>
-          </mat-tab>
-
-          <!-- Payments Tab (Placeholder) -->
+          <!-- Payments Tab (Placeholder for Phase 5) -->
           <mat-tab>
             <ng-template mat-tab-label>
               <mat-icon class="tab-icon">payments</mat-icon>

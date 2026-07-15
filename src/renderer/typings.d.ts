@@ -1,3 +1,5 @@
+// ── Customer ───────────────────────────────────────────────────────────────────
+
 interface Customer {
   id: number;
   customerCode: string;
@@ -36,11 +38,78 @@ interface PaginatedCustomers {
   limit: number;
 }
 
+// ── Measurement ────────────────────────────────────────────────────────────────
+
+type MeasurementType =
+  | 'shirt'
+  | 'pant'
+  | 'shalwar_kameez'
+  | 'coat'
+  | 'waistcoat'
+  | 'custom';
+
+interface MeasurementValue {
+  id: number;
+  measurementId: number;
+  fieldName: string;
+  fieldValue?: string;
+}
+
+interface Measurement {
+  id: number;
+  customerId: number;
+  measurementType: MeasurementType;
+  notes?: string;
+  fabricNotes?: string;
+  stitchingInstructions?: string;
+  values: MeasurementValue[];
+  created_at: string;
+  updated_at: string;
+}
+
+interface MeasurementValueDto {
+  fieldName: string;
+  fieldValue?: string;
+}
+
+interface CreateMeasurementDto {
+  customerId: number;
+  measurementType: MeasurementType;
+  notes?: string;
+  fabricNotes?: string;
+  stitchingInstructions?: string;
+  values: MeasurementValueDto[];
+}
+
+interface UpdateMeasurementDto {
+  notes?: string;
+  fabricNotes?: string;
+  stitchingInstructions?: string;
+  values?: MeasurementValueDto[];
+}
+
+interface MeasurementSearchParams {
+  measurementType?: MeasurementType;
+  page?: number;
+  limit?: number;
+}
+
+interface PaginatedMeasurements {
+  items: Measurement[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+// ── API Response ───────────────────────────────────────────────────────────────
+
 interface ApiResponse<T = void> {
   success: boolean;
   data?: T;
   error?: string;
 }
+
+// ── Window API ─────────────────────────────────────────────────────────────────
 
 interface Window {
   api: {
@@ -59,6 +128,22 @@ interface Window {
       create(data: CreateCustomerDto): Promise<ApiResponse<Customer>>;
       update(id: number, data: UpdateCustomerDto): Promise<ApiResponse<Customer>>;
       delete(id: number): Promise<ApiResponse>;
+    };
+    measurements: {
+      create(data: CreateMeasurementDto): Promise<ApiResponse<Measurement>>;
+      update(id: number, data: UpdateMeasurementDto): Promise<ApiResponse<Measurement>>;
+      delete(id: number): Promise<ApiResponse>;
+      get(id: number): Promise<ApiResponse<Measurement>>;
+      getAll(params?: MeasurementSearchParams): Promise<ApiResponse<PaginatedMeasurements>>;
+      getByCustomer(
+        customerId: number,
+        params?: MeasurementSearchParams
+      ): Promise<ApiResponse<PaginatedMeasurements>>;
+      copy(measurementId: number): Promise<ApiResponse<Measurement>>;
+      getLatest(
+        customerId: number,
+        measurementType?: MeasurementType
+      ): Promise<ApiResponse<Measurement | null>>;
     };
     system: {
       getSettings(): Promise<ApiResponse<Record<string, string>>>;

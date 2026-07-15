@@ -4,6 +4,7 @@ import { AppDataSource } from './config/data-source';
 import { registerAuthIPCHandlers } from './ipc/auth.ipc';
 import { registerSystemIPCHandlers } from './ipc/system.ipc';
 import { registerCustomerIPCHandlers } from './ipc/customer.ipc';
+import { registerMeasurementIPCHandlers } from './ipc/measurement.ipc';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -34,6 +35,7 @@ function createWindow() {
   registerAuthIPCHandlers();
   registerSystemIPCHandlers();
   registerCustomerIPCHandlers();
+  registerMeasurementIPCHandlers();
 
   const isDev = process.env['NODE_ENV'] === 'development' || !app.isPackaged;
 
