@@ -1,52 +1,97 @@
 <div class="login-container">
-  <mat-card class="login-card">
+
+  <!-- ===== Animated Tailoring Background (pure CSS, works offline) ===== -->
+  <div class="bg-animation" aria-hidden="true">
+    <div class="stitch-line stitch-top"></div>
+    <div class="stitch-line stitch-bottom"></div>
+
+    <div class="floating-icon icon-1"><i class="fa-solid fa-scissors"></i></div>
+    <div class="floating-icon icon-2"><i class="fa-solid fa-ruler-combined"></i></div>
+    <div class="floating-icon icon-3"><i class="fa-solid fa-shirt"></i></div>
+    <div class="floating-icon icon-4"><i class="fa-solid fa-circle-notch"></i></div>
+    <div class="floating-icon icon-5"><i class="fa-solid fa-thumbtack"></i></div>
+    <div class="floating-icon icon-6"><i class="fa-solid fa-scissors"></i></div>
+    <div class="floating-icon icon-7"><i class="fa-solid fa-ruler"></i></div>
+    <div class="floating-icon icon-8"><i class="fa-solid fa-vest"></i></div>
+
+    <div class="needle-track">
+      <div class="needle-wrap">
+        <i class="fa-solid fa-syringe needle"></i>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Login Card ===== -->
+  <div class="login-card">
     <div class="login-header">
-      <mat-icon class="scissors-icon">content_cut</mat-icon>
+      <div class="icon-badge">
+        <i class="fa-solid fa-scissors scissors-icon"></i>
+      </div>
       <h1>Darzi Pro</h1>
       <p class="subtitle">Tailor Shop Management System</p>
     </div>
 
     <!-- Toggle Selector -->
     <div class="mode-toggle">
-      <mat-button-toggle-group [value]="loginMode()" (change)="loginMode.set($event.value)" aria-label="Login Mode">
-        <mat-button-toggle value="password">Password</mat-button-toggle>
-        <mat-button-toggle value="pin">PIN</mat-button-toggle>
-      </mat-button-toggle-group>
+      <div class="btn-group toggle-group" role="group" aria-label="Login Mode">
+        <input type="radio" class="btn-check" name="loginMode" id="mode-password" autocomplete="off"
+          [checked]="loginMode() === 'password'" (change)="loginMode.set('password')">
+        <label class="btn toggle-btn" for="mode-password">
+          <i class="fa-solid fa-lock me-1"></i>Password
+        </label>
+
+        <input type="radio" class="btn-check" name="loginMode" id="mode-pin" autocomplete="off"
+          [checked]="loginMode() === 'pin'" (change)="loginMode.set('pin')">
+        <label class="btn toggle-btn" for="mode-pin">
+          <i class="fa-solid fa-hashtag me-1"></i>PIN
+        </label>
+      </div>
     </div>
 
-    <mat-card-content class="form-content">
+    <div class="form-content">
       <!-- Username/Password Login Form -->
       <form *ngIf="loginMode() === 'password'" [formGroup]="loginForm" (ngSubmit)="onPasswordSubmit()"
         class="login-form">
 
-        <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
-          <input matInput formControlName="username" placeholder="e.g. admin" autocomplete="username">
-          <mat-error *ngIf="loginForm.get('username')?.hasError('required')">Username is required</mat-error>
-        </mat-form-field>
+        <div class="form-group-custom">
+          <label class="form-label-custom">Username</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-user input-icon"></i>
+            <input type="text" class="form-control custom-input" formControlName="username" placeholder="e.g. admin"
+              autocomplete="username">
+          </div>
+          <div class="error-text" *ngIf="loginForm.get('username')?.invalid && loginForm.get('username')?.touched">
+            Username is required
+          </div>
+        </div>
 
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
-            autocomplete="current-password">
-          <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
-            <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
-          </button>
-          <mat-error *ngIf="loginForm.get('password')?.hasError('required')">Password is required</mat-error>
-        </mat-form-field>
+        <div class="form-group-custom">
+          <label class="form-label-custom">Password</label>
+          <div class="input-with-icon">
+            <i class="fa-solid fa-key input-icon"></i>
+            <input [type]="hidePassword() ? 'password' : 'text'" class="form-control custom-input"
+              formControlName="password" autocomplete="current-password">
+            <button type="button" class="input-suffix-btn" (click)="hidePassword.set(!hidePassword())" tabindex="-1"
+              aria-label="Toggle password visibility">
+              <i class="fa-solid" [ngClass]="hidePassword() ? 'fa-eye-slash' : 'fa-eye'"></i>
+            </button>
+          </div>
+          <div class="error-text" *ngIf="loginForm.get('password')?.invalid && loginForm.get('password')?.touched">
+            Password is required
+          </div>
+        </div>
 
-        <button mat-raised-button color="primary" type="submit" class="submit-btn"
-          [disabled]="loginForm.invalid || loading()">
-          <span *ngIf="!loading()">Login</span>
-          <span *ngIf="loading()">Logging in...</span>
+        <button type="submit" class="submit-btn" [disabled]="loginForm.invalid || loading()">
+          <span *ngIf="!loading()"><i class="fa-solid fa-right-to-bracket me-2"></i>Login</span>
+          <span *ngIf="loading()"><span class="spinner-border spinner-border-sm me-2"></span>Logging in...</span>
         </button>
       </form>
 
       <!-- PIN Code Login Pad -->
       <div *ngIf="loginMode() === 'pin'" class="pin-form">
-        <p class="pin-instruction">Enter your 4-6 digit login PIN code</p>
+        <p class="pin-instruction"><i class="fa-solid fa-circle-info me-1"></i>Enter your 4-6 digit login PIN code</p>
         <app-numeric-pad [maxLength]="6" (pinEntered)="onPINEntered($event)"></app-numeric-pad>
       </div>
-    </mat-card-content>
-  </mat-card>
+    </div>
+  </div>
 </div>
