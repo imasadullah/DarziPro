@@ -1,20 +1,249 @@
+/* =========================================================
+   LOGIN CONTAINER + BACKGROUND
+   ========================================================= */
 .login-container {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: var(--bg-color);
   padding: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, var(--bg-color, #f4f1ea) 0%, #e9e3d5 100%);
 }
 
+.bg-animation {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Faint woven-fabric texture behind everything */
+.bg-animation::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(0, 0, 0, 0.02) 0, rgba(0, 0, 0, 0.02) 2px, transparent 2px, transparent 12px),
+    repeating-linear-gradient(-45deg, rgba(0, 0, 0, 0.02) 0, rgba(0, 0, 0, 0.02) 2px, transparent 2px, transparent 12px);
+}
+
+/* ---------- Stitched thread lines top & bottom ---------- */
+.stitch-line {
+  position: absolute;
+  left: -5%;
+  width: 110%;
+  height: 2px;
+  background-image: repeating-linear-gradient(90deg,
+      var(--primary-color, #b5442e) 0,
+      var(--primary-color, #b5442e) 10px,
+      transparent 10px,
+      transparent 20px);
+  background-size: 40px 2px;
+  opacity: 0.35;
+  animation: stitch-move 3s linear infinite;
+}
+
+.stitch-top {
+  top: 40px;
+  transform: rotate(-1.2deg);
+}
+
+.stitch-bottom {
+  bottom: 40px;
+  transform: rotate(1.2deg);
+  animation-direction: reverse;
+}
+
+@keyframes stitch-move {
+  from {
+    background-position: 0 0;
+  }
+
+  to {
+    background-position: 40px 0;
+  }
+}
+
+/* ---------- Floating tailoring icons ---------- */
+.floating-icon {
+  position: absolute;
+  color: var(--primary-color, #b5442e);
+  opacity: 0.12;
+  animation: drift 14s ease-in-out infinite;
+}
+
+.icon-1 {
+  top: 12%;
+  left: 8%;
+  font-size: 46px;
+  animation-duration: 16s;
+  animation-delay: 0s;
+}
+
+.icon-2 {
+  top: 68%;
+  left: 12%;
+  font-size: 34px;
+  animation-duration: 18s;
+  animation-delay: 1.5s;
+}
+
+.icon-3 {
+  top: 20%;
+  right: 10%;
+  font-size: 40px;
+  animation-duration: 20s;
+  animation-delay: 0.8s;
+}
+
+.icon-4 {
+  top: 80%;
+  right: 16%;
+  font-size: 26px;
+  animation-duration: 13s;
+  animation-delay: 2.2s;
+}
+
+.icon-5 {
+  top: 45%;
+  left: 5%;
+  font-size: 22px;
+  animation-duration: 12s;
+  animation-delay: 3s;
+}
+
+.icon-6 {
+  top: 8%;
+  right: 22%;
+  font-size: 28px;
+  animation-duration: 17s;
+  animation-delay: 1s;
+  transform: rotate(25deg);
+}
+
+.icon-7 {
+  bottom: 10%;
+  left: 30%;
+  font-size: 30px;
+  animation-duration: 15s;
+  animation-delay: 2.6s;
+}
+
+.icon-8 {
+  bottom: 22%;
+  right: 6%;
+  font-size: 38px;
+  animation-duration: 19s;
+  animation-delay: 0.4s;
+}
+
+@keyframes drift {
+
+  0%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+
+  25% {
+    transform: translate(14px, -18px) rotate(8deg);
+  }
+
+  50% {
+    transform: translate(-10px, 10px) rotate(-6deg);
+  }
+
+  75% {
+    transform: translate(10px, 16px) rotate(4deg);
+  }
+}
+
+/* ---------- Sewing needle traveling along a dashed track ---------- */
+.needle-track {
+  position: absolute;
+  top: 50%;
+  left: -60px;
+  width: calc(100% + 120px);
+  height: 1px;
+  border-top: 2px dashed rgba(181, 68, 46, 0.18);
+}
+
+.needle-wrap {
+  position: absolute;
+  top: -11px;
+  left: 0;
+  animation: needle-travel 9s linear infinite;
+}
+
+.needle {
+  display: block;
+  font-size: 20px;
+  color: var(--primary-color, #b5442e);
+  opacity: 0.28;
+  transform: rotate(90deg);
+  animation: needle-bob 0.6s ease-in-out infinite;
+}
+
+@keyframes needle-travel {
+  from {
+    left: -5%;
+  }
+
+  to {
+    left: 105%;
+  }
+}
+
+@keyframes needle-bob {
+
+  0%,
+  100% {
+    transform: rotate(90deg) translateY(0);
+  }
+
+  50% {
+    transform: rotate(90deg) translateY(6px);
+  }
+}
+
+/* =========================================================
+   LOGIN CARD
+   ========================================================= */
 .login-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
   max-width: 420px;
   border-radius: 16px;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-lg);
-  background-color: var(--surface-color);
-  padding: 32px 16px;
+  border: 1px solid var(--border-color, #e0dccf);
+  box-shadow: var(--shadow-lg, 0 20px 45px rgba(0, 0, 0, 0.12));
+  background-color: var(--surface-color, #ffffff);
+  padding: 32px 28px;
+  animation: card-in 0.5s ease-out;
+}
+
+/* stitched border effect around the card */
+.login-card::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border: 1px dashed rgba(181, 68, 46, 0.18);
+  border-radius: 10px;
+  pointer-events: none;
+}
+
+@keyframes card-in {
+  from {
+    opacity: 0;
+    transform: translateY(14px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .login-header {
@@ -22,52 +251,100 @@
   margin-bottom: 24px;
 }
 
-.scissors-icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
-  color: var(--primary-color);
+.icon-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(181, 68, 46, 0.12) 0%, rgba(181, 68, 46, 0.04) 100%);
   margin-bottom: 12px;
+}
+
+.scissors-icon {
+  font-size: 30px;
+  color: var(--primary-color, #b5442e);
+  animation: snip 3.5s ease-in-out infinite;
+  display: inline-block;
+  transform-origin: 60% 50%;
+}
+
+@keyframes snip {
+
+  0%,
+  85%,
+  100% {
+    transform: rotate(0deg);
+  }
+
+  90% {
+    transform: rotate(-16deg);
+  }
+
+  95% {
+    transform: rotate(6deg);
+  }
 }
 
 h1 {
   margin: 0 0 4px 0;
   font-size: 26px;
   font-weight: 700;
-  color: var(--text-color);
+  color: var(--text-color, #2b2b2b);
   letter-spacing: -0.02em;
 }
 
 .subtitle {
   margin: 0;
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-muted, #8a8578);
 }
 
+/* =========================================================
+   MODE TOGGLE (Bootstrap btn-check based segmented control)
+   ========================================================= */
 .mode-toggle {
   display: flex;
   justify-content: center;
   margin-bottom: 28px;
 }
 
-::ng-deep .mat-button-toggle-group {
-  border: 1px solid var(--border-color) !important;
-  border-radius: 8px !important;
+.toggle-group {
+  border: 1px solid var(--border-color, #e0dccf);
+  border-radius: 8px;
   overflow: hidden;
 }
 
-::ng-deep .mat-button-toggle {
-  background-color: var(--surface-color);
-  color: var(--text-muted);
+.toggle-btn {
+  background-color: var(--surface-color, #ffffff);
+  color: var(--text-muted, #8a8578);
   font-size: 13px;
   font-weight: 600;
+  border: none;
+  border-radius: 0 !important;
+  padding: 8px 20px;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-::ng-deep .mat-button-toggle-checked {
-  background-color: var(--primary-color) !important;
-  color: white !important;
+.toggle-btn:hover {
+  background-color: rgba(181, 68, 46, 0.06);
 }
 
+.btn-check:checked+.toggle-btn {
+  background-color: var(--primary-color, #b5442e) !important;
+  color: #fff !important;
+}
+
+.btn-check:focus+.toggle-btn {
+  box-shadow: none;
+  outline: 2px solid rgba(181, 68, 46, 0.35);
+  outline-offset: -2px;
+}
+
+/* =========================================================
+   FORM
+   ========================================================= */
 .form-content {
   min-height: 280px;
 }
@@ -75,34 +352,128 @@ h1 {
 .login-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-mat-form-field {
+.form-group-custom {
   width: 100%;
 }
 
+.form-label-custom {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-muted, #8a8578);
+  margin-bottom: 6px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 14px;
+  font-size: 14px;
+  color: var(--text-muted, #8a8578);
+  pointer-events: none;
+}
+
+.custom-input.form-control {
+  height: 46px;
+  padding-left: 40px;
+  padding-right: 40px;
+  border-radius: 10px;
+  border: 1px solid var(--border-color, #e0dccf);
+  background-color: var(--bg-color, #f9f7f2);
+  color: var(--text-color, #2b2b2b);
+  font-size: 14px;
+}
+
+.custom-input.form-control:focus {
+  border-color: var(--primary-color, #b5442e);
+  box-shadow: 0 0 0 3px rgba(181, 68, 46, 0.12);
+  background-color: var(--surface-color, #ffffff);
+}
+
+.input-suffix-btn {
+  position: absolute;
+  right: 10px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted, #8a8578);
+  font-size: 14px;
+  padding: 6px;
+  cursor: pointer;
+}
+
+.input-suffix-btn:hover {
+  color: var(--primary-color, #b5442e);
+}
+
+.error-text {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #c0392b;
+}
+
 .submit-btn {
-  margin-top: 16px;
+  margin-top: 6px;
   height: 48px;
   font-size: 15px;
   font-weight: 600;
   border-radius: 10px;
-  background-color: var(--primary-color) !important;
-  color: white !important;
+  background-color: var(--primary-color, #b5442e);
+  color: #fff;
+  border: none;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: filter 0.15s ease, transform 0.1s ease;
+}
+
+.submit-btn:hover:not(:disabled) {
+  filter: brightness(1.06);
+}
+
+.submit-btn:active:not(:disabled) {
+  transform: translateY(1px);
 }
 
 .submit-btn:disabled {
-  background-color: var(--border-color) !important;
-  color: var(--text-muted) !important;
+  background-color: var(--border-color, #e0dccf);
+  color: var(--text-muted, #8a8578);
+  cursor: not-allowed;
 }
 
+/* =========================================================
+   PIN FORM
+   ========================================================= */
 .pin-form {
   text-align: center;
 }
 
 .pin-instruction {
   font-size: 13px;
-  color: var(--text-muted);
+  color: var(--text-muted, #8a8578);
   margin: 0 0 20px 0;
+}
+
+/* =========================================================
+   REDUCED MOTION SUPPORT
+   ========================================================= */
+@media (prefers-reduced-motion: reduce) {
+
+  .floating-icon,
+  .needle-wrap,
+  .needle,
+  .stitch-line,
+  .scissors-icon,
+  .login-card {
+    animation: none !important;
+  }
 }
