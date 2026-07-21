@@ -1,0 +1,15 @@
+<div class="toast-stack" aria-live="polite" aria-atomic="true">
+    <div *ngFor="let toast of toastService.toasts()" class="toast-item" [class.leaving]="toast.leaving"
+        [ngClass]="'toast-' + toast.type">
+
+        <i class="fa-solid toast-icon" [ngClass]="iconFor(toast.type)"></i>
+
+        <span class="toast-message">{{ toast.message }}</span>
+
+        <button type="button" class="toast-close" (click)="dismiss(toast.id)" aria-label="Dismiss">
+            <i class="fa-solid fa-xmark"></i>
+        </button>
+
+        <div class="toast-progress" [style.animationDuration.ms]="toast.duration"></div>
+    </div>
+</div>

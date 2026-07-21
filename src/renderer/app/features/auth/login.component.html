@@ -90,7 +90,7 @@
       <!-- PIN Code Login Pad -->
       <div *ngIf="loginMode() === 'pin'" class="pin-form">
         <p class="pin-instruction"><i class="fa-solid fa-circle-info me-1"></i>Enter your 4-6 digit login PIN code</p>
-        <app-numeric-pad [maxLength]="6" (pinEntered)="onPINEntered($event)"></app-numeric-pad>
+        <app-numeric-pad #pinPad [maxLength]="6" (pinEntered)="onPINEntered($event)"></app-numeric-pad>
       </div>
     </div>
   </div>
