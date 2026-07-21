@@ -1,12 +1,15 @@
 <div class="pinpad-container">
+  <!-- Invisible keystroke catcher: always focused, never shows/stores the typed digit -->
+  <input #hiddenInput class="pin-hidden-input" type="text" inputmode="numeric" autocomplete="off" autocapitalize="off"
+    spellcheck="false" aria-hidden="true" tabindex="0" (keydown)="onHiddenKeydown($event)" (blur)="refocus()" />
+
   <!-- Numeric Indicators row -->
   <div class="pinpad-indicators">
-    <span 
-      *ngFor="let idx of [].constructor(maxLength); let i = index" 
-      class="pin-dot" 
-      [class.active]="i < length()">
+    <span *ngFor="let idx of [].constructor(maxLength); let i = index" class="pin-dot" [class.active]="i < length()">
     </span>
   </div>
+
+  <p class="keyboard-hint"><i class="fa-solid fa-keyboard me-1"></i>You can type the PIN on your keyboard too</p>
 
   <!-- Keypad grid -->
   <div class="pinpad-grid">
@@ -25,7 +28,7 @@
     <button type="button" class="pin-btn clear-btn" (click)="clear()">Clear</button>
     <button type="button" class="pin-btn" (click)="pressKey('0')">0</button>
     <button type="button" class="pin-btn delete-btn" (click)="deleteDigit()">
-      <mat-icon>backspace</mat-icon>
+      <i class="fa-solid fa-delete-left"></i>
     </button>
   </div>
 </div>
