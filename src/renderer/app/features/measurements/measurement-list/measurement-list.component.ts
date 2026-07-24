@@ -21,7 +21,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
@@ -37,6 +36,7 @@ import {
   getTypeBadgeClass
 } from '../measurement-templates';
 import { finalize } from 'rxjs/operators';
+import { ToastService } from '../../../shared/components/services/toast.service';
 
 // MeasurementRow is an alias; customer data comes from the joined relation on MeasurementModel
 type MeasurementRow = MeasurementModel;
@@ -57,7 +57,6 @@ type MeasurementRow = MeasurementModel;
     MatIconModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatSnackBarModule,
     MatMenuModule,
     MatChipsModule,
     MatDialogModule
@@ -70,7 +69,7 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject(MeasurementStoreService);
   private readonly measurementService = inject(MeasurementService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly templates = MEASUREMENT_TEMPLATES;
@@ -125,7 +124,7 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
             this.totalCount.set(res.data.total);
           }
         },
-        error: () => {}
+        error: () => { }
       });
   }
 
@@ -172,23 +171,14 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.success && res.data) {
-            this.snackBar.open('Measurement copied successfully.', 'Dismiss', {
-              duration: 3000,
-              panelClass: ['snack-success']
-            });
+            this.toast.success('Measurement copied successfully.', 3000);
             this.loadMeasurements();
           } else {
-            this.snackBar.open(res.error ?? 'Failed to copy measurement.', 'Dismiss', {
-              duration: 4000,
-              panelClass: ['snack-error']
-            });
+            this.toast.error(res.error ?? 'Failed to copy measurement.', 4000);
           }
         },
         error: (err) => {
-          this.snackBar.open(err.message ?? 'Failed to copy measurement.', 'Dismiss', {
-            duration: 4000,
-            panelClass: ['snack-error']
-          });
+          this.toast.error(err.message ?? 'Failed to copy measurement.', 4000);
         }
       });
   }
@@ -203,17 +193,11 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.snackBar.open('Measurement deleted.', 'Dismiss', {
-              duration: 3000,
-              panelClass: ['snack-success']
-            });
+            this.toast.success('Measurement deleted.', 3000)
             this.rows.update((list) => list.filter((m) => m.id !== id));
             this.totalCount.update((n) => Math.max(0, n - 1));
           } else {
-            this.snackBar.open(res.error ?? 'Failed to delete measurement.', 'Dismiss', {
-              duration: 4000,
-              panelClass: ['snack-error']
-            });
+            this.toast.error(res.error ?? 'Failed to delete measurement.', 4000);
           }
         }
       });

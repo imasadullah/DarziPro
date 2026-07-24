@@ -19,7 +19,6 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
@@ -33,6 +32,9 @@ import {
   getTypeBadgeClass,
   getFieldLabel
 } from '../../measurements/measurement-templates';
+import { OrderStoreService } from '../../orders/store/order-store.service';
+import { OrderModel, GarmentType, OrderStatus, getGarmentLabel, getStatusColor } from '../../orders/models/order.model';
+import { ToastService } from '../../../shared/components/services/toast.service';
 
 @Component({
   selector: 'app-customer-detail',
@@ -47,7 +49,6 @@ import {
     MatCardModule,
     MatChipsModule,
     MatTooltipModule,
-    MatSnackBarModule,
     MatDividerModule
   ],
   templateUrl: './customer-detail.component.html',
@@ -60,7 +61,8 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   private readonly store = inject(CustomerStoreService);
   private readonly measurementStore = inject(MeasurementStoreService);
   private readonly measurementService = inject(MeasurementService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly orderStore = inject(OrderStoreService);
+  private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
@@ -71,6 +73,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
     if (id) {
       this.store.getCustomerById(id);
       this.measurementStore.loadByCustomer(id);
+      this.orderStore.loadByCustomer(id, { limit: 50, sortBy: 'created_at', sortDir: 'DESC' });
     } else {
       this.router.navigate(['/customers/list']);
     }
@@ -79,6 +82,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   ngOnDestroy(): void {
     this.store.clearSelectedCustomer();
     this.measurementStore.clearMeasurements();
+    this.orderStore.clearOrders();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -91,6 +95,10 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   // ── Measurement Store Proxies ─────────────────────────────────────────────────
   get measurements() { return this.measurementStore.measurements; }
   get measurementsLoading() { return this.measurementStore.loading; }
+
+  // ── Order Store Proxies ───────────────────────────────────────────────────────
+  get customerOrders() { return this.orderStore.orders; }
+  get customerOrdersLoading() { return this.orderStore.loading; }
 
   // ── Navigation ────────────────────────────────────────────────────────────────
   navigateToEdit(): void {
@@ -117,6 +125,17 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
     this.router.navigate(['/measurements', id]);
   }
 
+  navigateToNewOrder(): void {
+    const customer = this.store.selectedCustomer();
+    if (customer) {
+      this.router.navigate(['/orders/new'], { queryParams: { customerId: customer.id } });
+    }
+  }
+
+  navigateToOrder(id: number): void {
+    this.router.navigate(['/orders', id]);
+  }
+
   // ── Copy Measurement ──────────────────────────────────────────────────────────
   copyMeasurement(measurementId: number): void {
     this.copyingId.set(measurementId);
@@ -131,28 +150,36 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.success && res.data) {
-            this.snackBar.open('Measurement copied successfully.', 'Dismiss', {
-              duration: 3000,
-              panelClass: ['snack-success']
-            });
+            this.toast.success(`Measurement copied successfully.`, 3000);
             if (customer) {
               this.measurementStore.loadByCustomer(customer.id);
             }
             this.cdr.markForCheck();
           } else {
-            this.snackBar.open(res.error ?? 'Failed to copy measurement.', 'Dismiss', {
-              duration: 4000,
-              panelClass: ['snack-error']
-            });
+            this.toast.error(res.error ?? 'Failed to copy measurement.', 4000);
           }
         },
         error: (err) => {
-          this.snackBar.open(err.message ?? 'Failed to copy measurement.', 'Dismiss', {
-            duration: 4000,
-            panelClass: ['snack-error']
-          });
+          this.toast.error(err.message ?? 'Failed to copy measurement.', 4000);
         }
       });
+  }
+
+  // ── Order Helpers ─────────────────────────────────────────────────────────────
+  getGarmentLabel(type: GarmentType): string {
+    return getGarmentLabel(type);
+  }
+
+  getOrderStatusColor(status: OrderStatus): string {
+    return getStatusColor(status);
+  }
+
+  trackByOrder(_: number, order: OrderModel): number {
+    return order.id;
+  }
+
+  formatCurrency(amount: number): string {
+    return `Rs ${Number(amount).toLocaleString('en-PK')}`;
   }
 
   // ── Template Helpers ──────────────────────────────────────────────────────────

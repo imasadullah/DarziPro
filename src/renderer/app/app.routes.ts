@@ -28,6 +28,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'orders',
+    loadChildren: () => import('./features/orders/orders.routes').then(m => m.ORDER_ROUTES),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'settings',
     loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent),
     canActivate: [AuthGuard, RoleGuard],
@@ -38,3 +43,4 @@ export const routes: Routes = [
     redirectTo: 'dashboard'
   }
 ];
+

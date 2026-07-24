@@ -145,6 +145,20 @@ interface Window {
         measurementType?: MeasurementType
       ): Promise<ApiResponse<Measurement | null>>;
     };
+    orders: {
+      create(data: any): Promise<ApiResponse<any>>;
+      update(id: number, data: any): Promise<ApiResponse<any>>;
+      delete(id: number): Promise<ApiResponse>;
+      get(id: number): Promise<ApiResponse<any>>;
+      getAll(params?: any): Promise<ApiResponse<any>>;
+      getByCustomer(customerId: number, params?: any): Promise<ApiResponse<any>>;
+      changeStatus(id: number, status: string): Promise<ApiResponse<any>>;
+      markReady(id: number): Promise<ApiResponse<any>>;
+      markDelivered(id: number): Promise<ApiResponse<any>>;
+      cancel(id: number): Promise<ApiResponse<any>>;
+      search(query: string): Promise<ApiResponse<any>>;
+      getStats(): Promise<ApiResponse<any>>;
+    };
     system: {
       getSettings(): Promise<ApiResponse<Record<string, string>>>;
       saveSettings(settings: Record<string, string>): Promise<ApiResponse>;

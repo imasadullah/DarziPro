@@ -27,7 +27,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 import { MatAutocompleteModule } from '@angular/material/autocomplete';
 import { MatSelectModule } from '@angular/material/select';
@@ -46,6 +45,7 @@ import {
   getTemplate
 } from '../measurement-templates';
 import { MeasurementModel, MeasurementValueDto } from '../models/measurement.model';
+import { ToastService } from '../../../shared/components/services/toast.service';
 
 /** Validator: must be a non-negative number */
 function nonNegativeNumber(control: AbstractControl): ValidationErrors | null {
@@ -68,7 +68,6 @@ function nonNegativeNumber(control: AbstractControl): ValidationErrors | null {
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatCardModule,
     MatAutocompleteModule,
     MatSelectModule,
@@ -87,7 +86,7 @@ export class MeasurementFormComponent implements OnInit, OnDestroy {
   private readonly store = inject(MeasurementStoreService);
   private readonly measurementService = inject(MeasurementService);
   private readonly customerService = inject(CustomerService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
@@ -338,10 +337,7 @@ export class MeasurementFormComponent implements OnInit, OnDestroy {
           values
         },
         (m) => {
-          this.snackBar.open('Measurement updated successfully.', 'Dismiss', {
-            duration: 3000,
-            panelClass: ['snack-success']
-          });
+          this.toast.success('Measurement updated successfully.', 3000);
           this.router.navigate(['/measurements', m.id]);
         },
         (msg) => {
@@ -360,10 +356,7 @@ export class MeasurementFormComponent implements OnInit, OnDestroy {
           values
         },
         (m) => {
-          this.snackBar.open('Measurement saved successfully.', 'Dismiss', {
-            duration: 3000,
-            panelClass: ['snack-success']
-          });
+          this.toast.success('Measurement saved successfully.', 3000);
           this.router.navigate(['/measurements', m.id]);
         },
         (msg) => {

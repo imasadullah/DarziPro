@@ -1,0 +1,117 @@
+<app-layout-shell>
+  <div class="kanban-page">
+
+    <!-- ── Header ────────────────────────────────────────────────────────── -->
+    <div class="kanban-header">
+      <div class="kanban-header-left">
+        <button mat-icon-button (click)="navigateToList()" id="kanban-back-btn">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <div>
+          <h1 class="kanban-title">Kanban Board</h1>
+          <p class="kanban-subtitle">Drag orders between columns to update their status</p>
+        </div>
+      </div>
+      <button mat-flat-button color="primary" (click)="navigateToNew()" id="kanban-new-order-btn">
+        <mat-icon>add</mat-icon>
+        New Order
+      </button>
+    </div>
+
+    <!-- ── Loading ───────────────────────────────────────────────────────── -->
+    <div class="kanban-loading" *ngIf="loading()">
+      <mat-progress-spinner mode="indeterminate" diameter="36" color="primary" />
+      <span>Loading orders…</span>
+    </div>
+
+    <!-- ── Kanban Board ───────────────────────────────────────────────────── -->
+    <div class="kanban-board" *ngIf="!loading()" cdkDropListGroup>
+      <div *ngFor="let col of columns" class="kanban-column" [class]="col.colorClass">
+
+        <!-- Column Header -->
+        <div class="col-header">
+          <div class="col-header-left">
+            <span class="col-title">{{ col.label }}</span>
+            <span class="col-count">{{ col.orders.length }}</span>
+          </div>
+        </div>
+
+        <!-- Drop List -->
+        <div
+          class="col-body"
+          cdkDropList
+          [id]="getColumnListId(col)"
+          [cdkDropListData]="col.orders"
+          [cdkDropListConnectedTo]="getAllListIds()"
+          (cdkDropListDropped)="onDrop($event, col.status)">
+
+          <!-- Order Cards -->
+          <div
+            *ngFor="let order of col.orders"
+            class="order-card"
+            [class.card-overdue]="isOverdue(order)"
+            [class.card-due-today]="isDueToday(order)"
+            cdkDrag
+            [cdkDragData]="order"
+            (click)="navigateToOrder(order)"
+            [attr.id]="'kanban-card-' + order.id">
+
+            <!-- Drag Handle -->
+            <div class="drag-handle" cdkDragHandle>
+              <mat-icon>drag_indicator</mat-icon>
+            </div>
+
+            <!-- Card Header -->
+            <div class="card-top">
+              <span class="card-order-number">{{ order.orderNumber }}</span>
+              <span class="card-priority priority-{{ order.priority }}" *ngIf="order.priority !== 'normal'">
+                {{ order.priority }}
+              </span>
+            </div>
+
+            <!-- Customer Name -->
+            <div class="card-customer">
+              <mat-icon class="card-customer-icon">person</mat-icon>
+              <span>{{ order.customer?.fullName ?? '—' }}</span>
+            </div>
+
+            <!-- Garment -->
+            <div class="card-garment">
+              <mat-icon class="card-garment-icon">{{ getGarmentIcon(order.garmentType) }}</mat-icon>
+              <span>{{ getGarmentLabel(order.garmentType) }}</span>
+              <span class="card-qty" *ngIf="order.quantity > 1">×{{ order.quantity }}</span>
+            </div>
+
+            <!-- Footer: Delivery & Balance -->
+            <div class="card-footer">
+              <span class="card-delivery" [class.delivery-overdue]="isOverdue(order)" [class.delivery-today]="isDueToday(order)">
+                <mat-icon class="footer-icon">event</mat-icon>
+                {{ formatShortDate(order.deliveryDate) }}
+              </span>
+              <span class="card-balance" *ngIf="order.remainingAmount > 0">
+                <mat-icon class="footer-icon">account_balance_wallet</mat-icon>
+                {{ formatCurrency(order.remainingAmount) }}
+              </span>
+              <span class="card-paid" *ngIf="order.remainingAmount == 0">
+                <mat-icon class="footer-icon">check_circle</mat-icon>
+                Paid
+              </span>
+            </div>
+
+            <!-- Drag Placeholder -->
+            <div *cdkDragPlaceholder class="drag-placeholder"></div>
+
+          </div>
+
+          <!-- Empty Column -->
+          <div class="col-empty" *ngIf="col.orders.length === 0">
+            <mat-icon>inbox</mat-icon>
+            <span>No orders</span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+  </div>
+</app-layout-shell>
