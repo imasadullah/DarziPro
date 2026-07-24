@@ -3,7 +3,7 @@
 [x] Dashboard
 [x] Customers
 [x] Measurements
-[ ] Orders
+[x] Orders
 [ ] Payments
 [ ] Reports
 [ ] Settings

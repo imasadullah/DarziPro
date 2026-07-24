@@ -1,47 +1,97 @@
 <app-layout-shell>
   <div class="dashboard-container">
     <header class="dashboard-header">
-      <h1>Dashboard Overview</h1>
-      <p class="welcome-text">Logged in as: <strong>{{ authState.currentUser()?.fullName }}</strong></p>
+      <div class="dashboard-header-left">
+        <h1>Dashboard Overview</h1>
+        <p class="welcome-text">Welcome back, <strong>{{ authState.currentUser()?.fullName }}</strong></p>
+      </div>
+      <div class="dashboard-header-right">
+        <span class="header-date">{{ today | date:'EEEE, MMMM d, y' }}</span>
+      </div>
     </header>
 
-    <!-- KPI Card Grid -->
+    <!-- ── Order KPI Cards ─────────────────────────────────────────────────── -->
+    <div class="section-label">Orders at a Glance</div>
     <div class="kpi-grid">
-      <mat-card class="kpi-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar class="kpi-icon blue">people</mat-icon>
-          <mat-card-title>Total Customers</mat-card-title>
-          <mat-card-subtitle>Active Client Base</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="kpi-value">0</mat-card-content>
-      </mat-card>
 
-      <mat-card class="kpi-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar class="kpi-icon green">shopping_basket</mat-icon>
-          <mat-card-title>Active Orders</mat-card-title>
-          <mat-card-subtitle>Currently In Pipeline</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="kpi-value">0</mat-card-content>
-      </mat-card>
+      <div class="kpi-card kpi-total" (click)="navigateToOrders()" id="kpi-total-orders">
+        <div class="kpi-icon-wrap kpi-icon-blue">
+          <mat-icon>receipt_long</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value">
+            <span *ngIf="statsLoading()" class="kpi-loading">—</span>
+            <span *ngIf="!statsLoading()">{{ orderStats()?.totalOrders ?? 0 }}</span>
+          </div>
+          <div class="kpi-label">Total Orders</div>
+          <div class="kpi-sub">All time</div>
+        </div>
+        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
+      </div>
 
-      <mat-card class="kpi-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar class="kpi-icon yellow">monetization_on</mat-icon>
-          <mat-card-title>Revenue (Month)</mat-card-title>
-          <mat-card-subtitle>Total Income Tracked</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="kpi-value">Rs. 0.00</mat-card-content>
-      </mat-card>
+      <div class="kpi-card kpi-active" (click)="navigateToOrders('active')" id="kpi-active-orders">
+        <div class="kpi-icon-wrap kpi-icon-purple">
+          <mat-icon>pending_actions</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value">
+            <span *ngIf="statsLoading()" class="kpi-loading">—</span>
+            <span *ngIf="!statsLoading()">{{ orderStats()?.activeOrders ?? 0 }}</span>
+          </div>
+          <div class="kpi-label">Active Orders</div>
+          <div class="kpi-sub">In production</div>
+        </div>
+        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
+      </div>
 
-      <mat-card class="kpi-card">
-        <mat-card-header>
-          <mat-icon mat-card-avatar class="kpi-icon red">assignment_late</mat-icon>
-          <mat-card-title>Orders Due Today</mat-card-title>
-          <mat-card-subtitle>Immediate Actions Needed</mat-card-subtitle>
-        </mat-card-header>
-        <mat-card-content class="kpi-value">0</mat-card-content>
-      </mat-card>
+      <div class="kpi-card kpi-today" (click)="navigateToOrders('today')" id="kpi-due-today">
+        <div class="kpi-icon-wrap kpi-icon-amber">
+          <mat-icon>today</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value">
+            <span *ngIf="statsLoading()" class="kpi-loading">—</span>
+            <span *ngIf="!statsLoading()">{{ orderStats()?.dueToday ?? 0 }}</span>
+          </div>
+          <div class="kpi-label">Due Today</div>
+          <div class="kpi-sub">Need delivery</div>
+        </div>
+        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
+      </div>
+
+      <div class="kpi-card kpi-overdue" [class.kpi-overdue--active]="(orderStats()?.overdue ?? 0) > 0" id="kpi-overdue">
+        <div class="kpi-icon-wrap kpi-icon-red">
+          <mat-icon>warning_amber</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value">
+            <span *ngIf="statsLoading()" class="kpi-loading">—</span>
+            <span *ngIf="!statsLoading()">{{ orderStats()?.overdue ?? 0 }}</span>
+          </div>
+          <div class="kpi-label">Overdue</div>
+          <div class="kpi-sub">Past due date</div>
+        </div>
+        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
+      </div>
+
     </div>
+
+    <!-- ── Quick Actions ──────────────────────────────────────────────────── -->
+    <div class="section-label">Quick Actions</div>
+    <div class="quick-actions">
+      <button mat-flat-button color="primary" class="quick-btn" (click)="navigateToNewOrder()" id="quick-new-order">
+        <mat-icon>add_shopping_cart</mat-icon>
+        New Order
+      </button>
+      <button mat-stroked-button class="quick-btn" (click)="navigateToKanban()" id="quick-kanban">
+        <mat-icon>view_kanban</mat-icon>
+        Kanban Board
+      </button>
+      <button mat-stroked-button class="quick-btn" (click)="navigateToCustomers()" id="quick-customers">
+        <mat-icon>people</mat-icon>
+        Customers
+      </button>
+    </div>
+
   </div>
 </app-layout-shell>

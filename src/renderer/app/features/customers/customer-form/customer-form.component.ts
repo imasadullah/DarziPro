@@ -23,11 +23,11 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatCardModule } from '@angular/material/card';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
 import { CustomerStoreService } from '../store/customer-store.service';
+import { ToastService } from '../../../shared/components/services/toast.service';
 
 @Component({
   selector: 'app-customer-form',
@@ -41,7 +41,6 @@ import { CustomerStoreService } from '../store/customer-store.service';
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatCardModule
   ],
   templateUrl: './customer-form.component.html',
@@ -53,7 +52,7 @@ export class CustomerFormComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly fb = inject(FormBuilder);
   private readonly store = inject(CustomerStoreService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly isEditMode = signal<boolean>(false);
@@ -128,11 +127,8 @@ export class CustomerFormComponent implements OnInit, OnDestroy {
         this.customerId()!,
         formValue,
         (customer) => {
-          this.snackBar.open(
-            `${customer.fullName} updated successfully.`,
-            'Dismiss',
-            { duration: 3000, panelClass: ['snack-success'] }
-          );
+          this.toast.success(`${customer.fullName} updated successfully.`, 3000);
+
           this.router.navigate(['/customers', customer.id]);
         },
         (msg) => this.serverError.set(msg)
@@ -143,11 +139,7 @@ export class CustomerFormComponent implements OnInit, OnDestroy {
       this.store.createCustomer(
         formValue,
         (customer) => {
-          this.snackBar.open(
-            `${customer.fullName} (${customer.customerCode}) added successfully.`,
-            'Dismiss',
-            { duration: 3000, panelClass: ['snack-success'] }
-          );
+          this.toast.success(`${customer.fullName} (${customer.customerCode}) added successfully.`, 3000);
           this.router.navigate(['/customers/list']);
         },
         (msg) => this.serverError.set(msg)

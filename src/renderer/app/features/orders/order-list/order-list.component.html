@@ -1,0 +1,223 @@
+<app-layout-shell>
+  <div class="page-container">
+
+    <!-- ── Page Header ──────────────────────────────────────────────────────── -->
+    <div class="page-header">
+      <div class="page-header-left">
+        <h1 class="page-title">Orders</h1>
+        <span class="total-badge" *ngIf="!loading()">{{ totalCount() }} orders</span>
+      </div>
+      <div class="page-header-right">
+        <button mat-stroked-button class="view-toggle-btn" (click)="navigateToKanban()" id="kanban-view-btn">
+          <mat-icon>view_kanban</mat-icon>
+          Kanban View
+        </button>
+        <button mat-flat-button color="primary" class="new-order-btn" (click)="navigateToNew()" id="new-order-btn">
+          <mat-icon>add</mat-icon>
+          New Order
+        </button>
+      </div>
+    </div>
+
+    <!-- ── Filters Bar ────────────────────────────────────────────────────── -->
+    <div class="filters-bar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search orders…</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchControl" placeholder="Order number, customer name, phone" id="order-search-input" />
+        <button *ngIf="searchControl.value" matSuffix mat-icon-button (click)="searchControl.setValue('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Status</mat-label>
+        <mat-select [value]="statusFilter()" (selectionChange)="setStatusFilter($event.value)" id="status-filter">
+          <mat-option [value]="null">All Statuses</mat-option>
+          <mat-option *ngFor="let s of ORDER_STATUSES" [value]="s">{{ s }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Garment</mat-label>
+        <mat-select [value]="garmentTypeFilter()" (selectionChange)="setGarmentFilter($event.value)" id="garment-filter">
+          <mat-option [value]="null">All Garments</mat-option>
+          <mat-option *ngFor="let g of GARMENT_TYPE_OPTIONS" [value]="g.value">{{ g.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Priority</mat-label>
+        <mat-select [value]="priorityFilter()" (selectionChange)="setPriorityFilter($event.value)" id="priority-filter">
+          <mat-option [value]="null">All Priorities</mat-option>
+          <mat-option *ngFor="let p of ORDER_PRIORITY_OPTIONS" [value]="p.value">{{ p.label }}</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <button *ngIf="hasActiveFilters" mat-icon-button class="clear-filters-btn" (click)="clearFilters()" matTooltip="Clear all filters">
+        <mat-icon>filter_alt_off</mat-icon>
+      </button>
+    </div>
+
+    <!-- ── Sort Bar ──────────────────────────────────────────────────────── -->
+    <div class="sort-bar">
+      <span class="sort-label">Sort by:</span>
+      <button mat-button class="sort-btn" (click)="setSort('created_at')" id="sort-created">
+        Order Date
+        <mat-icon>swap_vert</mat-icon>
+      </button>
+      <button mat-button class="sort-btn" (click)="setSort('deliveryDate')" id="sort-delivery">
+        Delivery Date
+        <mat-icon>swap_vert</mat-icon>
+      </button>
+    </div>
+
+    <!-- ── Loading ────────────────────────────────────────────────────────── -->
+    <div class="loading-overlay" *ngIf="loading()">
+      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
+      <span>Loading orders…</span>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────────────────────────── -->
+    <div class="error-state" *ngIf="error() && !loading()">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="store.loadOrders()">Retry</button>
+    </div>
+
+    <!-- ── Empty State ────────────────────────────────────────────────────── -->
+    <div class="empty-state" *ngIf="!loading() && !error() && orders().length === 0">
+      <div class="empty-icon-wrap">
+        <mat-icon class="empty-icon">receipt_long</mat-icon>
+      </div>
+      <h3>No orders found</h3>
+      <p *ngIf="hasActiveFilters">Try adjusting your search or filters.</p>
+      <p *ngIf="!hasActiveFilters">Create your first order to get started.</p>
+      <button *ngIf="!hasActiveFilters" mat-flat-button color="primary" (click)="navigateToNew()">
+        <mat-icon>add</mat-icon>
+        New Order
+      </button>
+      <button *ngIf="hasActiveFilters" mat-stroked-button (click)="clearFilters()">
+        Clear Filters
+      </button>
+    </div>
+
+    <!-- ── Orders Table ───────────────────────────────────────────────────── -->
+    <div class="table-wrapper" *ngIf="!loading() && !error() && orders().length > 0">
+      <table mat-table [dataSource]="orders()" class="orders-table">
+
+        <!-- Order Number Column -->
+        <ng-container matColumnDef="orderNumber">
+          <th mat-header-cell *matHeaderCellDef>Order #</th>
+          <td mat-cell *matCellDef="let order">
+            <div class="order-number-cell">
+              <span class="order-number">{{ order.orderNumber }}</span>
+              <span class="overdue-dot" *ngIf="isOverdue(order)" matTooltip="Overdue"></span>
+              <span class="due-today-dot" *ngIf="isDueToday(order)" matTooltip="Due Today"></span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Customer Column -->
+        <ng-container matColumnDef="customer">
+          <th mat-header-cell *matHeaderCellDef>Customer</th>
+          <td mat-cell *matCellDef="let order">
+            <div class="customer-cell">
+              <span class="customer-name">{{ order.customer?.fullName ?? '—' }}</span>
+              <span class="customer-phone">{{ order.customer?.phoneNumber ?? '' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Garment Type Column -->
+        <ng-container matColumnDef="garmentType">
+          <th mat-header-cell *matHeaderCellDef>Garment</th>
+          <td mat-cell *matCellDef="let order">
+            <span class="garment-chip">{{ getGarmentLabel(order.garmentType) }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Quantity Column -->
+        <ng-container matColumnDef="quantity">
+          <th mat-header-cell *matHeaderCellDef>Qty</th>
+          <td mat-cell *matCellDef="let order">
+            <span class="qty-badge">{{ order.quantity }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Status Column -->
+        <ng-container matColumnDef="status">
+          <th mat-header-cell *matHeaderCellDef>Status</th>
+          <td mat-cell *matCellDef="let order">
+            <div class="status-group">
+              <span class="status-chip" [ngClass]="getStatusColor(order.status)">{{ order.status }}</span>
+              <span class="priority-badge" [ngClass]="getPriorityColor(order.priority)"
+                *ngIf="order.priority !== 'normal'">{{ order.priority }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Delivery Date Column -->
+        <ng-container matColumnDef="deliveryDate">
+          <th mat-header-cell *matHeaderCellDef>Delivery</th>
+          <td mat-cell *matCellDef="let order">
+            <span class="delivery-date" [class.overdue-date]="isOverdue(order)" [class.due-today-date]="isDueToday(order)">
+              {{ formatDate(order.deliveryDate) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Remaining Balance Column -->
+        <ng-container matColumnDef="remaining">
+          <th mat-header-cell *matHeaderCellDef>Balance</th>
+          <td mat-cell *matCellDef="let order">
+            <span class="balance-amount" [class.balance-due]="order.remainingAmount > 0" [class.balance-clear]="order.remainingAmount == 0">
+              {{ formatCurrency(order.remainingAmount) }}
+            </span>
+          </td>
+        </ng-container>
+
+        <!-- Actions Column -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let order" class="actions-cell">
+            <button mat-icon-button matTooltip="View Details" (click)="navigateToDetail(order); $event.stopPropagation()" [id]="'view-order-' + order.id">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Edit Order" (click)="navigateToEdit(order, $event)" [id]="'edit-order-' + order.id">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button matTooltip="Delete Order" color="warn"
+              (click)="deleteOrder(order, $event)"
+              [disabled]="deletingId() === order.id"
+              [id]="'delete-order-' + order.id">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr mat-row *matRowDef="let order; columns: displayedColumns;"
+          class="order-row"
+          [class.row-overdue]="isOverdue(order)"
+          [class.row-delivered]="order.status === 'Delivered'"
+          [class.row-cancelled]="order.status === 'Cancelled'"
+          (click)="navigateToDetail(order)"
+          [attr.id]="'order-row-' + order.id">
+        </tr>
+      </table>
+
+      <!-- Paginator -->
+      <mat-paginator
+        [length]="totalCount()"
+        [pageSize]="pageSize()"
+        [pageIndex]="page() - 1"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons
+        class="table-paginator">
+      </mat-paginator>
+    </div>
+
+  </div>
+</app-layout-shell>

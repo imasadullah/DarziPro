@@ -1,0 +1,248 @@
+<app-layout-shell>
+  <div class="page-container">
+
+    <!-- ── Loading ────────────────────────────────────────────────────────── -->
+    <div class="loading-overlay" *ngIf="loading()">
+      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
+      <span>Loading order…</span>
+    </div>
+
+    <!-- ── Error ──────────────────────────────────────────────────────────── -->
+    <div class="error-state" *ngIf="error() && !loading()">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="navigateBack()">Back to Orders</button>
+    </div>
+
+    <ng-container *ngIf="!loading() && !error() && order() as o">
+
+      <!-- ── Page Nav ────────────────────────────────────────────────────── -->
+      <div class="page-nav">
+        <button mat-icon-button class="back-btn" (click)="navigateBack()" id="back-to-orders">
+          <mat-icon>arrow_back</mat-icon>
+        </button>
+        <span class="breadcrumb">
+          <a class="breadcrumb-link" (click)="navigateBack()">Orders</a>
+          <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+          <span class="breadcrumb-current">{{ o.orderNumber }}</span>
+        </span>
+      </div>
+
+      <!-- ── Order Header ────────────────────────────────────────────────── -->
+      <div class="order-header">
+        <div class="order-header-left">
+          <div class="order-number-wrap">
+            <span class="order-number">{{ o.orderNumber }}</span>
+            <span class="status-chip" [ngClass]="getStatusColor(o.status)">{{ o.status }}</span>
+            <span class="priority-badge" [ngClass]="getPriorityColor(o.priority)" *ngIf="o.priority !== 'normal'">
+              {{ o.priority | titlecase }}
+            </span>
+            <span class="overdue-badge" *ngIf="isOverdue()">⚠ Overdue</span>
+            <span class="due-today-badge" *ngIf="isDueToday()">Due Today</span>
+          </div>
+          <p class="order-dates">
+            Placed {{ formatShortDate(o.orderDate) }} · Deliver by <strong [class.overdue-text]="isOverdue()">{{ formatDate(o.deliveryDate) }}</strong>
+          </p>
+        </div>
+
+        <div class="order-header-actions">
+          <button mat-stroked-button (click)="navigateToEdit()" [disabled]="!isEditable(o.status)" id="edit-order-btn">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+
+          <button mat-flat-button color="primary" [matMenuTriggerFor]="statusMenu" id="change-status-btn"
+            [disabled]="o.status === 'Delivered' || o.status === 'Cancelled'">
+            <mat-icon>update</mat-icon>
+            Change Status
+            <mat-icon>arrow_drop_down</mat-icon>
+          </button>
+          <mat-menu #statusMenu="matMenu">
+            <button mat-menu-item *ngFor="let s of ALL_STATUSES"
+              [disabled]="s === o.status || s === 'Cancelled'"
+              (click)="changeStatus(s)"
+              [attr.id]="'status-to-' + s">
+              <span class="status-option" [ngClass]="getStatusColor(s)">{{ s }}</span>
+            </button>
+          </mat-menu>
+
+          <button mat-stroked-button color="warn" (click)="cancelOrder()" id="cancel-order-btn"
+            *ngIf="o.status !== 'Cancelled' && o.status !== 'Delivered'">
+            <mat-icon>cancel</mat-icon>
+            Cancel
+          </button>
+        </div>
+      </div>
+
+      <!-- ── Main Content Grid ───────────────────────────────────────────── -->
+      <div class="content-grid">
+
+        <!-- LEFT COLUMN -->
+        <div class="left-column">
+
+          <!-- ── Customer Card ─────────────────────────────────────────── -->
+          <div class="info-card">
+            <div class="card-header">
+              <mat-icon>person</mat-icon>
+              <h3>Customer</h3>
+            </div>
+            <div class="customer-block" (click)="navigateToCustomer()" style="cursor:pointer" matTooltip="View customer profile">
+              <div class="customer-avatar">{{ getInitials(o.customer?.fullName ?? 'C') }}</div>
+              <div class="customer-details">
+                <span class="cust-name">{{ o.customer?.fullName ?? '—' }}</span>
+                <span class="cust-phone">
+                  <mat-icon class="inline-icon">phone</mat-icon>
+                  {{ o.customer?.phoneNumber ?? '—' }}
+                </span>
+                <span class="cust-address" *ngIf="o.customer?.address">
+                  <mat-icon class="inline-icon">place</mat-icon>
+                  {{ o.customer?.address }}
+                </span>
+              </div>
+              <mat-icon class="nav-arrow">chevron_right</mat-icon>
+            </div>
+          </div>
+
+          <!-- ── Order Info Card ─────────────────────────────────────── -->
+          <div class="info-card">
+            <div class="card-header">
+              <mat-icon>receipt_long</mat-icon>
+              <h3>Order Details</h3>
+            </div>
+            <div class="detail-grid">
+              <div class="detail-item">
+                <span class="detail-label">Garment</span>
+                <span class="detail-value">
+                  <mat-icon class="inline-icon">{{ getGarmentIcon(o.garmentType) }}</mat-icon>
+                  {{ getGarmentLabel(o.garmentType) }}
+                </span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Quantity</span>
+                <span class="detail-value">{{ o.quantity }} piece{{ o.quantity > 1 ? 's' : '' }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Order Date</span>
+                <span class="detail-value">{{ formatShortDate(o.orderDate) }}</span>
+              </div>
+              <div class="detail-item">
+                <span class="detail-label">Priority</span>
+                <span class="detail-value priority-{{ o.priority }}">{{ o.priority | titlecase }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Measurements Card ───────────────────────────────────── -->
+          <div class="info-card" *ngIf="o.measurement">
+            <div class="card-header">
+              <mat-icon>straighten</mat-icon>
+              <h3>Measurements</h3>
+              <span class="card-badge">{{ getMeasurementTypeLabel(o.measurement.measurementType) }}</span>
+            </div>
+            <div class="measurement-values-grid">
+              <div class="mv-item" *ngFor="let v of getMeasurementValues()">
+                <span class="mv-label">{{ v.label }}</span>
+                <span class="mv-value">{{ v.value }}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- ── Notes Card ──────────────────────────────────────────── -->
+          <div class="info-card" *ngIf="o.stitchingNotes || o.fabricNotes || o.specialInstructions">
+            <div class="card-header">
+              <mat-icon>notes</mat-icon>
+              <h3>Notes</h3>
+            </div>
+            <div class="notes-section" *ngIf="o.stitchingNotes">
+              <span class="note-label">Stitching Notes</span>
+              <p class="note-text">{{ o.stitchingNotes }}</p>
+            </div>
+            <div class="notes-section" *ngIf="o.fabricNotes">
+              <span class="note-label">Fabric Notes</span>
+              <p class="note-text">{{ o.fabricNotes }}</p>
+            </div>
+            <div class="notes-section" *ngIf="o.specialInstructions">
+              <span class="note-label">Special Instructions</span>
+              <p class="note-text">{{ o.specialInstructions }}</p>
+            </div>
+          </div>
+
+        </div>
+
+        <!-- RIGHT COLUMN -->
+        <div class="right-column">
+
+          <!-- ── Pricing Card ─────────────────────────────────────────── -->
+          <div class="info-card pricing-card">
+            <div class="card-header">
+              <mat-icon>payments</mat-icon>
+              <h3>Payment Summary</h3>
+            </div>
+            <div class="pricing-row">
+              <span>Total Amount</span>
+              <span class="pricing-total">{{ formatCurrency(o.totalAmount) }}</span>
+            </div>
+            <div class="pricing-row">
+              <span>Advance Paid</span>
+              <span class="pricing-advance">{{ formatCurrency(o.advanceAmount) }}</span>
+            </div>
+            <mat-divider class="pricing-divider"></mat-divider>
+            <div class="pricing-row pricing-balance-row">
+              <span class="pricing-balance-label">Remaining Balance</span>
+              <span class="pricing-balance" [class.balance-zero]="o.remainingAmount == 0">
+                {{ formatCurrency(o.remainingAmount) }}
+              </span>
+            </div>
+          </div>
+
+          <!-- ── Status Timeline ──────────────────────────────────────── -->
+          <div class="info-card">
+            <div class="card-header">
+              <mat-icon>timeline</mat-icon>
+              <h3>Status Timeline</h3>
+            </div>
+
+            <div class="timeline" [class.timeline-cancelled]="o.status === 'Cancelled'">
+              <div
+                *ngFor="let step of STATUS_TIMELINE; let i = index"
+                class="timeline-step"
+                [class.step-completed]="isStepCompleted(step)"
+                [class.step-active]="isStepActive(step)"
+                [class.step-pending]="!isStepCompleted(step) && !isStepActive(step)">
+
+                <div class="step-connector" *ngIf="i > 0"></div>
+
+                <div class="step-node">
+                  <mat-icon *ngIf="isStepCompleted(step)">check</mat-icon>
+                  <mat-icon *ngIf="isStepActive(step)">radio_button_checked</mat-icon>
+                  <mat-icon *ngIf="!isStepCompleted(step) && !isStepActive(step)">radio_button_unchecked</mat-icon>
+                </div>
+
+                <div class="step-info">
+                  <span class="step-label">{{ step }}</span>
+                  <button
+                    *ngIf="canAdvanceTo(step)"
+                    mat-stroked-button
+                    class="advance-btn"
+                    (click)="changeStatus(step)"
+                    [attr.id]="'advance-to-' + step">
+                    <mat-icon>arrow_forward</mat-icon>
+                    Move to {{ step }}
+                  </button>
+                </div>
+              </div>
+
+              <!-- Cancelled state -->
+              <div class="cancelled-banner" *ngIf="o.status === 'Cancelled'">
+                <mat-icon>cancel</mat-icon>
+                Order Cancelled
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </ng-container>
+  </div>
+</app-layout-shell>

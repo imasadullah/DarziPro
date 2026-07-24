@@ -1,0 +1,401 @@
+/* ── Page Container ─────────────────────────────────────────────────────────── */
+.page-container {
+  padding: 32px;
+  max-width: 1400px;
+  margin: 0 auto;
+  min-height: 100%;
+}
+
+/* ── Page Header ─────────────────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+}
+
+.page-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.page-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0;
+  letter-spacing: -0.5px;
+}
+
+.total-badge {
+  background: #f1f5f9;
+  color: #64748b;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.page-header-right {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.view-toggle-btn {
+  border: 1.5px solid #e2e8f0;
+  color: #475569;
+  border-radius: 10px;
+  font-weight: 500;
+}
+
+.new-order-btn {
+  border-radius: 10px;
+  font-weight: 600;
+  letter-spacing: 0.3px;
+  padding: 0 20px;
+  height: 40px;
+}
+
+/* ── Filters Bar ──────────────────────────────────────────────────────────────── */
+.filters-bar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
+.search-field {
+  flex: 1;
+  min-width: 280px;
+}
+
+.filter-field {
+  min-width: 160px;
+}
+
+.clear-filters-btn {
+  color: #94a3b8;
+  transition: color 0.2s ease;
+}
+
+.clear-filters-btn:hover {
+  color: #dc2626;
+}
+
+/* ── Sort Bar ─────────────────────────────────────────────────────────────────── */
+.sort-bar {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 20px;
+}
+
+.sort-label {
+  font-size: 13px;
+  color: #94a3b8;
+  font-weight: 500;
+  margin-right: 4px;
+}
+
+.sort-btn {
+  font-size: 13px;
+  color: #475569;
+  border-radius: 8px;
+  height: 34px;
+  gap: 4px;
+}
+
+.sort-btn mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+}
+
+/* ── Loading / Error / Empty ─────────────────────────────────────────────────── */
+.loading-overlay {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  padding: 60px;
+  color: #64748b;
+  font-size: 14px;
+}
+
+.error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 48px;
+  color: #dc2626;
+  background: #fef2f2;
+  border-radius: 12px;
+  border: 1px solid #fecaca;
+}
+
+.error-state mat-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+}
+
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  padding: 80px 24px;
+  text-align: center;
+}
+
+.empty-icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 8px;
+}
+
+.empty-icon {
+  font-size: 40px;
+  width: 40px;
+  height: 40px;
+  color: #2563eb;
+}
+
+.empty-state h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #0f172a;
+  margin: 0;
+}
+
+.empty-state p {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── Table Wrapper ────────────────────────────────────────────────────────────── */
+.table-wrapper {
+  background: #ffffff;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+}
+
+.orders-table {
+  width: 100%;
+}
+
+/* Header */
+.orders-table .mat-mdc-header-row {
+  background: #f8fafc;
+  border-bottom: 1.5px solid #e2e8f0;
+}
+
+.orders-table .mat-mdc-header-cell {
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  padding: 14px 16px;
+}
+
+/* Rows */
+.order-row {
+  cursor: pointer;
+  transition: background 0.15s ease;
+}
+
+.order-row:hover {
+  background: #f8fafc;
+}
+
+.order-row.row-delivered {
+  opacity: 0.7;
+}
+
+.order-row.row-cancelled {
+  opacity: 0.5;
+  background: #fafafa;
+}
+
+.order-row.row-overdue {
+  background: #fff7f7;
+}
+
+.orders-table .mat-mdc-cell {
+  padding: 14px 16px;
+  font-size: 14px;
+  color: #0f172a;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* ── Cell Styles ──────────────────────────────────────────────────────────────── */
+.order-number-cell {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.order-number {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 13px;
+  font-weight: 600;
+  color: #2563eb;
+  letter-spacing: 0.3px;
+}
+
+.overdue-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #dc2626;
+  flex-shrink: 0;
+}
+
+.due-today-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #f59e0b;
+  flex-shrink: 0;
+}
+
+.customer-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.customer-name {
+  font-weight: 600;
+  color: #0f172a;
+  font-size: 14px;
+}
+
+.customer-phone {
+  font-size: 12px;
+  color: #94a3b8;
+}
+
+.garment-chip {
+  display: inline-block;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 6px;
+  padding: 3px 10px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+.qty-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #475569;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+/* ── Status Chips ─────────────────────────────────────────────────────────────── */
+.status-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.status-chip {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.status-pending    { background: #fef3c7; color: #92400e; }
+.status-cutting    { background: #dbeafe; color: #1e40af; }
+.status-stitching  { background: #ede9fe; color: #4c1d95; }
+.status-quality    { background: #fce7f3; color: #831843; }
+.status-ready      { background: #d1fae5; color: #065f46; }
+.status-delivered  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
+.status-cancelled  { background: #f1f5f9; color: #94a3b8; }
+
+/* ── Priority Badges ──────────────────────────────────────────────────────────── */
+.priority-badge {
+  display: inline-block;
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.priority-normal  { display: none; }
+.priority-urgent  { background: #fff7ed; color: #c2410c; }
+.priority-express { background: #fef2f2; color: #dc2626; }
+
+/* ── Delivery Date ────────────────────────────────────────────────────────────── */
+.delivery-date {
+  font-size: 13px;
+  color: #475569;
+}
+
+.overdue-date {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.due-today-date {
+  color: #d97706;
+  font-weight: 600;
+}
+
+/* ── Balance ──────────────────────────────────────────────────────────────────── */
+.balance-amount {
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.balance-due {
+  color: #dc2626;
+}
+
+.balance-clear {
+  color: #16a34a;
+}
+
+/* ── Actions ──────────────────────────────────────────────────────────────────── */
+.actions-cell {
+  width: 120px;
+}
+
+.actions-cell button {
+  width: 36px;
+  height: 36px;
+  line-height: 36px;
+}
+
+/* ── Paginator ────────────────────────────────────────────────────────────────── */
+.table-paginator {
+  border-top: 1px solid #e2e8f0;
+  background: #f8fafc;
+}

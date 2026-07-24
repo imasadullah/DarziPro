@@ -1,0 +1,343 @@
+/* ── Page Layout ─────────────────────────────────────────────────────────────── */
+.kanban-page {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+.kanban-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+  flex-shrink: 0;
+}
+
+.kanban-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.kanban-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 2px;
+  letter-spacing: -0.3px;
+}
+
+.kanban-subtitle {
+  font-size: 13px;
+  color: #94a3b8;
+  margin: 0;
+}
+
+.kanban-header button {
+  border-radius: 10px;
+  font-weight: 600;
+}
+
+/* ── Loading ──────────────────────────────────────────────────────────────────── */
+.kanban-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 40px;
+  color: #64748b;
+  justify-content: center;
+}
+
+/* ── Kanban Board ────────────────────────────────────────────────────────────── */
+.kanban-board {
+  display: flex;
+  gap: 16px;
+  padding: 20px 28px;
+  overflow-x: auto;
+  flex: 1;
+  align-items: flex-start;
+}
+
+/* ── Columns ──────────────────────────────────────────────────────────────────── */
+.kanban-column {
+  width: 280px;
+  min-width: 280px;
+  display: flex;
+  flex-direction: column;
+  border-radius: 14px;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+/* Column color themes */
+.col-pending   { background: #fffbeb; border: 1.5px solid #fde68a; }
+.col-cutting   { background: #eff6ff; border: 1.5px solid #bfdbfe; }
+.col-stitching { background: #f5f3ff; border: 1.5px solid #ddd6fe; }
+.col-quality   { background: #fdf2f8; border: 1.5px solid #fbcfe8; }
+.col-ready     { background: #f0fdf4; border: 1.5px solid #bbf7d0; }
+.col-delivered { background: #f8fafc; border: 1.5px solid #e2e8f0; }
+
+/* ── Column Header ───────────────────────────────────────────────────────────── */
+.col-header {
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.col-header-left {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.col-title {
+  font-size: 13px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.col-pending   .col-title { color: #92400e; }
+.col-cutting   .col-title { color: #1e40af; }
+.col-stitching .col-title { color: #5b21b6; }
+.col-quality   .col-title { color: #831843; }
+.col-ready     .col-title { color: #065f46; }
+.col-delivered .col-title { color: #475569; }
+
+.col-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 0 6px;
+}
+
+.col-pending   .col-count { background: #fde68a; color: #92400e; }
+.col-cutting   .col-count { background: #bfdbfe; color: #1e40af; }
+.col-stitching .col-count { background: #ddd6fe; color: #5b21b6; }
+.col-quality   .col-count { background: #fbcfe8; color: #831843; }
+.col-ready     .col-count { background: #bbf7d0; color: #065f46; }
+.col-delivered .col-count { background: #e2e8f0; color: #475569; }
+
+/* ── Column Body ──────────────────────────────────────────────────────────────── */
+.col-body {
+  padding: 0 12px 12px;
+  min-height: 100px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.col-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 16px;
+  color: #cbd5e1;
+  font-size: 13px;
+  border: 2px dashed #e2e8f0;
+  border-radius: 10px;
+  margin: 4px 0;
+}
+
+.col-empty mat-icon {
+  font-size: 24px;
+  width: 24px;
+  height: 24px;
+}
+
+/* ── Order Cards ─────────────────────────────────────────────────────────────── */
+.order-card {
+  background: #ffffff;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 10px;
+  padding: 12px 14px;
+  cursor: pointer;
+  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  position: relative;
+}
+
+.order-card:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  transform: translateY(-1px);
+  border-color: #93c5fd;
+}
+
+.order-card.card-overdue {
+  border-left: 3px solid #dc2626;
+  background: #fff5f5;
+}
+
+.order-card.card-due-today {
+  border-left: 3px solid #f59e0b;
+  background: #fffbeb;
+}
+
+/* Drag state */
+.cdk-drag-preview {
+  border-radius: 10px;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.15);
+  opacity: 0.95;
+}
+
+.cdk-drag-placeholder {
+  opacity: 0;
+}
+
+.drag-placeholder {
+  min-height: 80px;
+  background: #eff6ff;
+  border: 2px dashed #93c5fd;
+  border-radius: 10px;
+}
+
+.cdk-drag-animating {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+.col-body.cdk-drop-list-dragging .order-card:not(.cdk-drag-placeholder) {
+  transition: transform 250ms cubic-bezier(0, 0, 0.2, 1);
+}
+
+/* ── Card Content ────────────────────────────────────────────────────────────── */
+.drag-handle {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  color: #cbd5e1;
+  cursor: grab;
+  width: 20px;
+  height: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.drag-handle mat-icon { font-size: 16px; width: 16px; height: 16px; }
+.drag-handle:active { cursor: grabbing; }
+
+.card-top {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 8px;
+  margin-right: 24px;
+}
+
+.card-order-number {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 12px;
+  font-weight: 700;
+  color: #2563eb;
+  letter-spacing: 0.3px;
+}
+
+.card-priority {
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  padding: 1px 6px;
+  border-radius: 4px;
+}
+
+.priority-normal  { display: none; }
+.priority-urgent  { background: #fff7ed; color: #c2410c; }
+.priority-express { background: #fef2f2; color: #dc2626; }
+
+.card-customer {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+  margin-bottom: 6px;
+}
+
+.card-customer-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #94a3b8;
+}
+
+.card-garment {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 12px;
+  color: #64748b;
+  margin-bottom: 10px;
+}
+
+.card-garment-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  color: #94a3b8;
+}
+
+.card-qty {
+  background: #f1f5f9;
+  border-radius: 4px;
+  padding: 0 5px;
+  font-size: 11px;
+  font-weight: 600;
+  color: #475569;
+  margin-left: 4px;
+}
+
+/* ── Card Footer ─────────────────────────────────────────────────────────────── */
+.card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: 8px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.card-delivery, .card-balance, .card-paid {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+}
+
+.delivery-overdue {
+  color: #dc2626;
+  font-weight: 700;
+}
+
+.delivery-today {
+  color: #d97706;
+  font-weight: 700;
+}
+
+.card-balance {
+  color: #dc2626;
+  font-weight: 600;
+}
+
+.card-paid {
+  color: #16a34a;
+  font-weight: 600;
+}
+
+.footer-icon {
+  font-size: 13px;
+  width: 13px;
+  height: 13px;
+}

@@ -239,16 +239,63 @@
               Orders
             </ng-template>
             <div class="tab-content">
-              <div class="placeholder-panel">
-                <mat-icon class="placeholder-icon">shopping_basket</mat-icon>
-                <h3>Orders coming in Phase 4</h3>
-                <p>
-                  Customer order history and management will be available once
-                  the Orders module is implemented.
-                </p>
+
+              <!-- Orders Tab Header -->
+              <div class="orders-tab-header">
+                <span class="orders-count" *ngIf="!customerOrdersLoading()">
+                  {{ customerOrders().length }} order{{ customerOrders().length !== 1 ? 's' : '' }}
+                </span>
+                <button mat-flat-button color="primary" class="new-order-btn" (click)="navigateToNewOrder()" id="new-order-from-customer">
+                  <mat-icon>add</mat-icon>
+                  New Order
+                </button>
               </div>
+
+              <!-- Loading -->
+              <div class="loading-inline" *ngIf="customerOrdersLoading()">
+                <mat-progress-spinner mode="indeterminate" diameter="28" color="primary" />
+                <span>Loading orders…</span>
+              </div>
+
+              <!-- Empty State -->
+              <div class="orders-empty" *ngIf="!customerOrdersLoading() && customerOrders().length === 0">
+                <mat-icon class="empty-icon">receipt_long</mat-icon>
+                <p>No orders yet for this customer.</p>
+                <button mat-stroked-button (click)="navigateToNewOrder()">
+                  <mat-icon>add</mat-icon>
+                  Create First Order
+                </button>
+              </div>
+
+              <!-- Orders List -->
+              <div class="customer-orders-list" *ngIf="!customerOrdersLoading() && customerOrders().length > 0">
+                <div class="customer-order-card"
+                  *ngFor="let order of customerOrders(); trackBy: trackByOrder"
+                  (click)="navigateToOrder(order.id)"
+                  [attr.id]="'customer-order-' + order.id">
+                  <div class="co-left">
+                    <span class="co-number">{{ order.orderNumber }}</span>
+                    <span class="co-garment">{{ getGarmentLabel(order.garmentType) }}</span>
+                  </div>
+                  <div class="co-center">
+                    <span class="co-status" [ngClass]="getOrderStatusColor(order.status)">{{ order.status }}</span>
+                    <span class="co-delivery">
+                      <mat-icon class="co-icon">event</mat-icon>
+                      {{ formatShortDate(order.deliveryDate) }}
+                    </span>
+                  </div>
+                  <div class="co-right">
+                    <span class="co-balance" [class.co-balance-due]="order.remainingAmount > 0">
+                      {{ formatCurrency(order.remainingAmount) }}
+                    </span>
+                    <mat-icon class="co-arrow">chevron_right</mat-icon>
+                  </div>
+                </div>
+              </div>
+
             </div>
           </mat-tab>
+
 
           <!-- Payments Tab (Placeholder for Phase 5) -->
           <mat-tab>

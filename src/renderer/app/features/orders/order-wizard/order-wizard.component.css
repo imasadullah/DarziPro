@@ -1,0 +1,631 @@
+/* ── Wizard Container ────────────────────────────────────────────────────────── */
+.wizard-container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 32px;
+}
+
+/* ── Header ──────────────────────────────────────────────────────────────────── */
+.wizard-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.back-btn {
+  margin-top: 4px;
+  color: #64748b;
+}
+
+.wizard-title {
+  font-size: 28px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+  letter-spacing: -0.5px;
+}
+
+.wizard-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── Stepper ──────────────────────────────────────────────────────────────────── */
+.order-stepper {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 16px rgba(0, 0, 0, 0.06);
+}
+
+/* ── Step Content ─────────────────────────────────────────────────────────────── */
+.step-content {
+  padding: 32px 40px 40px;
+  min-height: 400px;
+}
+
+.step-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  margin-bottom: 32px;
+}
+
+.step-icon {
+  font-size: 32px;
+  width: 32px;
+  height: 32px;
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.step-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.step-desc {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── Step Actions ─────────────────────────────────────────────────────────────── */
+.step-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 32px;
+  padding-top: 24px;
+  border-top: 1px solid #f1f5f9;
+}
+
+.step-actions button {
+  border-radius: 10px;
+  height: 42px;
+  padding: 0 24px;
+  font-weight: 600;
+}
+
+.btn-spinner {
+  margin-right: 8px;
+}
+
+/* ── Step 1: Customer ────────────────────────────────────────────────────────── */
+.selected-customer-card {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 24px;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border: 1.5px solid #bfdbfe;
+  border-radius: 12px;
+  margin-bottom: 24px;
+}
+
+.customer-avatar {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: #2563eb;
+  color: white;
+  font-size: 22px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.customer-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.customer-name {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.customer-meta {
+  font-size: 14px;
+  color: #475569;
+}
+
+.customer-code {
+  font-size: 12px;
+  color: #94a3b8;
+  font-family: monospace;
+}
+
+.clear-customer-btn {
+  color: #94a3b8;
+}
+
+.search-section {
+  margin-bottom: 16px;
+}
+
+.customer-search-field {
+  width: 100%;
+}
+
+.autocomplete-option {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+}
+
+.option-name {
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.option-phone {
+  font-size: 13px;
+  color: #94a3b8;
+}
+
+.search-hint {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 16px;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #64748b;
+}
+
+.search-hint mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: #94a3b8;
+}
+
+.create-customer-link {
+  color: #2563eb;
+  cursor: pointer;
+  font-weight: 600;
+  text-decoration: underline;
+  margin-left: 4px;
+}
+
+/* ── Step 2: Garment ─────────────────────────────────────────────────────────── */
+.garment-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-bottom: 28px;
+}
+
+.garment-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px 16px;
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  background: #ffffff;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  min-height: 96px;
+}
+
+.garment-card:hover {
+  border-color: #93c5fd;
+  background: #eff6ff;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.garment-card--selected {
+  border-color: #2563eb;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);
+}
+
+.garment-icon {
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  color: #2563eb;
+}
+
+.garment-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+  text-align: center;
+}
+
+.quantity-row {
+  display: flex;
+  align-items: center;
+}
+
+.quantity-field {
+  max-width: 200px;
+}
+
+/* ── Step 3: Measurements ────────────────────────────────────────────────────── */
+.measurements-loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 24px;
+  color: #64748b;
+}
+
+.no-measurements {
+  text-align: center;
+  padding: 40px 24px;
+  color: #94a3b8;
+}
+
+.no-measurements mat-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  margin-bottom: 12px;
+}
+
+.no-measurements p {
+  margin: 0 0 4px;
+  font-size: 15px;
+}
+
+.no-measurements-sub {
+  font-size: 13px !important;
+  color: #cbd5e1 !important;
+}
+
+.selected-measurement-card {
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  border: 1.5px solid #bbf7d0;
+  border-radius: 12px;
+  padding: 16px 20px;
+  margin-bottom: 20px;
+}
+
+.m-card-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 15px;
+  font-weight: 700;
+  color: #166534;
+}
+
+.m-card-header mat-icon {
+  color: #16a34a;
+}
+
+.m-card-header button {
+  margin-left: auto;
+  color: #94a3b8;
+}
+
+.m-values {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 8px;
+}
+
+.m-value-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.m-value-label {
+  font-size: 11px;
+  color: #94a3b8;
+  font-weight: 500;
+  text-transform: uppercase;
+}
+
+.m-value-val {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.list-hint {
+  font-size: 13px;
+  color: #64748b;
+  margin-bottom: 12px;
+}
+
+.measurement-cards {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.measurement-card {
+  padding: 16px 20px;
+  border: 1.5px solid #e2e8f0;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  background: white;
+}
+
+.measurement-card:hover {
+  border-color: #2563eb;
+  background: #eff6ff;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+}
+
+.mc-type {
+  font-size: 14px;
+  font-weight: 700;
+  color: #0f172a;
+  margin-bottom: 10px;
+}
+
+.mc-values {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 6px;
+  margin-bottom: 10px;
+}
+
+.mc-value {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+
+.mc-val-label {
+  font-size: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+}
+
+.mc-val-val {
+  font-size: 13px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.mc-date {
+  font-size: 11px;
+  color: #cbd5e1;
+}
+
+/* ── Step 4: Pricing ──────────────────────────────────────────────────────────── */
+.pricing-form {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  align-items: start;
+}
+
+.pricing-field {
+  width: 100%;
+}
+
+.remaining-display {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 20px 28px;
+  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+  border: 1.5px solid #fbbf24;
+  border-radius: 12px;
+}
+
+.remaining-label {
+  font-size: 14px;
+  font-weight: 600;
+  color: #78350f;
+}
+
+.remaining-value {
+  font-size: 24px;
+  font-weight: 800;
+  color: #92400e;
+}
+
+.remaining-zero {
+  color: #166534;
+}
+
+/* ── Step 5: Delivery ─────────────────────────────────────────────────────────── */
+.delivery-form {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.delivery-top-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 24px;
+  align-items: start;
+}
+
+.date-field {
+  width: 100%;
+}
+
+.priority-selector {
+  min-width: 200px;
+}
+
+.priority-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  margin: 0 0 10px;
+}
+
+.priority-options {
+  display: flex;
+  gap: 8px;
+}
+
+.priority-btn {
+  padding: 8px 18px;
+  border: 2px solid #e2e8f0;
+  border-radius: 8px;
+  background: white;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #475569;
+  transition: all 0.2s ease;
+}
+
+.priority-btn--active {
+  border-color: #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+}
+
+.priority-btn--urgent.priority-btn--active {
+  border-color: #f59e0b;
+  background: #fff7ed;
+  color: #c2410c;
+}
+
+.priority-btn--express.priority-btn--active {
+  border-color: #dc2626;
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.notes-field {
+  width: 100%;
+}
+
+/* ── Step 6: Review ───────────────────────────────────────────────────────────── */
+.review-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 8px;
+}
+
+.review-card {
+  padding: 20px 24px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+}
+
+.review-card--full {
+  grid-column: 1 / -1;
+}
+
+.review-card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #475569;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 12px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+.review-card-title mat-icon {
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  color: #2563eb;
+}
+
+.review-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 14px;
+}
+
+.review-row span:first-child {
+  color: #64748b;
+}
+
+.review-row strong {
+  color: #0f172a;
+  text-align: right;
+}
+
+.review-amount {
+  color: #2563eb;
+  font-size: 16px;
+}
+
+.review-balance {
+  color: #dc2626;
+}
+
+/* ── Success State ────────────────────────────────────────────────────────────── */
+.success-state {
+  text-align: center;
+  padding: 40px 24px;
+}
+
+.success-icon-wrap {
+  width: 80px;
+  height: 80px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 20px;
+}
+
+.success-icon {
+  font-size: 48px;
+  width: 48px;
+  height: 48px;
+  color: #16a34a;
+}
+
+.success-state h3 {
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 8px;
+}
+
+.success-state p {
+  color: #64748b;
+  margin: 0 0 24px;
+}
+
+.success-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+}
+
+.success-actions button {
+  border-radius: 10px;
+  height: 42px;
+  padding: 0 24px;
+  font-weight: 600;
+}
