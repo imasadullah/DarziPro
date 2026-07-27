@@ -4,7 +4,7 @@
 [x] Customers
 [x] Measurements
 [x] Orders
-[ ] Payments
+[x] Payments
 [ ] Reports
 [ ] Settings
 [ ] Backup & Restore

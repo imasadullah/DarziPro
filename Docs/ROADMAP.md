@@ -11,7 +11,7 @@ Phase 3 ✓
 Phase 4 ✓
 - Orders
 
-Phase 5
+Phase 5 ✓
 - Payments
 
 Phase 6

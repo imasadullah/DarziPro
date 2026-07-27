@@ -1,0 +1,198 @@
+.payment-detail-page {
+  padding: 32px;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+/* ── Loading / Error ────────────────────────────────────────────────────── */
+.loading-container { display: flex; justify-content: center; padding: 80px; }
+.error-state {
+  display: flex; flex-direction: column; align-items: center;
+  gap: 12px; padding: 80px; color: #ef4444;
+}
+.error-state mat-icon { font-size: 48px; height: 48px; width: 48px; }
+
+/* ── Header ───────────────────────────────────────────────────────────── */
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 32px;
+  gap: 16px;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pay-number-display {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 22px;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.pay-icon {
+  font-size: 22px;
+  color: #2563eb;
+}
+
+.pay-date {
+  font-size: 13px;
+  color: #64748b;
+  margin: 4px 0 0;
+}
+
+.header-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* ── Grid ─────────────────────────────────────────────────────────────── */
+.detail-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+/* ── Cards ────────────────────────────────────────────────────────────── */
+.detail-card {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
+}
+
+.card-section-label {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+  color: #94a3b8;
+  margin-bottom: 14px;
+}
+
+/* ── Amount Card ──────────────────────────────────────────────────────── */
+.amount-card {
+  grid-column: span 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  border: none;
+  color: #fff;
+}
+
+.amount-display { display: flex; flex-direction: column; gap: 4px; }
+.amount-label { font-size: 12px; font-weight: 600; opacity: 0.8; text-transform: uppercase; letter-spacing: 0.6px; }
+.amount-value { font-size: 36px; font-weight: 800; }
+
+.method-display {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-size: 14px;
+  font-weight: 600;
+  background: rgba(255,255,255,0.15);
+  backdrop-filter: blur(4px);
+}
+
+/* ── Customer Card ────────────────────────────────────────────────────── */
+.customer-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.customer-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #fff;
+  font-size: 18px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.customer-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.customer-phone {
+  font-size: 13px;
+  color: #64748b;
+  margin-top: 2px;
+}
+
+/* ── Order Card ───────────────────────────────────────────────────────── */
+.order-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: background-color 0.15s;
+}
+
+.order-card:hover { background: #f8fafc; }
+
+.order-ref {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.order-icon {
+  font-size: 28px;
+  color: #4f46e5;
+}
+
+.order-number {
+  font-size: 16px;
+  font-weight: 700;
+  color: #0f172a;
+  font-family: monospace;
+}
+
+.order-balance-line {
+  font-size: 13px;
+  color: #d97706;
+  font-weight: 600;
+  margin-top: 2px;
+}
+
+.navigate-hint mat-icon {
+  color: #94a3b8;
+}
+
+/* ── Notes ────────────────────────────────────────────────────────────── */
+.notes-text {
+  font-size: 14px;
+  color: #475569;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* ── Meta ─────────────────────────────────────────────────────────────── */
+.meta-row {
+  display: flex;
+  justify-content: space-between;
+  padding: 8px 0;
+  border-bottom: 1px solid #f1f5f9;
+  font-size: 13px;
+}
+.meta-row:last-child { border-bottom: none; }
+.meta-label { color: #64748b; }
+.meta-value { font-weight: 600; color: #1e293b; }

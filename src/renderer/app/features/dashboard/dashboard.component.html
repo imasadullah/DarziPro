@@ -76,12 +76,16 @@
 
     </div>
 
-    <!-- ── Quick Actions ──────────────────────────────────────────────────── -->
+    <!-- ── Quick Actions ────────────────────────────────────── -->
     <div class="section-label">Quick Actions</div>
     <div class="quick-actions">
       <button mat-flat-button color="primary" class="quick-btn" (click)="navigateToNewOrder()" id="quick-new-order">
         <mat-icon>add_shopping_cart</mat-icon>
         New Order
+      </button>
+      <button mat-stroked-button class="quick-btn" (click)="navigateToReceivePayment()" id="quick-payment">
+        <mat-icon>add_card</mat-icon>
+        Receive Payment
       </button>
       <button mat-stroked-button class="quick-btn" (click)="navigateToKanban()" id="quick-kanban">
         <mat-icon>view_kanban</mat-icon>
@@ -91,6 +95,85 @@
         <mat-icon>people</mat-icon>
         Customers
       </button>
+    </div>
+
+    <!-- ── Payment KPI Cards ────────────────────────────────── -->
+    <div class="section-label">Revenue &amp; Collections</div>
+    <div class="kpi-grid">
+
+      <div class="kpi-card kpi-revenue" (click)="navigateToPayments()" id="kpi-today-collections">
+        <div class="kpi-icon-wrap kpi-icon-green">
+          <mat-icon>today</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value">
+            <span *ngIf="paymentStatsLoading()" class="kpi-loading">—</span>
+            <span *ngIf="!paymentStatsLoading()" class="kpi-currency">
+              Rs {{ (paymentStats()?.todayCollections ?? 0) | number }}
+            </span>
+          </div>
+          <div class="kpi-label">Today's Collections</div>
+          <div class="kpi-sub">Cash &amp; digital</div>
+        </div>
+        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
+      </div>
+
+      <div class="kpi-card kpi-monthly" (click)="navigateToPayments()" id="kpi-monthly-revenue">
+        <div class="kpi-icon-wrap kpi-icon-teal">
+          <mat-icon>show_chart</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value">
+            <span *ngIf="paymentStatsLoading()" class="kpi-loading">—</span>
+            <span *ngIf="!paymentStatsLoading()" class="kpi-currency">
+              Rs {{ (paymentStats()?.monthlyRevenue ?? 0) | number }}
+            </span>
+          </div>
+          <div class="kpi-label">Monthly Revenue</div>
+          <div class="kpi-sub">This month</div>
+        </div>
+        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
+      </div>
+
+      <div class="kpi-card kpi-outstanding" id="kpi-outstanding">
+        <div class="kpi-icon-wrap kpi-icon-amber">
+          <mat-icon>account_balance_wallet</mat-icon>
+        </div>
+        <div class="kpi-body">
+          <div class="kpi-value">
+            <span *ngIf="paymentStatsLoading()" class="kpi-loading">—</span>
+            <span *ngIf="!paymentStatsLoading()" class="kpi-currency kpi-outstanding-value">
+              Rs {{ (paymentStats()?.outstandingAmount ?? 0) | number }}
+            </span>
+          </div>
+          <div class="kpi-label">Outstanding</div>
+          <div class="kpi-sub">Total unpaid balance</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ── Recent Payments ─────────────────────────────────────── -->
+    <div class="recent-payments-section" *ngIf="paymentStats()?.recentPayments?.length">
+      <div class="section-label">Recent Payments</div>
+      <div class="recent-payments-list">
+        <div
+          class="recent-payment-row"
+          *ngFor="let p of paymentStats()?.recentPayments"
+          (click)="navigateToPayment(p.id)">
+          <div class="rp-left">
+            <div class="rp-avatar">{{ p.customer?.fullName?.[0] ?? '?' }}</div>
+            <div>
+              <div class="rp-name">{{ p.customer?.fullName ?? '—' }}</div>
+              <div class="rp-order">{{ p.order?.orderNumber ?? '—' }} · {{ p.paymentNumber }}</div>
+            </div>
+          </div>
+          <div class="rp-right">
+            <div class="rp-amount">Rs {{ p.amount | number }}</div>
+            <div class="rp-date">{{ p.paymentDate | date:'dd MMM' }}</div>
+          </div>
+        </div>
+      </div>
     </div>
 
   </div>

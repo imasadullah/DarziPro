@@ -33,6 +33,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'payments',
+    loadChildren: () => import('./features/payments/payments.routes').then(m => m.PAYMENT_ROUTES),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'settings',
     loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent),
     canActivate: [AuthGuard, RoleGuard],

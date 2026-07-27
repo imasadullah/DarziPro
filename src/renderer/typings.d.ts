@@ -109,6 +109,95 @@ interface ApiResponse<T = void> {
   error?: string;
 }
 
+// ── Payment ────────────────────────────────────────────────────────────────────
+
+type PaymentMethod = 'cash' | 'bank_transfer' | 'easypaisa' | 'jazzcash';
+type PaymentStatus = 'Unpaid' | 'Partially Paid' | 'Fully Paid';
+
+interface PaymentOrderInfo {
+  id: number;
+  orderNumber: string;
+  totalAmount: number;
+  remainingAmount: number;
+  customerId: number;
+  customer?: { id: number; fullName: string; phoneNumber: string };
+}
+
+interface PaymentCustomerInfo {
+  id: number;
+  fullName: string;
+  phoneNumber: string;
+}
+
+interface PaymentModel {
+  id: number;
+  paymentNumber: string;
+  orderId: number;
+  customerId: number;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  paymentDate: string;
+  notes?: string;
+  createdBy?: string;
+  order?: PaymentOrderInfo;
+  customer?: PaymentCustomerInfo;
+  created_at: string;
+  updated_at: string;
+}
+
+interface CreatePaymentDto {
+  orderId: number;
+  amount: number;
+  paymentMethod: PaymentMethod;
+  paymentDate?: string;
+  notes?: string;
+  createdBy?: string;
+}
+
+interface UpdatePaymentDto {
+  amount?: number;
+  paymentMethod?: PaymentMethod;
+  paymentDate?: string;
+  notes?: string;
+}
+
+interface PaymentSearchParams {
+  search?: string;
+  paymentMethod?: PaymentMethod;
+  dateFrom?: string;
+  dateTo?: string;
+  orderId?: number;
+  customerId?: number;
+  sortBy?: 'paymentDate' | 'amount' | 'created_at';
+  sortDir?: 'ASC' | 'DESC';
+  page?: number;
+  limit?: number;
+}
+
+interface PaginatedPayments {
+  items: PaymentModel[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+interface OrderBalanceSummary {
+  orderId: number;
+  orderNumber: string;
+  customerId: number;
+  totalAmount: number;
+  totalPaid: number;
+  remaining: number;
+  status: PaymentStatus;
+}
+
+interface PaymentStats {
+  todayCollections: number;
+  monthlyRevenue: number;
+  outstandingAmount: number;
+  recentPayments: PaymentModel[];
+}
+
 // ── Window API ─────────────────────────────────────────────────────────────────
 
 interface Window {
@@ -158,6 +247,18 @@ interface Window {
       cancel(id: number): Promise<ApiResponse<any>>;
       search(query: string): Promise<ApiResponse<any>>;
       getStats(): Promise<ApiResponse<any>>;
+    };
+    payments: {
+      create(data: CreatePaymentDto): Promise<ApiResponse<PaymentModel>>;
+      update(id: number, data: UpdatePaymentDto): Promise<ApiResponse<PaymentModel>>;
+      delete(id: number): Promise<ApiResponse>;
+      get(id: number): Promise<ApiResponse<PaymentModel>>;
+      getAll(params?: PaymentSearchParams): Promise<ApiResponse<PaginatedPayments>>;
+      getByCustomer(customerId: number, params?: PaymentSearchParams): Promise<ApiResponse<PaginatedPayments>>;
+      getByOrder(orderId: number): Promise<ApiResponse<PaymentModel[]>>;
+      calculateBalance(orderId: number): Promise<ApiResponse<OrderBalanceSummary>>;
+      getStats(): Promise<ApiResponse<PaymentStats>>;
+      printReceipt(paymentId: number): Promise<ApiResponse<string>>;
     };
     system: {
       getSettings(): Promise<ApiResponse<Record<string, string>>>;

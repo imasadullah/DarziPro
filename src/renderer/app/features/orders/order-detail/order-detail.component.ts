@@ -34,6 +34,12 @@ import {
 } from '../models/order.model';
 import { getTemplate } from '../../measurements/measurement-templates';
 import { ToastService } from '../../../shared/components/services/toast.service';
+import { PaymentStoreService } from '../../payments/store/payment-store.service';
+import {
+  PaymentModel,
+  getPaymentMethodLabel,
+  derivePaymentStatus
+} from '../../payments/models/payment.model';
 
 @Component({
   selector: 'app-order-detail',
@@ -60,6 +66,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private readonly store = inject(OrderStoreService);
   private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly paymentStore = inject(PaymentStoreService);
   private readonly destroy$ = new Subject<void>();
 
   // Timeline statuses (excludes Cancelled)
@@ -78,6 +85,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
     const id = Number(this.route.snapshot.paramMap.get('id'));
     if (id) {
       this.store.loadOrderById(id);
+      this.paymentStore.loadByOrder(id);
     } else {
       this.router.navigate(['/orders/list']);
     }
@@ -85,6 +93,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
 
   ngOnDestroy(): void {
     this.store.clearSelectedOrder();
+    this.paymentStore.clearPayments();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -103,6 +112,38 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   navigateToCustomer(): void {
     const o = this.order();
     if (o?.customer) this.router.navigate(['/customers', o.customer.id]);
+  }
+
+  navigateToReceivePayment(orderId: number): void {
+    this.router.navigate(['/payments/new'], { queryParams: { orderId } });
+  }
+
+  navigateToPayment(paymentId: number): void {
+    this.router.navigate(['/payments', paymentId]);
+  }
+
+  // ── Payment Helpers ───────────────────────────────────────────────────────
+
+  get orderPayments() { return this.paymentStore.payments; }
+  get paymentsLoading() { return this.paymentStore.loading; }
+
+  getPaymentMethodLabel(method: string): string {
+    return getPaymentMethodLabel(method as any);
+  }
+
+  getPaymentStatusLabel(order: any): string {
+    const totalPaid = Number(order.totalAmount) - Number(order.remainingAmount);
+    return derivePaymentStatus(Number(order.totalAmount), totalPaid);
+  }
+
+  getPaymentStatusClass(order: any): string {
+    const status = this.getPaymentStatusLabel(order);
+    const map: Record<string, string> = {
+      'Unpaid': 'badge-unpaid',
+      'Partially Paid': 'badge-partial',
+      'Fully Paid': 'badge-paid'
+    };
+    return map[status] ?? 'badge-unpaid';
   }
 
   // ── Status Management ─────────────────────────────────────────────────────

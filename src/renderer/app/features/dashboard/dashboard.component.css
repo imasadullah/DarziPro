@@ -172,3 +172,107 @@
   align-items: center;
   gap: 6px;
 }
+
+/* ── Payment KPI Icon Colors ─────────────────────────────────────────────── */
+.kpi-icon-green  { background: #dcfce7; }
+.kpi-icon-green mat-icon { color: #16a34a; }
+
+.kpi-icon-teal   { background: #ccfbf1; }
+.kpi-icon-teal mat-icon { color: #0d9488; }
+
+/* ── Currency KPI Value ──────────────────────────────────────────────────── */
+.kpi-currency {
+  font-size: 22px;
+  font-weight: 800;
+  color: #0f172a;
+  line-height: 1;
+}
+
+.kpi-outstanding-value {
+  color: #d97706;
+}
+
+/* ── Recent Payments Feed ────────────────────────────────────────────────── */
+.recent-payments-section {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.recent-payments-list {
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.05);
+}
+
+.recent-payment-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 14px 20px;
+  border-bottom: 1px solid #f1f5f9;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.recent-payment-row:last-child {
+  border-bottom: none;
+}
+
+.recent-payment-row:hover {
+  background: #f8fafc;
+}
+
+.rp-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rp-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #2563eb, #7c3aed);
+  color: #fff;
+  font-size: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.rp-name {
+  font-size: 14px;
+  font-weight: 600;
+  color: #0f172a;
+}
+
+.rp-order {
+  font-size: 12px;
+  color: #64748b;
+  margin-top: 1px;
+  font-family: 'JetBrains Mono', monospace;
+}
+
+.rp-right {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 2px;
+}
+
+.rp-amount {
+  font-size: 15px;
+  font-weight: 700;
+  color: #16a34a;
+}
+
+.rp-date {
+  font-size: 11px;
+  color: #94a3b8;
+}
+

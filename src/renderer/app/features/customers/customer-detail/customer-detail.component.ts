@@ -35,6 +35,8 @@ import {
 import { OrderStoreService } from '../../orders/store/order-store.service';
 import { OrderModel, GarmentType, OrderStatus, getGarmentLabel, getStatusColor } from '../../orders/models/order.model';
 import { ToastService } from '../../../shared/components/services/toast.service';
+import { PaymentStoreService } from '../../payments/store/payment-store.service';
+import { PaymentModel, getPaymentMethodLabel } from '../../payments/models/payment.model';
 
 @Component({
   selector: 'app-customer-detail',
@@ -62,6 +64,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   private readonly measurementStore = inject(MeasurementStoreService);
   private readonly measurementService = inject(MeasurementService);
   private readonly orderStore = inject(OrderStoreService);
+  private readonly paymentStore = inject(PaymentStoreService);
   private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
@@ -74,6 +77,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
       this.store.getCustomerById(id);
       this.measurementStore.loadByCustomer(id);
       this.orderStore.loadByCustomer(id, { limit: 50, sortBy: 'created_at', sortDir: 'DESC' });
+      this.paymentStore.loadByCustomer(id, { limit: 50, sortBy: 'paymentDate', sortDir: 'DESC' });
     } else {
       this.router.navigate(['/customers/list']);
     }
@@ -83,6 +87,7 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
     this.store.clearSelectedCustomer();
     this.measurementStore.clearMeasurements();
     this.orderStore.clearOrders();
+    this.paymentStore.clearPayments();
     this.destroy$.next();
     this.destroy$.complete();
   }
@@ -99,6 +104,10 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
   // ── Order Store Proxies ───────────────────────────────────────────────────────
   get customerOrders() { return this.orderStore.orders; }
   get customerOrdersLoading() { return this.orderStore.loading; }
+
+  // ── Payment Store Proxies ───────────────────────────────────────────────
+  get customerPayments() { return this.paymentStore.payments; }
+  get customerPaymentsLoading() { return this.paymentStore.loading; }
 
   // ── Navigation ────────────────────────────────────────────────────────────────
   navigateToEdit(): void {
@@ -180,6 +189,29 @@ export class CustomerDetailComponent implements OnInit, OnDestroy {
 
   formatCurrency(amount: number): string {
     return `Rs ${Number(amount).toLocaleString('en-PK')}`;
+  }
+
+  // ── Payment Helpers ─────────────────────────────────────────────────────
+
+  getPaymentMethodLabel(method: string): string {
+    return getPaymentMethodLabel(method as any);
+  }
+
+  getTotalPaid(): number {
+    return this.customerPayments().reduce((sum, p) => sum + Number(p.amount), 0);
+  }
+
+  getTotalOutstanding(): number {
+    const orders = this.customerOrders();
+    return orders.reduce((sum, o) => sum + Number(o.remainingAmount), 0);
+  }
+
+  navigateToPayment(paymentId: number): void {
+    this.router.navigate(['/payments', paymentId]);
+  }
+
+  trackByPayment(_: number, p: PaymentModel): number {
+    return p.id;
   }
 
   // ── Template Helpers ──────────────────────────────────────────────────────────

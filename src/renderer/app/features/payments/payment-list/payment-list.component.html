@@ -1,0 +1,205 @@
+<app-layout-shell>
+  <div class="payments-list-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <div class="header-left">
+        <h1 class="page-title">
+          <mat-icon class="title-icon">payments</mat-icon>
+          Payments
+        </h1>
+        <span class="total-badge" *ngIf="totalCount() > 0">
+          {{ totalCount() }} total
+        </span>
+      </div>
+      <div class="header-right">
+        <button
+          mat-flat-button
+          color="primary"
+          class="btn-receive"
+          (click)="navigateToNew()"
+          id="btn-receive-payment">
+          <mat-icon>add</mat-icon>
+          Receive Payment
+        </button>
+      </div>
+    </div>
+
+    <!-- Filter Toolbar -->
+    <div class="filter-bar">
+      <mat-form-field appearance="outline" class="search-field">
+        <mat-label>Search payments…</mat-label>
+        <mat-icon matPrefix>search</mat-icon>
+        <input matInput [formControl]="searchControl" placeholder="Payment #, Order #, Customer" id="payment-search">
+        <button *ngIf="searchControl.value" matSuffix mat-icon-button (click)="searchControl.setValue('')">
+          <mat-icon>close</mat-icon>
+        </button>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Method</mat-label>
+        <mat-select [formControl]="methodControl" id="filter-method">
+          <mat-option value="">All Methods</mat-option>
+          <mat-option *ngFor="let m of PAYMENT_METHOD_OPTIONS" [value]="m.value">
+            <mat-icon>{{ m.icon }}</mat-icon>
+            {{ m.label }}
+          </mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>From Date</mat-label>
+        <input matInput [matDatepicker]="pickerFrom" [formControl]="dateFromControl" id="filter-date-from">
+        <mat-datepicker-toggle matSuffix [for]="pickerFrom"></mat-datepicker-toggle>
+        <mat-datepicker #pickerFrom></mat-datepicker>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="date-field">
+        <mat-label>To Date</mat-label>
+        <input matInput [matDatepicker]="pickerTo" [formControl]="dateToControl" id="filter-date-to">
+        <mat-datepicker-toggle matSuffix [for]="pickerTo"></mat-datepicker-toggle>
+        <mat-datepicker #pickerTo></mat-datepicker>
+      </mat-form-field>
+
+      <button mat-stroked-button (click)="clearFilters()" class="btn-clear" id="btn-clear-filters">
+        <mat-icon>clear_all</mat-icon>
+        Clear
+      </button>
+    </div>
+
+    <!-- Loading State -->
+    <div class="loading-container" *ngIf="loading()">
+      <mat-spinner diameter="48"></mat-spinner>
+      <p class="loading-text">Loading payments…</p>
+    </div>
+
+    <!-- Error State -->
+    <div class="error-state" *ngIf="error() && !loading()">
+      <mat-icon class="error-icon">error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="clearFilters()">Retry</button>
+    </div>
+
+    <!-- Empty State -->
+    <div class="empty-state" *ngIf="!loading() && !error() && !hasPayments()">
+      <mat-icon class="empty-icon">account_balance_wallet</mat-icon>
+      <h2>No payments found</h2>
+      <p>Record the first payment by clicking "Receive Payment".</p>
+      <button mat-flat-button color="primary" (click)="navigateToNew()" id="btn-empty-receive">
+        <mat-icon>add</mat-icon>
+        Receive Payment
+      </button>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container" *ngIf="!loading() && hasPayments()">
+      <table mat-table [dataSource]="payments()" class="payments-table">
+
+        <!-- Payment Number -->
+        <ng-container matColumnDef="paymentNumber">
+          <th mat-header-cell *matHeaderCellDef>Payment #</th>
+          <td mat-cell *matCellDef="let p">
+            <span class="pay-number">{{ p.paymentNumber }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Order Number -->
+        <ng-container matColumnDef="orderNumber">
+          <th mat-header-cell *matHeaderCellDef>Order #</th>
+          <td mat-cell *matCellDef="let p">
+            <button
+              mat-button
+              class="order-link"
+              (click)="navigateToOrder(p.orderId); $event.stopPropagation()">
+              {{ p.order?.orderNumber ?? '—' }}
+            </button>
+          </td>
+        </ng-container>
+
+        <!-- Customer Name -->
+        <ng-container matColumnDef="customerName">
+          <th mat-header-cell *matHeaderCellDef>Customer</th>
+          <td mat-cell *matCellDef="let p">
+            <div class="customer-cell">
+              <div class="customer-avatar">{{ p.customer?.fullName?.[0] ?? '?' }}</div>
+              <span>{{ p.customer?.fullName ?? '—' }}</span>
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Amount -->
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let p">
+            <span class="amount-cell">{{ formatAmount(p.amount) }}</span>
+          </td>
+        </ng-container>
+
+        <!-- Payment Method -->
+        <ng-container matColumnDef="paymentMethod">
+          <th mat-header-cell *matHeaderCellDef>Method</th>
+          <td mat-cell *matCellDef="let p">
+            <div class="method-chip" [ngClass]="'method-' + p.paymentMethod">
+              <mat-icon class="method-icon">{{ getMethodIcon(p.paymentMethod) }}</mat-icon>
+              {{ getMethodLabel(p.paymentMethod) }}
+            </div>
+          </td>
+        </ng-container>
+
+        <!-- Date -->
+        <ng-container matColumnDef="paymentDate">
+          <th mat-header-cell *matHeaderCellDef>Date</th>
+          <td mat-cell *matCellDef="let p">{{ formatDate(p.paymentDate) }}</td>
+        </ng-container>
+
+        <!-- Actions -->
+        <ng-container matColumnDef="actions">
+          <th mat-header-cell *matHeaderCellDef></th>
+          <td mat-cell *matCellDef="let p" class="actions-cell">
+            <button
+              mat-icon-button
+              [matTooltip]="'View payment'"
+              (click)="navigateToDetail(p); $event.stopPropagation()"
+              id="btn-view-{{p.id}}">
+              <mat-icon>visibility</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              [matTooltip]="'Edit payment'"
+              (click)="navigateToEdit(p); $event.stopPropagation()"
+              id="btn-edit-{{p.id}}">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button
+              mat-icon-button
+              color="warn"
+              [matTooltip]="'Delete payment'"
+              (click)="deletePayment(p, $event)"
+              id="btn-delete-{{p.id}}">
+              <mat-icon>delete_outline</mat-icon>
+            </button>
+          </td>
+        </ng-container>
+
+        <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+        <tr
+          mat-row
+          *matRowDef="let row; columns: displayedColumns;"
+          class="table-row"
+          (click)="navigateToDetail(row)">
+        </tr>
+      </table>
+
+      <!-- Paginator -->
+      <mat-paginator
+        [length]="totalCount()"
+        [pageSize]="pageSize()"
+        [pageIndex]="page() - 1"
+        [pageSizeOptions]="[10, 20, 50]"
+        (page)="onPageChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+    </div>
+
+  </div>
+</app-layout-shell>

@@ -1,0 +1,120 @@
+<app-layout-shell>
+  <div class="payment-detail-page">
+
+    <!-- Loading -->
+    <div class="loading-container" *ngIf="loading()">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+
+    <!-- Error -->
+    <div class="error-state" *ngIf="error() && !loading()">
+      <mat-icon>error_outline</mat-icon>
+      <p>{{ error() }}</p>
+      <button mat-stroked-button (click)="navigateBack()">Go Back</button>
+    </div>
+
+    <!-- Content -->
+    <ng-container *ngIf="payment() as p">
+
+      <!-- Header -->
+      <div class="page-header">
+        <div class="header-left">
+          <button mat-icon-button (click)="navigateBack()" id="btn-back">
+            <mat-icon>arrow_back</mat-icon>
+          </button>
+          <div>
+            <div class="pay-number-display">
+              <mat-icon class="pay-icon">receipt</mat-icon>
+              {{ p.paymentNumber }}
+            </div>
+            <p class="pay-date">{{ formatDate(p.paymentDate) }}</p>
+          </div>
+        </div>
+        <div class="header-actions">
+          <button mat-stroked-button (click)="printReceipt()" id="btn-print">
+            <mat-icon>print</mat-icon>
+            Print Receipt
+          </button>
+          <button mat-stroked-button (click)="navigateToEdit()" id="btn-edit">
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          <button mat-stroked-button color="warn" (click)="deletePayment()" id="btn-delete">
+            <mat-icon>delete_outline</mat-icon>
+            Delete
+          </button>
+        </div>
+      </div>
+
+      <!-- Content Grid -->
+      <div class="detail-grid">
+
+        <!-- Amount Card -->
+        <mat-card class="detail-card amount-card">
+          <div class="amount-display">
+            <span class="amount-label">Amount Paid</span>
+            <span class="amount-value">{{ formatAmount(p.amount) }}</span>
+          </div>
+          <div class="method-display" [ngClass]="'method-' + p.paymentMethod">
+            <mat-icon>{{ getMethodIcon(p.paymentMethod) }}</mat-icon>
+            {{ getMethodLabel(p.paymentMethod) }}
+          </div>
+        </mat-card>
+
+        <!-- Customer Card -->
+        <mat-card class="detail-card customer-card" (click)="navigateToCustomer()" style="cursor:pointer">
+          <div class="card-section-label">Customer</div>
+          <div class="customer-info">
+            <div class="customer-avatar">{{ getInitials(p.customer?.fullName ?? '') }}</div>
+            <div>
+              <div class="customer-name">{{ p.customer?.fullName ?? '—' }}</div>
+              <div class="customer-phone">{{ p.customer?.phoneNumber ?? '—' }}</div>
+            </div>
+          </div>
+        </mat-card>
+
+        <!-- Order Card -->
+        <mat-card class="detail-card order-card" (click)="navigateToOrder()" style="cursor:pointer">
+          <div class="card-section-label">Related Order</div>
+          <div class="order-ref">
+            <mat-icon class="order-icon">receipt_long</mat-icon>
+            <div>
+              <div class="order-number">{{ p.order?.orderNumber ?? '—' }}</div>
+              <div class="order-balance-line" *ngIf="p.order">
+                Remaining: {{ formatAmount(p.order.remainingAmount) }}
+              </div>
+            </div>
+          </div>
+          <div class="navigate-hint">
+            <mat-icon>chevron_right</mat-icon>
+          </div>
+        </mat-card>
+
+        <!-- Notes Card -->
+        <mat-card class="detail-card notes-card" *ngIf="p.notes">
+          <div class="card-section-label">Notes</div>
+          <p class="notes-text">{{ p.notes }}</p>
+        </mat-card>
+
+        <!-- Meta Card -->
+        <mat-card class="detail-card meta-card">
+          <div class="card-section-label">Details</div>
+          <div class="meta-row">
+            <span class="meta-label">Payment ID</span>
+            <span class="meta-value">#{{ p.id }}</span>
+          </div>
+          <div class="meta-row">
+            <span class="meta-label">Recorded</span>
+            <span class="meta-value">{{ formatDate(p.created_at) }}</span>
+          </div>
+          <div class="meta-row" *ngIf="p.createdBy">
+            <span class="meta-label">Recorded By</span>
+            <span class="meta-value">{{ p.createdBy }}</span>
+          </div>
+        </mat-card>
+
+      </div>
+    </ng-container>
+
+  </div>
+</app-layout-shell>
