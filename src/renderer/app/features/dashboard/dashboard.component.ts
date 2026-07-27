@@ -8,6 +8,8 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { OrderService } from '../../core/services/order.service';
 import { OrderStats } from '../orders/models/order.model';
+import { PaymentService } from '../../core/services/payment.service';
+import { PaymentStats } from '../payments/models/payment.model';
 
 @Component({
   selector: 'app-dashboard',
@@ -28,9 +30,12 @@ export class DashboardComponent implements OnInit {
   public readonly authState = inject(AuthStateService);
   private readonly router = inject(Router);
   private readonly orderService = inject(OrderService);
+  private readonly paymentService = inject(PaymentService);
 
   public readonly orderStats = signal<OrderStats | null>(null);
   public readonly statsLoading = signal<boolean>(true);
+  public readonly paymentStats = signal<PaymentStats | null>(null);
+  public readonly paymentStatsLoading = signal<boolean>(true);
   public readonly today = new Date();
 
   ngOnInit(): void {
@@ -42,6 +47,16 @@ export class DashboardComponent implements OnInit {
         this.statsLoading.set(false);
       },
       error: () => this.statsLoading.set(false)
+    });
+
+    this.paymentService.getStats().subscribe({
+      next: (res) => {
+        if (res.success && res.data) {
+          this.paymentStats.set(res.data as unknown as PaymentStats);
+        }
+        this.paymentStatsLoading.set(false);
+      },
+      error: () => this.paymentStatsLoading.set(false)
     });
   }
 
@@ -59,5 +74,17 @@ export class DashboardComponent implements OnInit {
 
   navigateToCustomers(): void {
     this.router.navigate(['/customers/list']);
+  }
+
+  navigateToPayments(): void {
+    this.router.navigate(['/payments/list']);
+  }
+
+  navigateToReceivePayment(): void {
+    this.router.navigate(['/payments/new']);
+  }
+
+  navigateToPayment(id: number): void {
+    this.router.navigate(['/payments', id]);
   }
 }

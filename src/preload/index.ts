@@ -47,6 +47,20 @@ contextBridge.exposeInMainWorld('api', {
     search: (query: string) => ipcRenderer.invoke('order:search', query),
     getStats: () => ipcRenderer.invoke('order:getStats')
   },
+  payments: {
+    create: (data: any) => ipcRenderer.invoke('payment:create', data),
+    update: (id: number, data: any) => ipcRenderer.invoke('payment:update', { id, data }),
+    delete: (id: number) => ipcRenderer.invoke('payment:delete', id),
+    get: (id: number) => ipcRenderer.invoke('payment:get', id),
+    getAll: (params?: any) => ipcRenderer.invoke('payment:getAll', params),
+    getByCustomer: (customerId: number, params?: any) =>
+      ipcRenderer.invoke('payment:getByCustomer', { customerId, params }),
+    getByOrder: (orderId: number) => ipcRenderer.invoke('payment:getByOrder', orderId),
+    calculateBalance: (orderId: number) =>
+      ipcRenderer.invoke('payment:calculateBalance', orderId),
+    getStats: () => ipcRenderer.invoke('payment:getStats'),
+    printReceipt: (paymentId: number) => ipcRenderer.invoke('payment:printReceipt', paymentId)
+  },
   system: {
     getSettings: () => ipcRenderer.invoke('system:getSettings'),
     saveSettings: (settings: any) => ipcRenderer.invoke('system:saveSettings', settings)

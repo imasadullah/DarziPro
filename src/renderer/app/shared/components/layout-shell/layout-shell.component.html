@@ -43,6 +43,10 @@
           <mat-icon>shopping_basket</mat-icon>
           <span>Orders</span>
         </a>
+        <a routerLink="/payments" routerLinkActive="active" class="nav-item">
+          <mat-icon>payments</mat-icon>
+          <span>Payments</span>
+        </a>
         <a routerLink="/settings" routerLinkActive="active" class="nav-item" *ngIf="authState.isOwner()">
           <mat-icon>settings</mat-icon>
           <span>Settings</span>

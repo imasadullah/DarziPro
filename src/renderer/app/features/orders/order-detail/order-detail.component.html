@@ -172,11 +172,14 @@
         <!-- RIGHT COLUMN -->
         <div class="right-column">
 
-          <!-- ── Pricing Card ─────────────────────────────────────────── -->
+          <!-- ── Pricing Card ───────────────────────────────── -->
           <div class="info-card pricing-card">
             <div class="card-header">
               <mat-icon>payments</mat-icon>
               <h3>Payment Summary</h3>
+              <span class="payment-status-badge" [ngClass]="getPaymentStatusClass(o)">
+                {{ getPaymentStatusLabel(o) }}
+              </span>
             </div>
             <div class="pricing-row">
               <span>Total Amount</span>
@@ -192,6 +195,17 @@
               <span class="pricing-balance" [class.balance-zero]="o.remainingAmount == 0">
                 {{ formatCurrency(o.remainingAmount) }}
               </span>
+            </div>
+            <div class="receive-payment-action" *ngIf="o.remainingAmount > 0 && o.status !== 'Cancelled'">
+              <button
+                mat-flat-button
+                color="primary"
+                class="btn-receive-payment"
+                (click)="navigateToReceivePayment(o.id)"
+                id="btn-receive-payment">
+                <mat-icon>add_card</mat-icon>
+                Receive Payment
+              </button>
             </div>
           </div>
 
@@ -241,6 +255,74 @@
           </div>
 
         </div>
+      </div>
+
+      <!-- ── Payments Section ─────────────────────────────── -->
+      <div class="payments-section">
+        <div class="payments-section-header">
+          <div class="payments-section-title">
+            <mat-icon>receipt</mat-icon>
+            <h3>Payment History</h3>
+            <span class="payments-count" *ngIf="orderPayments().length > 0">
+              {{ orderPayments().length }} payment{{ orderPayments().length !== 1 ? 's' : '' }}
+            </span>
+          </div>
+          <button
+            mat-flat-button
+            color="primary"
+            (click)="navigateToReceivePayment(o.id)"
+            *ngIf="o.remainingAmount > 0 && o.status !== 'Cancelled'"
+            id="btn-section-receive-payment">
+            <mat-icon>add_card</mat-icon>
+            Receive Payment
+          </button>
+        </div>
+
+        <!-- Loading -->
+        <div class="payments-loading" *ngIf="paymentsLoading()">
+          <mat-progress-spinner mode="indeterminate" diameter="28" />
+          <span>Loading payments…</span>
+        </div>
+
+        <!-- Empty -->
+        <div class="payments-empty" *ngIf="!paymentsLoading() && orderPayments().length === 0">
+          <mat-icon>account_balance_wallet</mat-icon>
+          <p>No payments recorded yet.</p>
+        </div>
+
+        <!-- Table -->
+        <table class="payments-table" *ngIf="!paymentsLoading() && orderPayments().length > 0">
+          <thead>
+            <tr>
+              <th>Payment #</th>
+              <th>Amount</th>
+              <th>Method</th>
+              <th>Date</th>
+              <th>Notes</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let pay of orderPayments()" class="payment-row">
+              <td>
+                <span class="pay-num-badge">{{ pay.paymentNumber }}</span>
+              </td>
+              <td class="pay-amount">{{ formatCurrency(pay.amount) }}</td>
+              <td>
+                <span class="pay-method-chip" [ngClass]="'method-' + pay.paymentMethod">
+                  {{ getPaymentMethodLabel(pay.paymentMethod) }}
+                </span>
+              </td>
+              <td class="pay-date-cell">{{ formatShortDate(pay.paymentDate) }}</td>
+              <td class="pay-notes">{{ pay.notes || '—' }}</td>
+              <td class="pay-actions">
+                <button mat-icon-button (click)="navigateToPayment(pay.id)" matTooltip="View payment">
+                  <mat-icon>open_in_new</mat-icon>
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
 
     </ng-container>

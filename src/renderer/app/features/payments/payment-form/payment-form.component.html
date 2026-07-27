@@ -1,0 +1,200 @@
+<app-layout-shell>
+  <div class="payment-form-page">
+
+    <!-- Page Header -->
+    <div class="page-header">
+      <button mat-icon-button (click)="navigateBack()" class="back-btn" id="btn-back">
+        <mat-icon>arrow_back</mat-icon>
+      </button>
+      <div class="header-titles">
+        <h1 class="page-title">
+          {{ isEditMode() ? 'Edit Payment' : 'Receive Payment' }}
+        </h1>
+        <p class="page-subtitle">
+          {{ isEditMode() ? 'Update payment details' : 'Record a new payment against an order' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="form-layout">
+
+      <!-- ── Left Panel: Order Summary ────────────────────────────────────── -->
+      <div class="left-panel">
+
+        <!-- Order Search -->
+        <mat-card class="panel-card order-search-card">
+          <div class="card-title">
+            <mat-icon>search</mat-icon>
+            Select Order
+          </div>
+
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Search Order</mat-label>
+            <mat-icon matPrefix>receipt_long</mat-icon>
+            <input matInput [formControl]="orderSearchControl" [matAutocomplete]="orderAuto"
+              placeholder="Order # or customer name" id="order-search-input">
+            <mat-spinner matSuffix *ngIf="orderSearchLoading()" diameter="20"></mat-spinner>
+            <mat-autocomplete #orderAuto="matAutocomplete" (optionSelected)="onOrderSelected($event.option.value)"
+              [displayWith]="displayOrderFn">
+              <mat-option *ngFor="let order of orderSearchResults()" [value]="order" class="order-option">
+                <div class="order-option-content">
+                  <span class="order-option-number">{{ order.orderNumber }}</span>
+                  <span class="order-option-customer">{{ order.customer?.fullName }}</span>
+                  <span class="order-option-amount">
+                    Balance: Rs {{ order.remainingAmount | number }}
+                  </span>
+                </div>
+              </mat-option>
+            </mat-autocomplete>
+          </mat-form-field>
+        </mat-card>
+
+        <!-- Balance Summary Card -->
+        <mat-card class="panel-card balance-card" *ngIf="hasOrderSelected()">
+          <div class="card-title">
+            <mat-icon>account_balance_wallet</mat-icon>
+            Order Balance
+          </div>
+
+          <div class="balance-order-info">
+            <div class="balance-row">
+              <span class="label">Order #</span>
+              <span class="value order-number-badge">
+                {{ selectedOrder()?.orderNumber }}
+              </span>
+            </div>
+            <div class="balance-row">
+              <span class="label">Customer</span>
+              <span class="value">{{ selectedOrder()?.customer?.fullName ?? '—' }}</span>
+            </div>
+            <div class="balance-row">
+              <span class="label">Phone</span>
+              <span class="value">{{ selectedOrder()?.customer?.phoneNumber ?? '—' }}</span>
+            </div>
+          </div>
+
+          <mat-divider class="balance-divider"></mat-divider>
+
+          <div class="balance-amounts" *ngIf="orderBalance(); else balanceLoading">
+            <div class="balance-amount-row">
+              <span class="amount-label">Total Amount</span>
+              <span class="amount-value">{{ formatAmount(totalAmount()) }}</span>
+            </div>
+            <div class="balance-amount-row">
+              <span class="amount-label">Total Paid</span>
+              <span class="amount-value paid">{{ formatAmount(totalPaid()) }}</span>
+            </div>
+            <div class="balance-amount-row highlight">
+              <span class="amount-label">Remaining Balance</span>
+              <span class="amount-value remaining" [class.zero]="remainingBalance() === 0">
+                {{ formatAmount(remainingBalance()) }}
+              </span>
+            </div>
+
+            <div class="status-badge" *ngIf="paymentStatus() as status"
+              [ngClass]="'status-' + status.toLowerCase().replace(' ', '-')">
+              <mat-icon>{{ status === 'Fully Paid' ? 'check_circle' : status === 'Partially Paid' ? 'timelapse' :
+                'pending' }}</mat-icon>
+              {{ status }}
+            </div>
+          </div>
+
+          <ng-template #balanceLoading>
+            <div class="balance-loading">
+              <mat-spinner diameter="24"></mat-spinner>
+              <span>Loading balance…</span>
+            </div>
+          </ng-template>
+        </mat-card>
+
+        <!-- No order selected placeholder -->
+        <div class="no-order-hint" *ngIf="!hasOrderSelected()">
+          <mat-icon>info_outline</mat-icon>
+          <p>Search and select an order to view the balance and record a payment.</p>
+        </div>
+
+      </div>
+
+      <!-- ── Right Panel: Payment Form ─────────────────────────────────────── -->
+      <div class="right-panel">
+        <mat-card class="panel-card form-card">
+          <div class="card-title">
+            <mat-icon>payments</mat-icon>
+            Payment Details
+          </div>
+
+          <form [formGroup]="form" (ngSubmit)="onSubmit()" class="payment-form">
+
+            <!-- Amount -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Amount</mat-label>
+              <mat-icon matPrefix>currency_rupee</mat-icon>
+              <input matInput type="number" formControlName="amount" placeholder="0" id="payment-amount" min="1"
+                [max]="remainingBalance() || null">
+              <mat-hint *ngIf="remainingBalance() > 0">
+                Max: {{ formatAmount(remainingBalance()) }}
+              </mat-hint>
+              <mat-error>{{ getAmountError() }}</mat-error>
+            </mat-form-field>
+
+            <!-- Full payment quick-fill -->
+            <button *ngIf="hasOrderSelected() && remainingBalance() > 0" type="button" mat-stroked-button
+              class="btn-full-payment" (click)="form.patchValue({ amount: remainingBalance() })" id="btn-pay-full">
+              <mat-icon>done_all</mat-icon>
+              Pay Full Remaining ({{ formatAmount(remainingBalance()) }})
+            </button>
+
+            <!-- Payment Method -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Payment Method</mat-label>
+              <mat-icon matPrefix>account_balance_wallet</mat-icon>
+              <mat-select formControlName="paymentMethod" id="payment-method">
+                <mat-option *ngFor="let m of PAYMENT_METHOD_OPTIONS" [value]="m.value">
+                  <div class="method-option">
+                    <mat-icon>{{ m.icon }}</mat-icon>
+                    {{ m.label }}
+                  </div>
+                </mat-option>
+              </mat-select>
+              <mat-error>Payment method is required.</mat-error>
+            </mat-form-field>
+
+            <!-- Payment Date -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Payment Date</mat-label>
+              <mat-icon matPrefix>event</mat-icon>
+              <input matInput [matDatepicker]="paymentDatePicker" formControlName="paymentDate" id="payment-date">
+              <mat-datepicker-toggle matSuffix [for]="paymentDatePicker"></mat-datepicker-toggle>
+              <mat-datepicker #paymentDatePicker></mat-datepicker>
+              <mat-error>Date is required.</mat-error>
+            </mat-form-field>
+
+            <!-- Notes -->
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Notes (optional)</mat-label>
+              <mat-icon matPrefix>notes</mat-icon>
+              <textarea matInput formControlName="notes" rows="3"
+                placeholder="Transaction ID, bank slip reference, etc." id="payment-notes">
+              </textarea>
+            </mat-form-field>
+
+            <!-- Submit -->
+            <div class="form-actions">
+              <button mat-stroked-button type="button" (click)="navigateBack()" id="btn-cancel">
+                Cancel
+              </button>
+              <button mat-flat-button color="primary" type="submit"
+                [disabled]="form.invalid || !hasOrderSelected() || saving()" class="btn-submit" id="btn-save-payment">
+                <mat-spinner *ngIf="saving()" diameter="18" class="btn-spinner"></mat-spinner>
+                <mat-icon *ngIf="!saving()">{{ isEditMode() ? 'save' : 'payments' }}</mat-icon>
+                {{ isEditMode() ? 'Save Changes' : 'Record Payment' }}
+              </button>
+            </div>
+
+          </form>
+        </mat-card>
+      </div>
+
+    </div>
+  </div>
+</app-layout-shell>

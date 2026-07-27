@@ -1,0 +1,315 @@
+/* ── Page Layout ──────────────────────────────────────────────────────────── */
+
+.payment-form-page {
+  padding: 32px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* ── Header ───────────────────────────────────────────────────────────────── */
+
+.page-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 32px;
+}
+
+.back-btn {
+  margin-top: 4px;
+  flex-shrink: 0;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: #0f172a;
+  margin: 0 0 4px;
+}
+
+.page-subtitle {
+  font-size: 14px;
+  color: #64748b;
+  margin: 0;
+}
+
+/* ── Two-Panel Layout ─────────────────────────────────────────────────────── */
+
+.form-layout {
+  display: grid;
+  grid-template-columns: 380px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* ── Panel Cards ──────────────────────────────────────────────────────────── */
+
+.panel-card {
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  padding: 24px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.card-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.6px;
+  color: #64748b;
+  margin-bottom: 20px;
+}
+
+.card-title mat-icon {
+  font-size: 18px;
+  color: #2563eb;
+}
+
+/* ── Left Panel ───────────────────────────────────────────────────────────── */
+
+.left-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.order-search-card {}
+
+.full-width {
+  width: 100%;
+}
+
+/* ── Balance Card ─────────────────────────────────────────────────────────── */
+
+.balance-card {}
+
+.balance-order-info {
+  margin-bottom: 16px;
+}
+
+.balance-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 0;
+  font-size: 13px;
+}
+
+.balance-row .label {
+  color: #64748b;
+  font-weight: 500;
+}
+
+.balance-row .value {
+  font-weight: 600;
+  color: #1e293b;
+}
+
+.order-number-badge {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+  background: #eff6ff;
+  color: #2563eb;
+  padding: 2px 8px;
+  border-radius: 6px;
+}
+
+.balance-divider {
+  margin: 16px 0;
+}
+
+.balance-amounts {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.balance-amount-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.balance-amount-row.highlight {
+  background: #fef3c7;
+}
+
+.amount-label {
+  font-size: 13px;
+  color: #64748b;
+}
+
+.amount-value {
+  font-size: 15px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.amount-value.paid {
+  color: #16a34a;
+}
+
+.amount-value.remaining {
+  color: #d97706;
+}
+
+.amount-value.remaining.zero {
+  color: #16a34a;
+}
+
+/* ── Status Badge ─────────────────────────────────────────────────────────── */
+
+.status-badge {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 10px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  margin-top: 8px;
+}
+
+.status-badge mat-icon {
+  font-size: 18px;
+  height: 18px;
+  width: 18px;
+}
+
+.status-unpaid {
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+.status-partially-paid {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.status-fully-paid {
+  background: #dcfce7;
+  color: #166534;
+}
+
+/* ── Balance Loading ──────────────────────────────────────────────────────── */
+
+.balance-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 20px;
+  color: #64748b;
+  font-size: 13px;
+}
+
+/* ── No Order Hint ────────────────────────────────────────────────────────── */
+
+.no-order-hint {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 20px;
+  background: #f8fafc;
+  border-radius: 12px;
+  border: 1px dashed #e2e8f0;
+}
+
+.no-order-hint mat-icon {
+  color: #94a3b8;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.no-order-hint p {
+  color: #64748b;
+  font-size: 13px;
+  margin: 0;
+  line-height: 1.5;
+}
+
+/* ── Right Panel / Form ───────────────────────────────────────────────────── */
+
+.right-panel {}
+
+.form-card {}
+
+.payment-form {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ── Autocomplete Option ──────────────────────────────────────────────────── */
+
+.order-option-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 4px 0;
+}
+
+.order-option-number {
+  font-family: monospace;
+  font-size: 13px;
+  font-weight: 700;
+  color: #2563eb;
+}
+
+.order-option-customer {
+  font-size: 12px;
+  color: #1e293b;
+}
+
+.order-option-amount {
+  font-size: 11px;
+  color: #64748b;
+}
+
+/* ── Method Option ────────────────────────────────────────────────────────── */
+
+.method-option {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+/* ── Full Payment Button ──────────────────────────────────────────────────── */
+
+.btn-full-payment {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 8px;
+  border-color: #16a34a;
+  color: #16a34a;
+}
+
+/* ── Form Actions ─────────────────────────────────────────────────────────── */
+
+.form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.btn-submit {
+  min-width: 160px;
+  height: 44px;
+  border-radius: 10px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-spinner {
+  display: inline-flex;
+}

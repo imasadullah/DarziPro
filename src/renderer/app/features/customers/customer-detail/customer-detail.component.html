@@ -297,21 +297,86 @@
           </mat-tab>
 
 
-          <!-- Payments Tab (Placeholder for Phase 5) -->
+          <!-- ── Payments Tab ─────────────────────────────────────────────── -->
           <mat-tab>
             <ng-template mat-tab-label>
               <mat-icon class="tab-icon">payments</mat-icon>
               Payments
+              <span class="tab-badge" *ngIf="customerPayments().length > 0">
+                {{ customerPayments().length }}
+              </span>
             </ng-template>
             <div class="tab-content">
-              <div class="placeholder-panel">
-                <mat-icon class="placeholder-icon">payments</mat-icon>
-                <h3>Payments coming in Phase 5</h3>
-                <p>
-                  Customer payment history and outstanding balances will be
-                  available once the Payments module is implemented.
-                </p>
+
+              <!-- Summary Bar -->
+              <div class="payments-summary-bar" *ngIf="customerPayments().length > 0">
+                <div class="summary-item">
+                  <span class="summary-label">Total Paid</span>
+                  <span class="summary-value paid">{{ formatCurrency(getTotalPaid()) }}</span>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-item">
+                  <span class="summary-label">Outstanding</span>
+                  <span class="summary-value outstanding">{{ formatCurrency(getTotalOutstanding()) }}</span>
+                </div>
+                <div class="summary-divider"></div>
+                <div class="summary-item">
+                  <span class="summary-label">Total Transactions</span>
+                  <span class="summary-value">{{ customerPayments().length }}</span>
+                </div>
               </div>
+
+              <!-- Loading -->
+              <div class="tab-loading" *ngIf="customerPaymentsLoading()">
+                <mat-progress-spinner mode="indeterminate" diameter="32" />
+              </div>
+
+              <!-- Empty -->
+              <div class="tab-empty" *ngIf="!customerPaymentsLoading() && customerPayments().length === 0">
+                <mat-icon>account_balance_wallet</mat-icon>
+                <p>No payments recorded for this customer yet.</p>
+              </div>
+
+              <!-- Payments Table -->
+              <table class="payments-table" *ngIf="!customerPaymentsLoading() && customerPayments().length > 0">
+                <thead>
+                  <tr>
+                    <th>Payment #</th>
+                    <th>Order #</th>
+                    <th>Amount</th>
+                    <th>Method</th>
+                    <th>Date</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr
+                    *ngFor="let pay of customerPayments(); trackBy: trackByPayment"
+                    class="payment-row"
+                    (click)="navigateToPayment(pay.id)">
+                    <td>
+                      <span class="pay-num-badge">{{ pay.paymentNumber }}</span>
+                    </td>
+                    <td>
+                      <button mat-button class="order-link"
+                        (click)="navigateToOrder(pay.orderId); $event.stopPropagation()">
+                        {{ pay.order?.orderNumber ?? '—' }}
+                      </button>
+                    </td>
+                    <td class="pay-amount">{{ formatCurrency(pay.amount) }}</td>
+                    <td>
+                      <span class="pay-method-chip" [ngClass]="'method-' + pay.paymentMethod">
+                        {{ getPaymentMethodLabel(pay.paymentMethod) }}
+                      </span>
+                    </td>
+                    <td class="pay-date-cell">{{ formatShortDate(pay.paymentDate) }}</td>
+                    <td class="pay-actions">
+                      <mat-icon class="row-arrow">chevron_right</mat-icon>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+
             </div>
           </mat-tab>
 
