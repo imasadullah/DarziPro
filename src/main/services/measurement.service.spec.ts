@@ -157,7 +157,7 @@ describe('MeasurementService', () => {
       expect(result).toEqual(m);
       expect(mockMeasurementRepo.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ['values']
+        relations: ['values', 'customer']
       });
     });
 

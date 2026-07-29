@@ -95,7 +95,7 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
 
   // ── Form ───────────────────────────────────────────────────────────────────
   public form!: FormGroup;
-  public orderSearchControl = this.fb.control('');
+  public orderSearchControl = this.fb.control<OrderModel | string>('');
 
   // ── Computed ───────────────────────────────────────────────────────────────
   public readonly remainingBalance = computed(() => this.orderBalance()?.remaining ?? 0);
@@ -199,10 +199,7 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
           this.selectedOrder.set(order);
           this.form.patchValue({ orderId: order.id });
           // Display in search field
-          this.orderSearchControl.setValue(
-            `${order.orderNumber} — ${order.customer?.fullName ?? ''}`,
-            { emitEvent: false }
-          );
+          this.orderSearchControl.setValue(order, { emitEvent: false });
           // Load balance
           this.store.loadOrderBalance(orderId);
           // Sync balance
@@ -246,10 +243,7 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
 
   onOrderSelected(order: OrderModel): void {
     this.selectedOrder.set(order);
-    this.orderSearchControl.setValue(
-      `${order.orderNumber} — ${order.customer?.fullName ?? ''}`,
-      { emitEvent: false }
-    );
+    this.orderSearchControl.setValue(order, { emitEvent: false });
     this.orderBalance.set(null);
     this.store.loadOrderBalance(order.id);
 
@@ -266,8 +260,10 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
     setTimeout(() => clearInterval(sub), 5000);
   }
 
-  displayOrderFn(order: OrderModel): string {
-    return order ? `${order.orderNumber} — ${order.customer?.fullName ?? ''}` : '';
+  displayOrderFn(order: any): string {
+    if (!order) return '';
+    if (typeof order === 'string') return order;
+    return `${order.orderNumber || ''} — ${order.customer?.fullName ?? ''}`;
   }
 
   onSubmit(): void {

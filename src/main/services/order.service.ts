@@ -155,7 +155,7 @@ export class OrderService {
    */
   public static async update(id: number, data: UpdateOrderDto): Promise<Order> {
     const repo = this.getRepository();
-    const order = await repo.findOne({ where: { id }, relations: ['customer'] });
+    const order = await repo.findOne({ where: { id }, relations: ['customer', 'measurement', 'measurement.values'] });
     if (!order) {
       throw new Error(`Order with id ${id} not found.`);
     }
@@ -290,7 +290,10 @@ export class OrderService {
    */
   public static async changeStatus(id: number, status: OrderStatus): Promise<Order> {
     const repo = this.getRepository();
-    const order = await repo.findOneBy({ id });
+    const order = await repo.findOne({
+      where: { id },
+      relations: ['customer', 'measurement', 'measurement.values']
+    });
     if (!order) {
       throw new Error(`Order with id ${id} not found.`);
     }

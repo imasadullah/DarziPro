@@ -53,13 +53,14 @@ describe('CustomerService', () => {
     // Restore create mock to its default behavior
     mockRepository.create.mockImplementation((data: any) => ({ ...data }));
     mockRepository.save.mockImplementation((entity: any) => Promise.resolve(entity));
+    mockRepository.find.mockResolvedValue([]);
   });
 
   // ── create() ─────────────────────────────────────────────────────────────────
   describe('create()', () => {
     it('generates CUST-0001 when no customers exist', async () => {
       mockRepository.findOneBy.mockResolvedValue(null); // phone uniqueness
-      mockRepository.findOne.mockResolvedValue(null);   // last customer (id=null)
+      mockRepository.find.mockResolvedValue([]);        // last customer (id=null)
       const saved = makeCustomer({ customerCode: 'CUST-0001' });
       mockRepository.save.mockResolvedValue(saved);
 
@@ -74,7 +75,7 @@ describe('CustomerService', () => {
 
     it('generates CUST-0002 when one customer exists with id=1', async () => {
       mockRepository.findOneBy.mockResolvedValue(null);
-      mockRepository.findOne.mockResolvedValue(makeCustomer({ id: 1 }));
+      mockRepository.find.mockResolvedValue([makeCustomer({ id: 1 })]);
       const saved = makeCustomer({ id: 2, customerCode: 'CUST-0002' });
       mockRepository.save.mockResolvedValue(saved);
 
@@ -99,7 +100,7 @@ describe('CustomerService', () => {
 
     it('trims whitespace from fullName and phoneNumber', async () => {
       mockRepository.findOneBy.mockResolvedValue(null);
-      mockRepository.findOne.mockResolvedValue(null);
+      mockRepository.find.mockResolvedValue([]);
       const saved = makeCustomer({ fullName: 'Ali Khan', phoneNumber: '0300-0000001' });
       mockRepository.save.mockResolvedValue(saved);
 

@@ -275,16 +275,20 @@ describe('OrderService — Status Changes', () => {
 
   it('changes status to Cutting', async () => {
     const order = makeOrder({ status: 'Pending' });
-    mockRepository.findOneBy.mockResolvedValue(order);
+    mockRepository.findOne.mockResolvedValue(order);
     mockRepository.save.mockImplementation((e: any) => Promise.resolve(e));
 
     const result = await OrderService.changeStatus(1, 'Cutting');
     expect(result.status).toBe('Cutting');
+    expect(mockRepository.findOne).toHaveBeenCalledWith({
+      where: { id: 1 },
+      relations: ['customer', 'measurement', 'measurement.values']
+    });
   });
 
   it('marks order as Ready', async () => {
     const order = makeOrder({ status: 'Stitching' });
-    mockRepository.findOneBy.mockResolvedValue(order);
+    mockRepository.findOne.mockResolvedValue(order);
     mockRepository.save.mockImplementation((e: any) => Promise.resolve(e));
 
     const result = await OrderService.markReady(1);
@@ -293,7 +297,7 @@ describe('OrderService — Status Changes', () => {
 
   it('marks order as Delivered', async () => {
     const order = makeOrder({ status: 'Ready' });
-    mockRepository.findOneBy.mockResolvedValue(order);
+    mockRepository.findOne.mockResolvedValue(order);
     mockRepository.save.mockImplementation((e: any) => Promise.resolve(e));
 
     const result = await OrderService.markDelivered(1);
@@ -302,7 +306,7 @@ describe('OrderService — Status Changes', () => {
 
   it('cancels an order', async () => {
     const order = makeOrder({ status: 'Pending' });
-    mockRepository.findOneBy.mockResolvedValue(order);
+    mockRepository.findOne.mockResolvedValue(order);
     mockRepository.save.mockImplementation((e: any) => Promise.resolve(e));
 
     const result = await OrderService.cancelOrder(1);
@@ -310,7 +314,7 @@ describe('OrderService — Status Changes', () => {
   });
 
   it('throws if order not found when changing status', async () => {
-    mockRepository.findOneBy.mockResolvedValue(null);
+    mockRepository.findOne.mockResolvedValue(null);
     await expect(OrderService.changeStatus(999, 'Cutting')).rejects.toThrow(
       'Order with id 999 not found.'
     );

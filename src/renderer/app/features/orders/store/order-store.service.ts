@@ -207,7 +207,29 @@ export class OrderStoreService {
       .subscribe({
         next: (res) => {
           if (res.success && res.data) {
-            onSuccess(res.data as unknown as OrderModel);
+            const updated = res.data as unknown as OrderModel;
+            const currentSelected = this.#selectedOrder();
+            const merged: OrderModel = {
+              ...updated,
+              customer: updated.customer ?? currentSelected?.customer,
+              measurement: updated.measurement !== undefined ? updated.measurement : currentSelected?.measurement
+            };
+            this.#orders.update((list) =>
+              list.map((o) => {
+                if (o.id === id) {
+                  return {
+                    ...updated,
+                    customer: updated.customer ?? o.customer,
+                    measurement: updated.measurement !== undefined ? updated.measurement : o.measurement
+                  };
+                }
+                return o;
+              })
+            );
+            if (currentSelected?.id === id) {
+              this.#selectedOrder.set(merged);
+            }
+            onSuccess(merged);
           } else {
             const msg = res.error ?? 'Failed to update order.';
             this.#error.set(msg);
@@ -263,13 +285,28 @@ export class OrderStoreService {
       next: (res) => {
         if (res.success && res.data) {
           const updated = res.data as unknown as OrderModel;
+          const currentSelected = this.#selectedOrder();
+          const merged: OrderModel = {
+            ...updated,
+            customer: updated.customer ?? currentSelected?.customer,
+            measurement: updated.measurement !== undefined ? updated.measurement : currentSelected?.measurement
+          };
           this.#orders.update((list) =>
-            list.map((o) => (o.id === id ? updated : o))
+            list.map((o) => {
+              if (o.id === id) {
+                return {
+                  ...updated,
+                  customer: updated.customer ?? o.customer,
+                  measurement: updated.measurement !== undefined ? updated.measurement : o.measurement
+                };
+              }
+              return o;
+            })
           );
-          if (this.#selectedOrder()?.id === id) {
-            this.#selectedOrder.set(updated);
+          if (currentSelected?.id === id) {
+            this.#selectedOrder.set(merged);
           }
-          onSuccess?.(updated);
+          onSuccess?.(merged);
         } else {
           onError?.(res.error ?? 'Failed to change status.');
         }
