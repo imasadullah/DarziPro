@@ -6,12 +6,14 @@ import {
   signal,
   computed,
   ChangeDetectionStrategy,
-  ChangeDetectorRef
+  ChangeDetectorRef,
+  NgZone
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import {
   FormBuilder,
+  FormControl,
   FormGroup,
   ReactiveFormsModule,
   Validators,
@@ -81,6 +83,7 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
   private readonly orderService = inject(OrderService);
   private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
+  private readonly ngZone = inject(NgZone);
   private readonly destroy$ = new Subject<void>();
 
   // ── State ──────────────────────────────────────────────────────────────────
@@ -90,12 +93,15 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
   public readonly orderBalance = signal<OrderBalanceSummary | null>(null);
   public readonly orderSearchResults = signal<OrderModel[]>([]);
   public readonly orderSearchLoading = signal<boolean>(false);
+  public readonly showDropdown = signal<boolean>(false);
 
   public readonly PAYMENT_METHOD_OPTIONS = PAYMENT_METHOD_OPTIONS;
 
   // ── Form ───────────────────────────────────────────────────────────────────
   public form!: FormGroup;
-  public orderSearchControl = this.fb.control('');
+  // Plain string control — only holds the text the user types.
+  // We do NOT store order objects here to avoid Angular Material displayWith conflicts.
+  public orderSearchControl = new FormControl<string>('');
 
   // ── Computed ───────────────────────────────────────────────────────────────
   public readonly remainingBalance = computed(() => this.orderBalance()?.remaining ?? 0);
@@ -133,7 +139,7 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
       this.loadOrderById(orderIdParam);
     }
 
-    // Order search autocomplete
+    // Order search
     this.orderSearchControl.valueChanges
       .pipe(
         debounceTime(300),
@@ -141,12 +147,27 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
         takeUntil(this.destroy$)
       )
       .subscribe((q) => {
-        if (typeof q === 'string' && q.length >= 2) {
-          this.searchOrders(q);
+        const query = q?.trim() ?? '';
+        if (query.length >= 2) {
+          // Clear stale selection if user is typing a new query
+          if (this.selectedOrder()) {
+            this.selectedOrder.set(null);
+            this.orderBalance.set(null);
+            this.store.clearOrderBalance();
+          }
+          this.searchOrders(query);
         } else {
           this.orderSearchResults.set([]);
+          this.showDropdown.set(false);
+          // If the field is fully cleared, reset selected order
+          if (!query && this.selectedOrder()) {
+            this.selectedOrder.set(null);
+            this.orderBalance.set(null);
+            this.store.clearOrderBalance();
+          }
         }
       });
+
   }
 
   ngOnDestroy(): void {
@@ -198,7 +219,8 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
           const order = res.data as unknown as OrderModel;
           this.selectedOrder.set(order);
           this.form.patchValue({ orderId: order.id });
-          // Display in search field
+          // Set the display string in the search field (emitEvent: false
+          // prevents the valueChanges subscription from triggering a search)
           this.orderSearchControl.setValue(
             `${order.orderNumber} — ${order.customer?.fullName ?? ''}`,
             { emitEvent: false }
@@ -211,6 +233,9 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
             if (b) {
               clearInterval(sub);
               this.orderBalance.set(b);
+              if (!this.isEditMode() && !this.form.get('amount')?.value) {
+                this.form.patchValue({ amount: b.remaining });
+              }
               this.form.get('amount')?.updateValueAndValidity();
               this.cdr.markForCheck();
             }
@@ -227,29 +252,41 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => {
-          this.orderSearchLoading.set(false);
-          if (res.success && res.data) {
-            this.orderSearchResults.set(
-              (res.data as unknown as OrderModel[]).filter(
-                (o) => o.status !== 'Delivered' && o.status !== 'Cancelled'
-              )
-            );
-          }
-          this.cdr.markForCheck();
+          // Run inside Angular zone to guarantee OnPush change detection fires
+          this.ngZone.run(() => {
+            this.orderSearchLoading.set(false);
+            if (res.success && res.data) {
+              // const results = (res.data as unknown as OrderModel[]).filter(
+              //   (o) => o.status !== 'Delivered' && o.status !== 'Cancelled'
+              // );
+              const results = (res.data as unknown as OrderModel[]).filter((o) => o.status !== 'Cancelled');
+              this.orderSearchResults.set(results);
+              this.showDropdown.set(results.length > 0);
+            } else {
+              this.orderSearchResults.set([]);
+              this.showDropdown.set(false);
+            }
+          });
         },
         error: () => {
-          this.orderSearchLoading.set(false);
-          this.cdr.markForCheck();
+          this.ngZone.run(() => {
+            this.orderSearchLoading.set(false);
+            this.orderSearchResults.set([]);
+            this.showDropdown.set(false);
+          });
         }
       });
   }
 
   onOrderSelected(order: OrderModel): void {
     this.selectedOrder.set(order);
+    // Store the formatted display string (NOT the object) in the control.
     this.orderSearchControl.setValue(
       `${order.orderNumber} — ${order.customer?.fullName ?? ''}`,
       { emitEvent: false }
     );
+    this.orderSearchResults.set([]);
+    this.showDropdown.set(false);
     this.orderBalance.set(null);
     this.store.loadOrderBalance(order.id);
 
@@ -258,16 +295,23 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
       const b = this.store.orderBalance();
       if (b) {
         clearInterval(sub);
-        this.orderBalance.set(b);
-        this.form.get('amount')?.updateValueAndValidity();
-        this.cdr.markForCheck();
+        this.ngZone.run(() => {
+          this.orderBalance.set(b);
+          if (!this.isEditMode()) {
+            this.form.patchValue({ amount: b.remaining });
+          }
+          this.form.get('amount')?.updateValueAndValidity();
+        });
       }
     }, 100);
     setTimeout(() => clearInterval(sub), 5000);
   }
 
-  displayOrderFn(order: OrderModel): string {
-    return order ? `${order.orderNumber} — ${order.customer?.fullName ?? ''}` : '';
+  closeDropdown(): void {
+    // Small delay so click on option registers before blur hides the dropdown
+    setTimeout(() => {
+      this.showDropdown.set(false);
+    }, 200);
   }
 
   onSubmit(): void {

@@ -99,7 +99,8 @@ export class PaymentService {
 
     const order = await orderRepo.findOneBy({ id: orderId });
     if (order) {
-      order.remainingAmount = Math.max(0, Number(order.totalAmount) - totalPaid);
+      const advanceAmount = Number(order.advanceAmount ?? 0);
+      order.remainingAmount = Math.max(0, Number(order.totalAmount) - totalPaid - advanceAmount);
       await orderRepo.save(order);
     }
   }
@@ -134,7 +135,7 @@ export class PaymentService {
         .where('p.orderId = :orderId', { orderId: dto.orderId })
         .getRawOne();
 
-      let alreadyPaid = Number(result?.totalPaid ?? 0);
+      let alreadyPaid = Number(result?.totalPaid ?? 0) + Number(order.advanceAmount ?? 0);
 
       // On update, subtract the current payment's amount to get what others paid
       if (paymentId) {
@@ -328,7 +329,7 @@ export class PaymentService {
       .where('payment.orderId = :orderId', { orderId })
       .getRawOne();
 
-    const totalPaid = Number(result?.totalPaid ?? 0);
+    const totalPaid = Number(result?.totalPaid ?? 0) + Number(order.advanceAmount ?? 0);
     const totalAmount = Number(order.totalAmount);
     const remaining = Math.max(0, totalAmount - totalPaid);
 

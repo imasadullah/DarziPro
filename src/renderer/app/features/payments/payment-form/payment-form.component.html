@@ -28,15 +28,25 @@
             Select Order
           </div>
 
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Search Order</mat-label>
-            <mat-icon matPrefix>receipt_long</mat-icon>
-            <input matInput [formControl]="orderSearchControl" [matAutocomplete]="orderAuto"
-              placeholder="Order # or customer name" id="order-search-input">
-            <mat-spinner matSuffix *ngIf="orderSearchLoading()" diameter="20"></mat-spinner>
-            <mat-autocomplete #orderAuto="matAutocomplete" (optionSelected)="onOrderSelected($event.option.value)"
-              [displayWith]="displayOrderFn">
-              <mat-option *ngFor="let order of orderSearchResults()" [value]="order" class="order-option">
+          <div class="order-search-wrapper">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Search Order</mat-label>
+              <mat-icon matPrefix>receipt_long</mat-icon>
+              <input matInput
+                [formControl]="orderSearchControl"
+                placeholder="Order # or customer name"
+                id="order-search-input"
+                autocomplete="off"
+                (blur)="closeDropdown()">
+              <mat-spinner matSuffix *ngIf="orderSearchLoading()" diameter="20"></mat-spinner>
+            </mat-form-field>
+
+            <!-- Custom Dropdown Results -->
+            <div class="order-dropdown" *ngIf="showDropdown() && orderSearchResults().length > 0">
+              <div
+                *ngFor="let order of orderSearchResults()"
+                class="order-dropdown-item"
+                (mousedown)="onOrderSelected(order)">
                 <div class="order-option-content">
                   <span class="order-option-number">{{ order.orderNumber }}</span>
                   <span class="order-option-customer">{{ order.customer?.fullName }}</span>
@@ -44,9 +54,9 @@
                     Balance: Rs {{ order.remainingAmount | number }}
                   </span>
                 </div>
-              </mat-option>
-            </mat-autocomplete>
-          </mat-form-field>
+              </div>
+            </div>
+          </div>
         </mat-card>
 
         <!-- Balance Summary Card -->
