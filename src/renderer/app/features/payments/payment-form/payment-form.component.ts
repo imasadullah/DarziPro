@@ -233,6 +233,9 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
             if (b) {
               clearInterval(sub);
               this.orderBalance.set(b);
+              if (!this.isEditMode() && !this.form.get('amount')?.value) {
+                this.form.patchValue({ amount: b.remaining });
+              }
               this.form.get('amount')?.updateValueAndValidity();
               this.cdr.markForCheck();
             }
@@ -294,6 +297,9 @@ export class PaymentFormComponent implements OnInit, OnDestroy {
         clearInterval(sub);
         this.ngZone.run(() => {
           this.orderBalance.set(b);
+          if (!this.isEditMode()) {
+            this.form.patchValue({ amount: b.remaining });
+          }
           this.form.get('amount')?.updateValueAndValidity();
         });
       }

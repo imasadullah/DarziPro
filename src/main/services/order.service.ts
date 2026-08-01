@@ -1,5 +1,6 @@
 import { AppDataSource } from '../config/data-source';
 import { Order, OrderStatus, GarmentType, OrderPriority } from '../database/entities/order.entity';
+import { Payment } from '../database/entities/payment.entity';
 import { Like } from 'typeorm';
 
 // ── DTOs ──────────────────────────────────────────────────────────────────────
@@ -191,9 +192,19 @@ export class OrderService {
       if (newAdvance < 0) throw new Error('Advance amount cannot be negative.');
       if (newAdvance > newTotal) throw new Error('Advance amount cannot exceed total amount.');
 
+      const paymentRepo = AppDataSource.getRepository(Payment);
+      const result = await paymentRepo
+        .createQueryBuilder('payment')
+        .select('SUM(payment.amount)', 'totalPaid')
+        .where('payment.orderId = :orderId', { orderId: order.id })
+        .getRawOne();
+      
+      const paymentsTotal = Number(result?.totalPaid ?? 0);
+      const totalPaid = newAdvance + paymentsTotal;
+
       order.totalAmount = newTotal;
       order.advanceAmount = newAdvance;
-      order.remainingAmount = this.calcRemaining(newTotal, newAdvance);
+      order.remainingAmount = Math.max(0, newTotal - totalPaid);
     }
 
     return repo.save(order);
