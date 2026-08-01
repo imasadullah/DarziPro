@@ -198,6 +198,160 @@ interface PaymentStats {
   recentPayments: PaymentModel[];
 }
 
+// ── Reports ────────────────────────────────────────────────────────────────────
+
+interface ReportKpiSummary {
+  revenueToday: number;
+  revenueThisMonth: number;
+  activeOrders: number;
+  outstandingAmount: number;
+  deliveredOrders: number;
+  totalCustomers: number;
+}
+
+interface ReportDateParams {
+  dateFrom?: string;
+  dateTo?: string;
+}
+
+interface RevenueReportParams extends ReportDateParams {
+  customerId?: number;
+  paymentMethod?: string;
+}
+
+interface RevenueMethodBreakdown {
+  method: string;
+  label: string;
+  total: number;
+  count: number;
+}
+
+interface RevenueTrendPoint {
+  label: string;
+  total: number;
+}
+
+interface RevenueReport {
+  totalRevenue: number;
+  paymentCount: number;
+  averagePayment: number;
+  methodBreakdown: RevenueMethodBreakdown[];
+  dailyTrend: RevenueTrendPoint[];
+}
+
+interface OrdersReportParams extends ReportDateParams {
+  status?: string;
+  customerId?: number;
+  garmentType?: string;
+}
+
+interface OrdersReportItem {
+  id: number;
+  orderNumber: string;
+  customerName: string;
+  garmentType: string;
+  status: string;
+  orderDate: string;
+  deliveryDate: string;
+  totalAmount: number;
+  remainingAmount: number;
+}
+
+interface OrdersReport {
+  total: number;
+  pending: number;
+  cutting: number;
+  stitching: number;
+  qualityCheck: number;
+  ready: number;
+  delivered: number;
+  cancelled: number;
+  items: OrdersReportItem[];
+}
+
+interface CustomerReportParams extends ReportDateParams {
+  limit?: number;
+}
+
+interface CustomerTopItem {
+  id: number;
+  fullName: string;
+  phoneNumber: string;
+  totalSpent: number;
+  orderCount: number;
+}
+
+interface CustomerReport {
+  totalCustomers: number;
+  newCustomers: number;
+  repeatCustomers: number;
+  topBySpending: CustomerTopItem[];
+  topByOrders: CustomerTopItem[];
+}
+
+interface OutstandingReportParams {
+  sortDir?: 'ASC' | 'DESC';
+  minOutstanding?: number;
+}
+
+interface OutstandingItem {
+  orderId: number;
+  orderNumber: string;
+  customerId: number;
+  customerName: string;
+  phoneNumber: string;
+  orderDate: string;
+  deliveryDate: string;
+  totalAmount: number;
+  totalPaid: number;
+  remaining: number;
+}
+
+interface OutstandingReport {
+  items: OutstandingItem[];
+  totalOutstanding: number;
+  orderCount: number;
+}
+
+interface DeliveryOverdueItem {
+  id: number;
+  orderNumber: string;
+  customerName: string;
+  deliveryDate: string;
+  daysOverdue: number;
+  status: string;
+  totalAmount: number;
+  remainingAmount: number;
+}
+
+interface DeliveryReport {
+  deliveredToday: number;
+  deliveredThisMonth: number;
+  overdueOrders: number;
+  dueToday: number;
+  averageDeliveryDays: number;
+  overdueItems: DeliveryOverdueItem[];
+}
+
+interface PaymentMethodItem {
+  method: string;
+  label: string;
+  total: number;
+  count: number;
+  percentage: number;
+}
+
+interface PaymentMethodReport {
+  methods: PaymentMethodItem[];
+  grandTotal: number;
+  grandCount: number;
+}
+
+interface ReportExportResult {
+  filePath: string;
+  fileName: string;
+}
+
 // ── Window API ─────────────────────────────────────────────────────────────────
 
 interface Window {
@@ -264,5 +418,18 @@ interface Window {
       getSettings(): Promise<ApiResponse<Record<string, string>>>;
       saveSettings(settings: Record<string, string>): Promise<ApiResponse>;
     };
+    reports: {
+      getKpiSummary(): Promise<ApiResponse<ReportKpiSummary>>;
+      getRevenueReport(params?: RevenueReportParams): Promise<ApiResponse<RevenueReport>>;
+      getOrdersReport(params?: OrdersReportParams): Promise<ApiResponse<OrdersReport>>;
+      getCustomerReport(params?: CustomerReportParams): Promise<ApiResponse<CustomerReport>>;
+      getOutstandingReport(params?: OutstandingReportParams): Promise<ApiResponse<OutstandingReport>>;
+      getDeliveryReport(): Promise<ApiResponse<DeliveryReport>>;
+      getPaymentMethodReport(params?: ReportDateParams): Promise<ApiResponse<PaymentMethodReport>>;
+      getRevenueTrend(params?: ReportDateParams & { groupBy?: 'day' | 'month' }): Promise<ApiResponse<RevenueTrendPoint[]>>;
+      exportCsv(type: string, params?: any): Promise<ApiResponse<ReportExportResult>>;
+      exportPdf(type: string, params?: any): Promise<ApiResponse<ReportExportResult>>;
+    };
   };
 }
+

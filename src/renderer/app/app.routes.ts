@@ -38,6 +38,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'reports',
+    loadChildren: () => import('./features/reports/reports.routes').then(m => m.REPORT_ROUTES),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'settings',
     loadComponent: () => import('./features/settings/settings.component').then(m => m.SettingsComponent),
     canActivate: [AuthGuard, RoleGuard],

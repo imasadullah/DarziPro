@@ -14,7 +14,7 @@ Phase 4 ✓
 Phase 5 ✓
 - Payments
 
-Phase 6
+Phase 6 ✓
 - Reports
 
 Phase 7

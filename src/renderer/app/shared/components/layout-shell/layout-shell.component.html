@@ -47,6 +47,10 @@
           <mat-icon>payments</mat-icon>
           <span>Payments</span>
         </a>
+        <a routerLink="/reports" routerLinkActive="active" class="nav-item">
+          <mat-icon>bar_chart</mat-icon>
+          <span>Reports</span>
+        </a>
         <a routerLink="/settings" routerLinkActive="active" class="nav-item" *ngIf="authState.isOwner()">
           <mat-icon>settings</mat-icon>
           <span>Settings</span>

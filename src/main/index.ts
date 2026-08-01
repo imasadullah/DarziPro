@@ -7,6 +7,7 @@ import { registerCustomerIPCHandlers } from './ipc/customer.ipc';
 import { registerMeasurementIPCHandlers } from './ipc/measurement.ipc';
 import { registerOrderIPCHandlers } from './ipc/order.ipc';
 import { registerPaymentIPCHandlers } from './ipc/payment.ipc';
+import { registerReportIPCHandlers } from './ipc/report.ipc';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -40,6 +41,7 @@ function createWindow() {
   registerMeasurementIPCHandlers();
   registerOrderIPCHandlers();
   registerPaymentIPCHandlers();
+  registerReportIPCHandlers();
 
   const isDev = process.env['NODE_ENV'] === 'development' || !app.isPackaged;
 

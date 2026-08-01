@@ -5,6 +5,6 @@
 [x] Measurements
 [x] Orders
 [x] Payments
-[ ] Reports
+[x] Reports
 [ ] Settings
 [ ] Backup & Restore

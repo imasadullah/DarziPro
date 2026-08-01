@@ -64,6 +64,18 @@ contextBridge.exposeInMainWorld('api', {
   system: {
     getSettings: () => ipcRenderer.invoke('system:getSettings'),
     saveSettings: (settings: any) => ipcRenderer.invoke('system:saveSettings', settings)
+  },
+  reports: {
+    getKpiSummary: () => ipcRenderer.invoke('report:getKpiSummary'),
+    getRevenueReport: (params?: any) => ipcRenderer.invoke('report:getRevenueReport', params),
+    getOrdersReport: (params?: any) => ipcRenderer.invoke('report:getOrdersReport', params),
+    getCustomerReport: (params?: any) => ipcRenderer.invoke('report:getCustomerReport', params),
+    getOutstandingReport: (params?: any) => ipcRenderer.invoke('report:getOutstandingReport', params),
+    getDeliveryReport: () => ipcRenderer.invoke('report:getDeliveryReport'),
+    getPaymentMethodReport: (params?: any) => ipcRenderer.invoke('report:getPaymentMethodReport', params),
+    getRevenueTrend: (params?: any) => ipcRenderer.invoke('report:getRevenueTrend', params),
+    exportCsv: (type: string, params?: any) => ipcRenderer.invoke('report:exportCsv', { type, params }),
+    exportPdf: (type: string, params?: any) => ipcRenderer.invoke('report:exportPdf', { type, params }),
   }
 });
 
