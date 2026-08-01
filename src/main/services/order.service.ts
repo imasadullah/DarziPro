@@ -295,7 +295,10 @@ export class OrderService {
       throw new Error(`Order with id ${id} not found.`);
     }
     order.status = status;
-    return repo.save(order);
+    await repo.save(order);
+    // Reload with full relations (customer, measurement) so the response
+    // includes all data and the frontend customer card does not disappear.
+    return this.getById(id);
   }
 
   /**

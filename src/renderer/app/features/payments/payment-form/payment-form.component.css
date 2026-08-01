@@ -247,7 +247,46 @@
   gap: 8px;
 }
 
-/* ── Autocomplete Option ──────────────────────────────────────────────────── */
+/* ── Order Search Wrapper & Custom Dropdown ───────────────────────────────── */
+
+.order-search-wrapper {
+  position: relative;
+}
+
+.order-search-wrapper .full-width {
+  width: 100%;
+}
+
+.order-dropdown {
+  position: absolute;
+  top: calc(100% - 22px);
+  left: 0;
+  right: 0;
+  background: #fff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  z-index: 1000;
+  max-height: 300px;
+  overflow-y: auto;
+}
+
+.order-dropdown-item {
+  padding: 10px 14px;
+  cursor: pointer;
+  border-bottom: 1px solid #f1f5f9;
+  transition: background 0.15s ease;
+}
+
+.order-dropdown-item:last-child {
+  border-bottom: none;
+}
+
+.order-dropdown-item:hover {
+  background: #f0f6ff;
+}
+
+/* ── Order Option Content ─────────────────────────────────────────────────── */
 
 .order-option-content {
   display: flex;
@@ -272,6 +311,7 @@
   font-size: 11px;
   color: #64748b;
 }
+
 
 /* ── Method Option ────────────────────────────────────────────────────────── */
 
