@@ -1,0 +1,12 @@
+<div class="dp-search">
+  <mat-icon class="dp-search__icon">search</mat-icon>
+  <input
+    class="dp-search__input"
+    type="text"
+    [placeholder]="placeholder"
+    [value]="value"
+    (input)="onInput($event)"
+    (focus)="focusEvent.emit()"
+  />
+  <div *ngIf="shortcutHint" class="dp-search__kbd">{{ shortcutHint }}</div>
+</div>

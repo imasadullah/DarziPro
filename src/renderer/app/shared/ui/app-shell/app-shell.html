@@ -1,0 +1,10 @@
+<div class="shell" [class.shell--collapsed]="sidebarCollapsed">
+  <aside class="shell__sidebar">
+    <ng-content select="[sidebar]"></ng-content>
+  </aside>
+  <main class="shell__content">
+    <div class="shell__content-inner">
+      <ng-content></ng-content>
+    </div>
+  </main>
+</div>
