@@ -1,180 +1,122 @@
 <app-layout-shell>
   <div class="dashboard-container">
-    <header class="dashboard-header">
-      <div class="dashboard-header-left">
-        <h1>Dashboard Overview</h1>
-        <p class="welcome-text">Welcome back, <strong>{{ authState.currentUser()?.fullName }}</strong></p>
-      </div>
-      <div class="dashboard-header-right">
-        <span class="header-date">{{ today | date:'EEEE, MMMM d, y' }}</span>
-      </div>
-    </header>
+    <dp-page-header
+      title="Dashboard Overview"
+      [subtitle]="'Welcome back, ' + authState.currentUser()?.fullName"
+    >
+      <div class="header-date">{{ today | date:'EEEE, MMMM d, y' }}</div>
+    </dp-page-header>
 
-    <!-- ── Order KPI Cards ─────────────────────────────────────────────────── -->
-    <div class="section-label">Orders at a Glance</div>
-    <div class="kpi-grid">
+    <div class="dashboard-content">
+      <!-- ── Orders at a Glance ─────────────────────────────────────────────────── -->
+      <div class="section-label">Orders at a Glance</div>
+      <div class="kpi-grid">
+        <dp-stat-card
+          title="Total Orders"
+          [value]="statsLoading() ? '—' : (orderStats()?.totalOrders ?? 0)"
+          icon="receipt_long"
+          iconTint="blue"
+          trendText="All time"
+          (clicked)="navigateToOrders()"
+        ></dp-stat-card>
 
-      <div class="kpi-card kpi-total" (click)="navigateToOrders()" id="kpi-total-orders">
-        <div class="kpi-icon-wrap kpi-icon-blue">
-          <mat-icon>receipt_long</mat-icon>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value">
-            <span *ngIf="statsLoading()" class="kpi-loading">—</span>
-            <span *ngIf="!statsLoading()">{{ orderStats()?.totalOrders ?? 0 }}</span>
-          </div>
-          <div class="kpi-label">Total Orders</div>
-          <div class="kpi-sub">All time</div>
-        </div>
-        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
-      </div>
+        <dp-stat-card
+          title="Active Orders"
+          [value]="statsLoading() ? '—' : (orderStats()?.activeOrders ?? 0)"
+          icon="pending_actions"
+          iconTint="indigo"
+          trendText="In production"
+          (clicked)="navigateToOrders('active')"
+        ></dp-stat-card>
 
-      <div class="kpi-card kpi-active" (click)="navigateToOrders('active')" id="kpi-active-orders">
-        <div class="kpi-icon-wrap kpi-icon-purple">
-          <mat-icon>pending_actions</mat-icon>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value">
-            <span *ngIf="statsLoading()" class="kpi-loading">—</span>
-            <span *ngIf="!statsLoading()">{{ orderStats()?.activeOrders ?? 0 }}</span>
-          </div>
-          <div class="kpi-label">Active Orders</div>
-          <div class="kpi-sub">In production</div>
-        </div>
-        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
-      </div>
+        <dp-stat-card
+          title="Deliveries Due Today"
+          [value]="statsLoading() ? '—' : (orderStats()?.dueToday ?? 0)"
+          icon="today"
+          iconTint="amber"
+          trendText="Need delivery"
+          (clicked)="navigateToOrders('today')"
+        ></dp-stat-card>
 
-      <div class="kpi-card kpi-today" (click)="navigateToOrders('today')" id="kpi-due-today">
-        <div class="kpi-icon-wrap kpi-icon-amber">
-          <mat-icon>today</mat-icon>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value">
-            <span *ngIf="statsLoading()" class="kpi-loading">—</span>
-            <span *ngIf="!statsLoading()">{{ orderStats()?.dueToday ?? 0 }}</span>
-          </div>
-          <div class="kpi-label">Due Today</div>
-          <div class="kpi-sub">Need delivery</div>
-        </div>
-        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
+        <dp-stat-card
+          title="Requires Attention"
+          [value]="statsLoading() ? '—' : (orderStats()?.overdue ?? 0)"
+          icon="warning_amber"
+          iconTint="red"
+          trendText="Past due date"
+          (clicked)="navigateToOrders('overdue')"
+        ></dp-stat-card>
       </div>
 
-      <div class="kpi-card kpi-overdue" [class.kpi-overdue--active]="(orderStats()?.overdue ?? 0) > 0" id="kpi-overdue">
-        <div class="kpi-icon-wrap kpi-icon-red">
-          <mat-icon>warning_amber</mat-icon>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value">
-            <span *ngIf="statsLoading()" class="kpi-loading">—</span>
-            <span *ngIf="!statsLoading()">{{ orderStats()?.overdue ?? 0 }}</span>
-          </div>
-          <div class="kpi-label">Overdue</div>
-          <div class="kpi-sub">Past due date</div>
-        </div>
-        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
+      <!-- ── Quick Actions ────────────────────────────────────── -->
+      <div class="section-label">Quick Actions</div>
+      <dp-action-toolbar class="quick-actions">
+        <button class="dp-btn dp-btn--primary" (click)="navigateToNewOrder()">
+          <mat-icon>add_shopping_cart</mat-icon> New Order
+        </button>
+        <button class="dp-btn dp-btn--secondary" (click)="navigateToReceivePayment()">
+          <mat-icon>add_card</mat-icon> Receive Payment
+        </button>
+        <button class="dp-btn dp-btn--secondary" (click)="navigateToKanban()">
+          <mat-icon>view_kanban</mat-icon> Kanban Board
+        </button>
+        <button class="dp-btn dp-btn--secondary" (click)="navigateToCustomers()">
+          <mat-icon>people</mat-icon> Customers
+        </button>
+      </dp-action-toolbar>
+
+      <!-- ── Revenue Overview ────────────────────────────────── -->
+      <div class="section-label">Revenue Overview</div>
+      <div class="kpi-grid">
+        <dp-stat-card
+          title="Today's Collections"
+          [value]="paymentStatsLoading() ? '—' : ('Rs ' + ((paymentStats()?.todayCollections ?? 0) | number))"
+          icon="today"
+          iconTint="green"
+          trendText="Cash & digital"
+          (clicked)="navigateToPayments()"
+        ></dp-stat-card>
+
+        <dp-stat-card
+          title="Monthly Revenue"
+          [value]="paymentStatsLoading() ? '—' : ('Rs ' + ((paymentStats()?.monthlyRevenue ?? 0) | number))"
+          icon="show_chart"
+          iconTint="teal"
+          trendText="This month"
+          (clicked)="navigateToPayments()"
+        ></dp-stat-card>
+
+        <dp-stat-card
+          title="Outstanding"
+          [value]="paymentStatsLoading() ? '—' : ('Rs ' + ((paymentStats()?.outstandingAmount ?? 0) | number))"
+          icon="account_balance_wallet"
+          iconTint="amber"
+          trendText="Total unpaid balance"
+        ></dp-stat-card>
       </div>
 
-    </div>
-
-    <!-- ── Quick Actions ────────────────────────────────────── -->
-    <div class="section-label">Quick Actions</div>
-    <div class="quick-actions">
-      <button mat-flat-button color="primary" class="quick-btn" (click)="navigateToNewOrder()" id="quick-new-order">
-        <mat-icon>add_shopping_cart</mat-icon>
-        New Order
-      </button>
-      <button mat-stroked-button class="quick-btn" (click)="navigateToReceivePayment()" id="quick-payment">
-        <mat-icon>add_card</mat-icon>
-        Receive Payment
-      </button>
-      <button mat-stroked-button class="quick-btn" (click)="navigateToKanban()" id="quick-kanban">
-        <mat-icon>view_kanban</mat-icon>
-        Kanban Board
-      </button>
-      <button mat-stroked-button class="quick-btn" (click)="navigateToCustomers()" id="quick-customers">
-        <mat-icon>people</mat-icon>
-        Customers
-      </button>
-    </div>
-
-    <!-- ── Payment KPI Cards ────────────────────────────────── -->
-    <div class="section-label">Revenue &amp; Collections</div>
-    <div class="kpi-grid">
-
-      <div class="kpi-card kpi-revenue" (click)="navigateToPayments()" id="kpi-today-collections">
-        <div class="kpi-icon-wrap kpi-icon-green">
-          <mat-icon>today</mat-icon>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value">
-            <span *ngIf="paymentStatsLoading()" class="kpi-loading">—</span>
-            <span *ngIf="!paymentStatsLoading()" class="kpi-currency">
-              Rs {{ (paymentStats()?.todayCollections ?? 0) | number }}
-            </span>
-          </div>
-          <div class="kpi-label">Today's Collections</div>
-          <div class="kpi-sub">Cash &amp; digital</div>
-        </div>
-        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
-      </div>
-
-      <div class="kpi-card kpi-monthly" (click)="navigateToPayments()" id="kpi-monthly-revenue">
-        <div class="kpi-icon-wrap kpi-icon-teal">
-          <mat-icon>show_chart</mat-icon>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value">
-            <span *ngIf="paymentStatsLoading()" class="kpi-loading">—</span>
-            <span *ngIf="!paymentStatsLoading()" class="kpi-currency">
-              Rs {{ (paymentStats()?.monthlyRevenue ?? 0) | number }}
-            </span>
-          </div>
-          <div class="kpi-label">Monthly Revenue</div>
-          <div class="kpi-sub">This month</div>
-        </div>
-        <mat-icon class="kpi-arrow">arrow_forward_ios</mat-icon>
-      </div>
-
-      <div class="kpi-card kpi-outstanding" id="kpi-outstanding">
-        <div class="kpi-icon-wrap kpi-icon-amber">
-          <mat-icon>account_balance_wallet</mat-icon>
-        </div>
-        <div class="kpi-body">
-          <div class="kpi-value">
-            <span *ngIf="paymentStatsLoading()" class="kpi-loading">—</span>
-            <span *ngIf="!paymentStatsLoading()" class="kpi-currency kpi-outstanding-value">
-              Rs {{ (paymentStats()?.outstandingAmount ?? 0) | number }}
-            </span>
-          </div>
-          <div class="kpi-label">Outstanding</div>
-          <div class="kpi-sub">Total unpaid balance</div>
-        </div>
-      </div>
-
-    </div>
-
-    <!-- ── Recent Payments ─────────────────────────────────────── -->
-    <div class="recent-payments-section" *ngIf="paymentStats()?.recentPayments?.length">
-      <div class="section-label">Recent Payments</div>
-      <div class="recent-payments-list">
-        <div
-          class="recent-payment-row"
-          *ngFor="let p of paymentStats()?.recentPayments"
-          (click)="navigateToPayment(p.id)">
-          <div class="rp-left">
-            <div class="rp-avatar">{{ p.customer?.fullName?.[0] ?? '?' }}</div>
-            <div>
-              <div class="rp-name">{{ p.customer?.fullName ?? '—' }}</div>
-              <div class="rp-order">{{ p.order?.orderNumber ?? '—' }} · {{ p.paymentNumber }}</div>
+      <!-- ── Recent Activity ─────────────────────────────────────── -->
+      <div class="recent-payments-section" *ngIf="paymentStats()?.recentPayments?.length">
+        <div class="section-label">Recent Activity (Payments)</div>
+        <div class="recent-payments-list">
+          <div
+            class="recent-payment-row"
+            *ngFor="let p of paymentStats()?.recentPayments"
+            (click)="navigateToPayment(p.id)">
+            <div class="rp-left">
+              <div class="rp-avatar">{{ p.customer?.fullName?.[0] ?? '?' }}</div>
+              <div>
+                <div class="rp-name">{{ p.customer?.fullName ?? '—' }}</div>
+                <div class="rp-order">{{ p.order?.orderNumber ?? '—' }} · {{ p.paymentNumber }}</div>
+              </div>
+            </div>
+            <div class="rp-right">
+              <div class="rp-amount">Rs {{ p.amount | number }}</div>
+              <div class="rp-date">{{ p.paymentDate | date:'dd MMM' }}</div>
             </div>
           </div>
-          <div class="rp-right">
-            <div class="rp-amount">Rs {{ p.amount | number }}</div>
-            <div class="rp-date">{{ p.paymentDate | date:'dd MMM' }}</div>
-          </div>
         </div>
       </div>
     </div>
-
   </div>
 </app-layout-shell>

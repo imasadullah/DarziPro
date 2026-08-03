@@ -10,6 +10,9 @@ import { OrderService } from '../../core/services/order.service';
 import { OrderStats } from '../orders/models/order.model';
 import { PaymentService } from '../../core/services/payment.service';
 import { PaymentStats } from '../payments/models/payment.model';
+import { PageHeaderComponent } from '../../shared/ui/page-header/page-header';
+import { StatCardComponent } from '../../shared/ui/stat-card/stat-card';
+import { ActionToolbarComponent } from '../../shared/ui/action-toolbar/action-toolbar';
 
 @Component({
   selector: 'app-dashboard',
@@ -20,7 +23,10 @@ import { PaymentStats } from '../payments/models/payment.model';
     LayoutShellComponent,
     MatCardModule,
     MatIconModule,
-    MatButtonModule
+    MatButtonModule,
+    PageHeaderComponent,
+    StatCardComponent,
+    ActionToolbarComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
