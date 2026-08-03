@@ -1,66 +1,67 @@
-<div class="shell-container">
-  <!-- Top Header Toolbar -->
-  <header class="shell-header">
-    <div class="header-left">
-      <div class="logo-badge">
-        <mat-icon class="logo-icon">content_cut</mat-icon>
+<dp-app-shell [sidebarCollapsed]="isCollapsed()">
+  <div sidebar class="sidebar-container" [class.shell--collapsed]="isCollapsed()">
+    <!-- Brand Block -->
+    <div class="brand-block">
+      <div class="brand-logo">
+        <mat-icon>content_cut</mat-icon>
       </div>
-      <div class="brand-text">
-        <span class="shop-name">Darzi Pro</span>
-        <span class="shop-tagline">Tailoring Management</span>
-      </div>
+      <div class="brand-name">Darzi Pro</div>
     </div>
 
-    <div class="header-right" *ngIf="authState.currentUser() as user">
-      <div class="user-info">
-        <span class="user-welcome">Welcome back, <strong>{{ user.fullName }}</strong></span>
-        <span class="user-role">{{ user.role }}</span>
-      </div>
+    <!-- Primary Nav -->
+    <nav class="nav-section">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+        <mat-icon>dashboard</mat-icon>
+        <span>Dashboard</span>
+      </a>
+      <a routerLink="/customers" routerLinkActive="active" class="nav-item">
+        <mat-icon>people</mat-icon>
+        <span>Customers</span>
+      </a>
+      <a routerLink="/measurements" routerLinkActive="active" class="nav-item">
+        <mat-icon>straighten</mat-icon>
+        <span>Measurements</span>
+      </a>
+      <a routerLink="/orders" routerLinkActive="active" class="nav-item">
+        <mat-icon>shopping_basket</mat-icon>
+        <span>Orders</span>
+      </a>
+      <a routerLink="/payments" routerLinkActive="active" class="nav-item">
+        <mat-icon>payments</mat-icon>
+        <span>Payments</span>
+      </a>
+    </nav>
+
+    <div class="nav-divider"></div>
+
+    <!-- Secondary Nav -->
+    <nav class="nav-section">
+      <a routerLink="/reports" routerLinkActive="active" class="nav-item">
+        <mat-icon>bar_chart</mat-icon>
+        <span>Reports</span>
+      </a>
+      <a routerLink="/settings" routerLinkActive="active" class="nav-item" *ngIf="authState.isOwner()">
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </a>
+    </nav>
+
+    <!-- Collapse Toggle -->
+    <button class="sidebar-collapse-toggle" (click)="toggleCollapse()">
+      <mat-icon>{{ isCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+    </button>
+
+    <!-- User Block -->
+    <div class="user-block" *ngIf="authState.currentUser() as user">
       <div class="user-avatar">{{ user.fullName.charAt(0) }}</div>
-      <button mat-icon-button (click)="logout()" title="Logout" class="logout-btn">
-        <mat-icon>logout</mat-icon>
-      </button>
+      <div class="user-details">
+        <div class="user-name">{{ user.fullName }}</div>
+        <div class="user-role">{{ user.role }}</div>
+      </div>
+      <button class="logout-action" (click)="logout()">
+        <span class="fa fa-sign-out"></span></button>
     </div>
-  </header>
-
-  <!-- Left Sidebar Sidenav Layout -->
-  <div class="shell-body">
-    <aside class="shell-sidebar">
-      <nav class="sidebar-nav">
-        <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
-          <mat-icon>dashboard</mat-icon>
-          <span>Dashboard</span>
-        </a>
-        <a routerLink="/customers" routerLinkActive="active" class="nav-item">
-          <mat-icon>people</mat-icon>
-          <span>Customers</span>
-        </a>
-        <a routerLink="/measurements" routerLinkActive="active" class="nav-item">
-          <mat-icon>straighten</mat-icon>
-          <span>Measurements</span>
-        </a>
-        <a routerLink="/orders" routerLinkActive="active" class="nav-item">
-          <mat-icon>shopping_basket</mat-icon>
-          <span>Orders</span>
-        </a>
-        <a routerLink="/payments" routerLinkActive="active" class="nav-item">
-          <mat-icon>payments</mat-icon>
-          <span>Payments</span>
-        </a>
-        <a routerLink="/reports" routerLinkActive="active" class="nav-item">
-          <mat-icon>bar_chart</mat-icon>
-          <span>Reports</span>
-        </a>
-        <a routerLink="/settings" routerLinkActive="active" class="nav-item" *ngIf="authState.isOwner()">
-          <mat-icon>settings</mat-icon>
-          <span>Settings</span>
-        </a>
-      </nav>
-    </aside>
-
-    <!-- Main Content Panel -->
-    <main class="shell-content">
-      <ng-content></ng-content>
-    </main>
   </div>
-</div>
+
+  <ng-content></ng-content>
+</dp-app-shell>
