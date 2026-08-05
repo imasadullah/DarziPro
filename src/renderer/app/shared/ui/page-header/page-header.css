@@ -1,0 +1,31 @@
+:host {
+  display: block;
+}
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24px;
+}
+
+.page-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--dp-text, #111827);
+  letter-spacing: -0.025em;
+  margin: 0;
+}
+
+.page-subtitle {
+  font-size: 13px;
+  color: var(--dp-text-tertiary, #9CA3AF);
+  margin-top: 2px;
+  margin-bottom: 0;
+}
+
+.page-header__actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}

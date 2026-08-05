@@ -9,7 +9,10 @@ Always follow:
 - Reusable components only.
 - Feature-based folder structure.
 - No duplicate code.
-- Use Angular Material.
+- Angular Material may be used for behavior only.
+- UI must follow DESIGN_V2.md.
+- Do not use default Angular Material visual styling.
+- Prefer custom presentation components.
 - Use TypeORM.
 - Use SQLite.
 - Use Signals where appropriate.

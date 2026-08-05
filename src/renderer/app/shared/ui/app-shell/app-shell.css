@@ -1,0 +1,45 @@
+:host {
+  display: block;
+  height: 100vh;
+  width: 100vw;
+  overflow: hidden;
+}
+
+.shell {
+  display: flex;
+  height: 100%;
+  width: 100%;
+}
+
+.shell__sidebar {
+  width: 240px;
+  background-color: var(--dp-surface, #FFFFFF);
+  border-right: 1px solid var(--dp-border, #E5E7EB);
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  transition: width 0.2s ease;
+  flex-shrink: 0;
+}
+
+.shell.shell--collapsed .shell__sidebar {
+  width: 56px;
+  padding: 16px 8px;
+}
+
+.shell__content {
+  flex: 1;
+  background-color: var(--dp-bg, #F9FAFB);
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.shell__content-inner {
+  padding: 32px;
+  max-width: 1200px;
+  width: 100%;
+  margin: 0 auto;
+  flex: 1;
+}

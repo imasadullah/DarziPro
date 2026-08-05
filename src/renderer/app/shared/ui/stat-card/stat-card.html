@@ -1,0 +1,10 @@
+<div class="kpi-card" (click)="clicked.emit()">
+  <div class="kpi-card__icon" [ngClass]="'kpi-icon--' + iconTint">
+    <mat-icon>{{ icon }}</mat-icon>
+  </div>
+  <div class="kpi-card__content">
+    <div class="kpi-card__value">{{ value }}</div>
+    <div class="kpi-card__label">{{ title }}</div>
+    <div *ngIf="trendText" class="kpi-card__context">{{ trendText }}</div>
+  </div>
+</div>
