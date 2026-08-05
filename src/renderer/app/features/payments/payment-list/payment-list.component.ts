@@ -39,6 +39,7 @@ import {
   getPaymentMethodIcon,
   formatCurrency
 } from '../models/payment.model';
+import { ReceiptService } from '../../../core/services/receipt.service';
 
 @Component({
   selector: 'app-payment-list',
@@ -71,6 +72,7 @@ export class PaymentListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject(PaymentStoreService);
   private readonly toast = inject(ToastService);
+  private readonly receiptService = inject(ReceiptService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
@@ -185,6 +187,11 @@ export class PaymentListComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       }
     );
+  }
+
+  printPaymentReceipt(payment: PaymentModel, event: Event): void {
+    event.stopPropagation();
+    this.receiptService.printPaymentReceipt(payment.id);
   }
 
   onPageChange(event: PageEvent): void {

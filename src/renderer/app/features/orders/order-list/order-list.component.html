@@ -187,6 +187,9 @@
             <button mat-icon-button matTooltip="Edit Order" (click)="navigateToEdit(order, $event)" [id]="'edit-order-' + order.id">
               <mat-icon>edit</mat-icon>
             </button>
+            <button mat-icon-button matTooltip="Print Receipt" (click)="printOrderReceipt(order, $event)" [id]="'print-order-' + order.id">
+              <mat-icon>print</mat-icon>
+            </button>
             <button mat-icon-button matTooltip="Delete Order" color="warn"
               (click)="deleteOrder(order, $event)"
               [disabled]="deletingId() === order.id"

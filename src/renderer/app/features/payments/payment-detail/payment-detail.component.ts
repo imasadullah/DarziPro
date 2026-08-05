@@ -21,6 +21,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
 import { PaymentStoreService } from '../store/payment-store.service';
 import { ToastService } from '../../../shared/components/services/toast.service';
+import { ReceiptService } from '../../../core/services/receipt.service';
 import {
   PaymentMethod,
   getPaymentMethodLabel,
@@ -29,7 +30,6 @@ import {
   getPaymentStatusClass,
   formatCurrency
 } from '../models/payment.model';
-import { PaymentService } from '../../../core/services/payment.service';
 
 @Component({
   selector: 'app-payment-detail',
@@ -53,7 +53,7 @@ export class PaymentDetailComponent implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly store = inject(PaymentStoreService);
-  private readonly paymentService = inject(PaymentService);
+  private readonly receiptService = inject(ReceiptService);
   private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
@@ -121,26 +121,7 @@ export class PaymentDetailComponent implements OnInit, OnDestroy {
   printReceipt(): void {
     const p = this.payment();
     if (!p) return;
-
-    this.paymentService.printReceipt(p.id).subscribe({
-      next: (res) => {
-        if (res.success && res.data) {
-          const win = window.open('', '_blank', 'width=500,height=600');
-          if (win) {
-            win.document.write(res.data);
-            win.document.close();
-            win.print();
-          }
-        } else {
-          this.toast.error(res.error ?? 'Failed to generate receipt.', 4000);
-        }
-        this.cdr.markForCheck();
-      },
-      error: (err) => {
-        this.toast.error(err.message ?? 'Failed to print receipt.', 4000);
-        this.cdr.markForCheck();
-      }
-    });
+    this.receiptService.printPaymentReceipt(p.id);
   }
 
   // ── Helpers ───────────────────────────────────────────────────────────────

@@ -35,6 +35,7 @@ import {
 import { getTemplate } from '../../measurements/measurement-templates';
 import { ToastService } from '../../../shared/components/services/toast.service';
 import { PaymentStoreService } from '../../payments/store/payment-store.service';
+import { ReceiptService } from '../../../core/services/receipt.service';
 import {
   PaymentModel,
   getPaymentMethodLabel,
@@ -67,6 +68,7 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly paymentStore = inject(PaymentStoreService);
+  private readonly receiptService = inject(ReceiptService);
   private readonly destroy$ = new Subject<void>();
 
   // Timeline statuses (excludes Cancelled)
@@ -168,6 +170,20 @@ export class OrderDetailComponent implements OnInit, OnDestroy {
   cancelOrder(): void {
     if (!confirm('Are you sure you want to cancel this order?')) return;
     this.changeStatus('Cancelled');
+  }
+
+  // ── Receipt Printing ──────────────────────────────────────────────────────
+
+  printOrderReceipt(): void {
+    const o = this.order();
+    if (!o) return;
+    this.receiptService.printOrderReceipt(o.id);
+  }
+
+  printDeliveryReceipt(): void {
+    const o = this.order();
+    if (!o) return;
+    this.receiptService.printDeliveryReceipt(o.id);
   }
 
   // ── Template Helpers ──────────────────────────────────────────────────────

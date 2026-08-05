@@ -51,6 +51,19 @@
             Edit
           </button>
 
+          <button mat-stroked-button (click)="printOrderReceipt()" id="btn-print-order-receipt"
+            matTooltip="Print order receipt">
+            <mat-icon>print</mat-icon>
+            Print Receipt
+          </button>
+
+          <button mat-stroked-button color="accent" (click)="printDeliveryReceipt()" id="btn-print-delivery-receipt"
+            *ngIf="o.status === 'Delivered'"
+            matTooltip="Print delivery confirmation">
+            <mat-icon>local_shipping</mat-icon>
+            Delivery Receipt
+          </button>
+
           <button mat-flat-button color="primary" [matMenuTriggerFor]="statusMenu" id="change-status-btn"
             [disabled]="o.status === 'Delivered' || o.status === 'Cancelled'">
             <mat-icon>update</mat-icon>

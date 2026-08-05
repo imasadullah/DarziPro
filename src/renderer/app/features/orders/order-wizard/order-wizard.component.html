@@ -376,7 +376,7 @@
                 <mat-icon>visibility</mat-icon>
                 View Order
               </button>
-              <button mat-stroked-button disabled matTooltip="Print functionality coming soon">
+              <button mat-stroked-button (click)="printReceipt()" id="btn-wizard-print-receipt">
                 <mat-icon>print</mat-icon>
                 Print Receipt
               </button>

@@ -401,6 +401,8 @@ interface Window {
       cancel(id: number): Promise<ApiResponse<any>>;
       search(query: string): Promise<ApiResponse<any>>;
       getStats(): Promise<ApiResponse<any>>;
+      printReceipt(orderId: number): Promise<ApiResponse<string>>;
+      printDeliveryReceipt(orderId: number, deliveredBy: string): Promise<ApiResponse<string>>;
     };
     payments: {
       create(data: CreatePaymentDto): Promise<ApiResponse<PaymentModel>>;

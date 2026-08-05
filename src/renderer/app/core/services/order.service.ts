@@ -74,6 +74,14 @@ export class OrderService {
     return this.invoke(() => this.ordersApi.getStats());
   }
 
+  printReceipt(orderId: number): Observable<ApiResponse<string>> {
+    return this.invoke(() => this.ordersApi.printReceipt(orderId));
+  }
+
+  printDeliveryReceipt(orderId: number, deliveredBy: string): Observable<ApiResponse<string>> {
+    return this.invoke(() => this.ordersApi.printDeliveryReceipt(orderId, deliveredBy));
+  }
+
   private invoke<T>(fn: () => Promise<T>): Observable<T> {
     try {
       return from(fn());

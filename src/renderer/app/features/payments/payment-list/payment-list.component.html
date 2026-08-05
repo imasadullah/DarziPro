@@ -165,6 +165,13 @@
             </button>
             <button
               mat-icon-button
+              [matTooltip]="'Print receipt'"
+              (click)="printPaymentReceipt(p, $event)"
+              id="btn-print-{{p.id}}">
+              <mat-icon>print</mat-icon>
+            </button>
+            <button
+              mat-icon-button
               [matTooltip]="'Edit payment'"
               (click)="navigateToEdit(p); $event.stopPropagation()"
               id="btn-edit-{{p.id}}">

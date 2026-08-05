@@ -45,6 +45,7 @@ import {
   getPriorityColor
 } from '../models/order.model';
 import { ToastService } from '../../../shared/components/services/toast.service';
+import { ReceiptService } from '../../../core/services/receipt.service';
 
 @Component({
   selector: 'app-order-list',
@@ -78,6 +79,7 @@ export class OrderListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   public readonly store = inject(OrderStoreService);
   private readonly toast = inject(ToastService);
+  private readonly receiptService = inject(ReceiptService);
   private readonly dialog = inject(MatDialog);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
@@ -193,6 +195,11 @@ export class OrderListComponent implements OnInit, OnDestroy {
         this.cdr.markForCheck();
       }
     );
+  }
+
+  printOrderReceipt(order: OrderModel, event: Event): void {
+    event.stopPropagation();
+    this.receiptService.printOrderReceipt(order.id);
   }
 
   // ── Template Helpers ──────────────────────────────────────────────────────

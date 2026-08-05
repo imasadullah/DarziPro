@@ -45,7 +45,10 @@ contextBridge.exposeInMainWorld('api', {
     markDelivered: (id: number) => ipcRenderer.invoke('order:markDelivered', id),
     cancel: (id: number) => ipcRenderer.invoke('order:cancel', id),
     search: (query: string) => ipcRenderer.invoke('order:search', query),
-    getStats: () => ipcRenderer.invoke('order:getStats')
+    getStats: () => ipcRenderer.invoke('order:getStats'),
+    printReceipt: (orderId: number) => ipcRenderer.invoke('order:printReceipt', orderId),
+    printDeliveryReceipt: (orderId: number, deliveredBy: string) =>
+      ipcRenderer.invoke('order:printDeliveryReceipt', { orderId, deliveredBy })
   },
   payments: {
     create: (data: any) => ipcRenderer.invoke('payment:create', data),

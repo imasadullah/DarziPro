@@ -35,6 +35,7 @@ import { LayoutShellComponent } from '../../../shared/components/layout-shell/la
 import { CustomerService } from '../../../core/services/customer.service';
 import { MeasurementService } from '../../../core/services/measurement.service';
 import { OrderStoreService } from '../store/order-store.service';
+import { ReceiptService } from '../../../core/services/receipt.service';
 import {
   GarmentType,
   OrderPriority,
@@ -83,6 +84,7 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
   private readonly customerService = inject(CustomerService);
   private readonly measurementService = inject(MeasurementService);
   private readonly store = inject(OrderStoreService);
+  private readonly receiptService = inject(ReceiptService);
   private readonly snackBar = inject(MatSnackBar);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
@@ -397,6 +399,13 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
     const id = this.savedOrderId();
     if (id) {
       this.router.navigate(['/orders', id]);
+    }
+  }
+
+  printReceipt(): void {
+    const id = this.savedOrderId();
+    if (id) {
+      this.receiptService.printOrderReceipt(id);
     }
   }
 

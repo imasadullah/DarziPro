@@ -1,6 +1,11 @@
 import { ipcMain } from 'electron';
 import { OrderService } from '../services/order.service';
 import { OrderStatus } from '../database/entities/order.entity';
+import {
+  loadShopSettings,
+  buildOrderReceiptHtml,
+  buildDeliveryReceiptHtml
+} from './receipt-templates';
 
 export function registerOrderIPCHandlers(): void {
   ipcMain.handle('order:create', async (_event, data) => {
@@ -116,4 +121,33 @@ export function registerOrderIPCHandlers(): void {
       return { success: false, error: error.message };
     }
   });
+
+  // ── Receipt Printing ─────────────────────────────────────────────────────────
+
+  ipcMain.handle('order:printReceipt', async (_event, orderId: number) => {
+    try {
+      const order = await OrderService.getById(orderId);
+      if (!order) return { success: false, error: 'Order not found.' };
+      const settings = await loadShopSettings();
+      const html = buildOrderReceiptHtml(order, settings);
+      return { success: true, data: html };
+    } catch (error: any) {
+      return { success: false, error: error.message };
+    }
+  });
+
+  ipcMain.handle(
+    'order:printDeliveryReceipt',
+    async (_event, payload: { orderId: number; deliveredBy: string }) => {
+      try {
+        const order = await OrderService.getById(payload.orderId);
+        if (!order) return { success: false, error: 'Order not found.' };
+        const settings = await loadShopSettings();
+        const html = buildDeliveryReceiptHtml(order, settings, payload.deliveredBy);
+        return { success: true, data: html };
+      } catch (error: any) {
+        return { success: false, error: error.message };
+      }
+    }
+  );
 }
