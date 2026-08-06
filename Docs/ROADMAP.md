@@ -17,5 +17,11 @@ Phase 5 ✓
 Phase 6 ✓
 - Reports
 
-Phase 7
+Phase 6b ✓
+- Receipt Printing
+
+Phase 6c ✓
+- Settings
+
+Phase 7 ✓
 - Backup & Restore

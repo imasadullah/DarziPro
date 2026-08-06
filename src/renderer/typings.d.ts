@@ -1,4 +1,32 @@
+// ── Backup & Restore ──────────────────────────────────────────────────────────
+
+interface BackupEntry {
+  name:      string;
+  path:      string;
+  createdAt: string;
+  type:      'manual' | 'automatic' | 'pre-restore';
+  sizeBytes: number;
+}
+
+interface BackupResult {
+  path:      string;
+  createdAt: string;
+  sizeBytes: number;
+  verified:  boolean;
+}
+
+interface VerifyResult {
+  valid:   boolean;
+  message: string;
+}
+
+interface AutoBackupConfig {
+  frequency:  'disabled' | 'daily' | 'weekly' | 'monthly';
+  maxBackups: number;
+}
+
 // ── Customer ───────────────────────────────────────────────────────────────────
+
 
 interface Customer {
   id: number;
@@ -352,6 +380,31 @@ interface ReportExportResult {
   fileName: string;
 }
 
+// ── User Management Types ─────────────────────────────────────────────────────
+
+interface UserDto {
+  id: number;
+  username: string;
+  fullName: string;
+  role: 'owner' | 'staff';
+  status: 'active' | 'inactive';
+  hasPin: boolean;
+  created_at: string;
+}
+
+interface CreateUserDto {
+  fullName: string;
+  username: string;
+  password: string;
+  pin?: string;
+  role: 'owner' | 'staff';
+}
+
+interface UpdateUserDto {
+  fullName?: string;
+  role?: 'owner' | 'staff';
+}
+
 // ── Window API ─────────────────────────────────────────────────────────────────
 
 interface Window {
@@ -419,6 +472,16 @@ interface Window {
     system: {
       getSettings(): Promise<ApiResponse<Record<string, string>>>;
       saveSettings(settings: Record<string, string>): Promise<ApiResponse>;
+      uploadLogo(): Promise<ApiResponse<string>>;
+      resetSettings(): Promise<ApiResponse<Record<string, string>>>;
+    };
+    users: {
+      getAll(): Promise<ApiResponse<UserDto[]>>;
+      create(data: CreateUserDto): Promise<ApiResponse<UserDto>>;
+      update(id: number, data: UpdateUserDto): Promise<ApiResponse<UserDto>>;
+      setStatus(id: number, status: 'active' | 'inactive'): Promise<ApiResponse<UserDto>>;
+      resetPassword(id: number, password: string): Promise<ApiResponse>;
+      resetPin(id: number, pin: string | null): Promise<ApiResponse>;
     };
     reports: {
       getKpiSummary(): Promise<ApiResponse<ReportKpiSummary>>;
@@ -432,6 +495,18 @@ interface Window {
       exportCsv(type: string, params?: any): Promise<ApiResponse<ReportExportResult>>;
       exportPdf(type: string, params?: any): Promise<ApiResponse<ReportExportResult>>;
     };
+    backup: {
+      createBackup():                          Promise<ApiResponse<BackupResult>>;
+      restoreBackup():                         Promise<ApiResponse<{ path: string }>>;
+      confirmRestore(filePath: string):        Promise<ApiResponse>;
+      listBackups():                           Promise<ApiResponse<BackupEntry[]>>;
+      deleteBackup(filePath: string):          Promise<ApiResponse>;
+      verifyBackup(filePath: string):          Promise<ApiResponse<VerifyResult>>;
+      openFolder(folderPath: string):          Promise<ApiResponse>;
+      getAutoConfig():                         Promise<ApiResponse<AutoBackupConfig>>;
+      saveAutoConfig(config: AutoBackupConfig): Promise<ApiResponse>;
+    };
   };
 }
+
 

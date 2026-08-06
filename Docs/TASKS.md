@@ -7,5 +7,5 @@
 [x] Payments
 [x] Reports
 [x] Receipt Printing (Order Receipt, Payment Receipt, Delivery Receipt)
-[ ] Settings
-[ ] Backup & Restore
+[x] Settings
+[x] Backup & Restore

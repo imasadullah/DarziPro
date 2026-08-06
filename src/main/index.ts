@@ -8,6 +8,9 @@ import { registerMeasurementIPCHandlers } from './ipc/measurement.ipc';
 import { registerOrderIPCHandlers } from './ipc/order.ipc';
 import { registerPaymentIPCHandlers } from './ipc/payment.ipc';
 import { registerReportIPCHandlers } from './ipc/report.ipc';
+import { registerUserIPCHandlers } from './ipc/user.ipc';
+import { registerBackupIPCHandlers } from './ipc/backup.ipc';
+import { BackupService } from './services/backup.service';
 
 let mainWindow: BrowserWindow | null = null;
 
@@ -15,6 +18,7 @@ async function initializeDatabase() {
   try {
     await AppDataSource.initialize();
     console.log('SQLite Database connection initialized.');
+    BackupService.initAutoBackupScheduler();
   } catch (error) {
     console.error('TypeORM Database connection failed to initialize:', error);
   }
@@ -42,6 +46,8 @@ function createWindow() {
   registerOrderIPCHandlers();
   registerPaymentIPCHandlers();
   registerReportIPCHandlers();
+  registerUserIPCHandlers();
+  registerBackupIPCHandlers();
 
   const isDev = process.env['NODE_ENV'] === 'development' || !app.isPackaged;
 

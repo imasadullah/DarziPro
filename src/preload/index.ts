@@ -66,7 +66,17 @@ contextBridge.exposeInMainWorld('api', {
   },
   system: {
     getSettings: () => ipcRenderer.invoke('system:getSettings'),
-    saveSettings: (settings: any) => ipcRenderer.invoke('system:saveSettings', settings)
+    saveSettings: (settings: any) => ipcRenderer.invoke('system:saveSettings', settings),
+    uploadLogo: () => ipcRenderer.invoke('system:uploadLogo'),
+    resetSettings: () => ipcRenderer.invoke('system:resetSettings')
+  },
+  users: {
+    getAll: () => ipcRenderer.invoke('user:getAll'),
+    create: (data: any) => ipcRenderer.invoke('user:create', data),
+    update: (id: number, data: any) => ipcRenderer.invoke('user:update', { id, data }),
+    setStatus: (id: number, status: string) => ipcRenderer.invoke('user:setStatus', { id, status }),
+    resetPassword: (id: number, password: string) => ipcRenderer.invoke('user:resetPassword', { id, password }),
+    resetPin: (id: number, pin: string | null) => ipcRenderer.invoke('user:resetPin', { id, pin })
   },
   reports: {
     getKpiSummary: () => ipcRenderer.invoke('report:getKpiSummary'),
@@ -79,6 +89,18 @@ contextBridge.exposeInMainWorld('api', {
     getRevenueTrend: (params?: any) => ipcRenderer.invoke('report:getRevenueTrend', params),
     exportCsv: (type: string, params?: any) => ipcRenderer.invoke('report:exportCsv', { type, params }),
     exportPdf: (type: string, params?: any) => ipcRenderer.invoke('report:exportPdf', { type, params }),
+  },
+  backup: {
+    createBackup:    ()                  => ipcRenderer.invoke('backup:createBackup'),
+    restoreBackup:   ()                  => ipcRenderer.invoke('backup:restoreBackup'),
+    confirmRestore:  (filePath: string)  => ipcRenderer.invoke('backup:confirmRestore', filePath),
+    listBackups:     ()                  => ipcRenderer.invoke('backup:listBackups'),
+    deleteBackup:    (filePath: string)  => ipcRenderer.invoke('backup:deleteBackup', filePath),
+    verifyBackup:    (filePath: string)  => ipcRenderer.invoke('backup:verifyBackup', filePath),
+    openFolder:      (folderPath: string) => ipcRenderer.invoke('backup:openFolder', folderPath),
+    getAutoConfig:   ()                  => ipcRenderer.invoke('backup:getAutoConfig'),
+    saveAutoConfig:  (config: any)       => ipcRenderer.invoke('backup:saveAutoConfig', config),
   }
+
 });
 
