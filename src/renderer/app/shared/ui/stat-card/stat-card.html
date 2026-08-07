@@ -1,4 +1,4 @@
-<div class="kpi-card" (click)="clicked.emit()">
+<div class="kpi-card" [class.kpi-card--overdue]="isOverdue" (click)="clicked.emit()">
   <div class="kpi-card__icon" [ngClass]="'kpi-icon--' + iconTint">
     <mat-icon>{{ icon }}</mat-icon>
   </div>

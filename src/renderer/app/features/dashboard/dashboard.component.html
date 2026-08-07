@@ -1,16 +1,31 @@
 <app-layout-shell>
   <div class="dashboard-container">
+    <!-- ── Page Header ─────────────────────────────────────────────────────── -->
     <dp-page-header
-      title="Dashboard Overview"
-      [subtitle]="'Welcome back, ' + authState.currentUser()?.fullName"
+      title="Overview"
+      [subtitle]="'Welcome back, ' + (authState.currentUser()?.fullName ?? '')"
     >
-      <div class="header-date">{{ today | date:'EEEE, MMMM d, y' }}</div>
+      <div class="header-date">{{ today | date:'EEE, MMM d' }}</div>
     </dp-page-header>
 
     <div class="dashboard-content">
-      <!-- ── Orders at a Glance ─────────────────────────────────────────────────── -->
-      <div class="section-label">Orders at a Glance</div>
-      <div class="kpi-grid">
+
+      <!-- ── §10.2 Overdue Alert Banner (conditional) ────────────────────── -->
+      @if ((orderStats()?.overdue ?? 0) > 0) {
+        <div class="alert-banner">
+          <mat-icon class="alert-banner__icon">warning_amber</mat-icon>
+          <span class="alert-banner__text">
+            {{ orderStats()!.overdue }} {{ orderStats()!.overdue === 1 ? 'order is' : 'orders are' }} overdue
+          </span>
+          <span class="alert-banner__action" (click)="navigateToOrders('overdue')">
+            View Overdue →
+          </span>
+        </div>
+      }
+
+      <!-- ── §10.3 Row 1: Orders at a Glance (4-col) ────────────────────── -->
+      <div class="kpi-section-label">Orders at a Glance</div>
+      <div class="kpi-grid kpi-grid--4">
         <dp-stat-card
           title="Total Orders"
           [value]="statsLoading() ? '—' : (orderStats()?.totalOrders ?? 0)"
@@ -30,7 +45,7 @@
         ></dp-stat-card>
 
         <dp-stat-card
-          title="Deliveries Due Today"
+          title="Due Today"
           [value]="statsLoading() ? '—' : (orderStats()?.dueToday ?? 0)"
           icon="today"
           iconTint="amber"
@@ -39,47 +54,31 @@
         ></dp-stat-card>
 
         <dp-stat-card
-          title="Requires Attention"
+          title="Overdue"
           [value]="statsLoading() ? '—' : (orderStats()?.overdue ?? 0)"
           icon="warning_amber"
           iconTint="red"
           trendText="Past due date"
+          [isOverdue]="(orderStats()?.overdue ?? 0) > 0"
           (clicked)="navigateToOrders('overdue')"
         ></dp-stat-card>
       </div>
 
-      <!-- ── Quick Actions ────────────────────────────────────── -->
-      <div class="section-label">Quick Actions</div>
-      <dp-action-toolbar class="quick-actions">
-        <button class="dp-btn dp-btn--primary" (click)="navigateToNewOrder()">
-          <mat-icon>add_shopping_cart</mat-icon> New Order
-        </button>
-        <button class="dp-btn dp-btn--secondary" (click)="navigateToReceivePayment()">
-          <mat-icon>add_card</mat-icon> Receive Payment
-        </button>
-        <button class="dp-btn dp-btn--secondary" (click)="navigateToKanban()">
-          <mat-icon>view_kanban</mat-icon> Kanban Board
-        </button>
-        <button class="dp-btn dp-btn--secondary" (click)="navigateToCustomers()">
-          <mat-icon>people</mat-icon> Customers
-        </button>
-      </dp-action-toolbar>
-
-      <!-- ── Revenue Overview ────────────────────────────────── -->
-      <div class="section-label">Revenue Overview</div>
-      <div class="kpi-grid">
+      <!-- ── §10.3 Row 2: Revenue & Collections (3-col) ─────────────────── -->
+      <div class="kpi-section-label">Revenue &amp; Collections</div>
+      <div class="kpi-grid kpi-grid--3">
         <dp-stat-card
           title="Today's Collections"
-          [value]="paymentStatsLoading() ? '—' : ('Rs ' + ((paymentStats()?.todayCollections ?? 0) | number))"
-          icon="today"
+          [value]="paymentStatsLoading() ? '—' : ('Rs\u00a0' + ((paymentStats()?.todayCollections ?? 0) | number))"
+          icon="account_balance"
           iconTint="green"
-          trendText="Cash & digital"
+          trendText="Cash &amp; digital"
           (clicked)="navigateToPayments()"
         ></dp-stat-card>
 
         <dp-stat-card
           title="Monthly Revenue"
-          [value]="paymentStatsLoading() ? '—' : ('Rs ' + ((paymentStats()?.monthlyRevenue ?? 0) | number))"
+          [value]="paymentStatsLoading() ? '—' : ('Rs\u00a0' + ((paymentStats()?.monthlyRevenue ?? 0) | number))"
           icon="show_chart"
           iconTint="teal"
           trendText="This month"
@@ -88,35 +87,79 @@
 
         <dp-stat-card
           title="Outstanding"
-          [value]="paymentStatsLoading() ? '—' : ('Rs ' + ((paymentStats()?.outstandingAmount ?? 0) | number))"
+          [value]="paymentStatsLoading() ? '—' : ('Rs\u00a0' + ((paymentStats()?.outstandingAmount ?? 0) | number))"
           icon="account_balance_wallet"
           iconTint="amber"
           trendText="Total unpaid balance"
         ></dp-stat-card>
       </div>
 
-      <!-- ── Recent Activity ─────────────────────────────────────── -->
-      <div class="recent-payments-section" *ngIf="paymentStats()?.recentPayments?.length">
-        <div class="section-label">Recent Activity (Payments)</div>
-        <div class="recent-payments-list">
-          <div
-            class="recent-payment-row"
-            *ngFor="let p of paymentStats()?.recentPayments"
-            (click)="navigateToPayment(p.id)">
-            <div class="rp-left">
-              <div class="rp-avatar">{{ p.customer?.fullName?.[0] ?? '?' }}</div>
-              <div>
-                <div class="rp-name">{{ p.customer?.fullName ?? '—' }}</div>
-                <div class="rp-order">{{ p.order?.orderNumber ?? '—' }} · {{ p.paymentNumber }}</div>
-              </div>
-            </div>
-            <div class="rp-right">
-              <div class="rp-amount">Rs {{ p.amount | number }}</div>
-              <div class="rp-date">{{ p.paymentDate | date:'dd MMM' }}</div>
-            </div>
+      <!-- ── §10.4 Quick Actions + Recent Payments (2fr / 1fr) ───────────── -->
+      <div class="dashboard-bottom">
+
+        <!-- Left: Quick Actions card -->
+        <div class="dp-card quick-actions-card">
+          <div class="card-header">
+            <span class="card-title">Quick Actions</span>
+          </div>
+          <div class="quick-actions-grid">
+            <button class="dp-btn dp-btn--primary" (click)="navigateToNewOrder()">
+              <mat-icon>add_shopping_cart</mat-icon>
+              New Order
+            </button>
+            <button class="dp-btn dp-btn--secondary" (click)="navigateToReceivePayment()">
+              <mat-icon>add_card</mat-icon>
+              Receive Payment
+            </button>
+            <button class="dp-btn dp-btn--secondary" (click)="navigateToKanban()">
+              <mat-icon>view_kanban</mat-icon>
+              Kanban Board
+            </button>
+            <button class="dp-btn dp-btn--secondary" (click)="navigateToCustomers()">
+              <mat-icon>people</mat-icon>
+              Customers
+            </button>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
+
+        <!-- Right: Recent Payments card -->
+        @if (paymentStats()?.recentPayments?.length) {
+          <div class="dp-card recent-payments-card">
+            <div class="card-header">
+              <span class="card-title">Recent Payments</span>
+            </div>
+            <div class="recent-payments-list">
+              @for (p of paymentStats()!.recentPayments | slice:0:5; track p.id) {
+                <div class="recent-payment-row" (click)="navigateToPayment(p.id)">
+                  <div class="rp-left">
+                    <div class="rp-avatar">{{ p.customer?.fullName?.[0] ?? '?' }}</div>
+                    <div class="rp-meta">
+                      <div class="rp-name">{{ p.customer?.fullName ?? '—' }}</div>
+                      <div class="rp-order">{{ p.order?.orderNumber ?? '—' }} · {{ p.paymentNumber }}</div>
+                    </div>
+                  </div>
+                  <div class="rp-right">
+                    <div class="rp-amount">Rs {{ p.amount | number }}</div>
+                    <div class="rp-date">{{ p.paymentDate | date:'dd MMM' }}</div>
+                  </div>
+                </div>
+              }
+            </div>
+          </div>
+        } @else if (!paymentStatsLoading()) {
+          <div class="dp-card recent-payments-card recent-payments-card--empty">
+            <div class="card-header">
+              <span class="card-title">Recent Payments</span>
+            </div>
+            <div class="empty-payments">
+              <mat-icon class="empty-icon">receipt_long</mat-icon>
+              <span>No payments yet</span>
+            </div>
+          </div>
+        }
+
+      </div><!-- /dashboard-bottom -->
+
+    </div><!-- /dashboard-content -->
+  </div><!-- /dashboard-container -->
 </app-layout-shell>

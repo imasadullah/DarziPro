@@ -3,7 +3,6 @@ import { CommonModule, DatePipe } from '@angular/common';
 import { Router } from '@angular/router';
 import { LayoutShellComponent } from '../../shared/components/layout-shell/layout-shell.component';
 import { AuthStateService } from '../../core/store/auth-state.service';
-import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
 import { OrderService } from '../../core/services/order.service';
@@ -12,7 +11,7 @@ import { PaymentService } from '../../core/services/payment.service';
 import { PaymentStats } from '../payments/models/payment.model';
 import { PageHeaderComponent } from '../../shared/ui/page-header/page-header';
 import { StatCardComponent } from '../../shared/ui/stat-card/stat-card';
-import { ActionToolbarComponent } from '../../shared/ui/action-toolbar/action-toolbar';
+
 
 @Component({
   selector: 'app-dashboard',
@@ -21,12 +20,10 @@ import { ActionToolbarComponent } from '../../shared/ui/action-toolbar/action-to
     CommonModule,
     DatePipe,
     LayoutShellComponent,
-    MatCardModule,
     MatIconModule,
     MatButtonModule,
     PageHeaderComponent,
     StatCardComponent,
-    ActionToolbarComponent
   ],
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],

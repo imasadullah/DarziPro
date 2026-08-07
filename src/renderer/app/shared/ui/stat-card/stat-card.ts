@@ -18,6 +18,7 @@ export class StatCardComponent {
   @Input({ required: true }) icon!: string;
   @Input() iconTint: IconTint = 'blue';
   @Input() trendText?: string;
-  
+  @Input() isOverdue = false;
+
   @Output() clicked = new EventEmitter<void>();
 }

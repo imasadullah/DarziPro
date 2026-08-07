@@ -80,3 +80,14 @@
 
 .kpi-icon--teal    { background: #F0FDFA; }
 .kpi-icon--teal mat-icon { color: #0D9488; }
+
+/* Overdue Accent (§10.3) */
+.kpi-card--overdue {
+  border-left: 3px solid var(--dp-danger, #EF4444);
+  background: linear-gradient(135deg, #FEF2F2 0%, var(--dp-surface, #FFFFFF) 50%);
+}
+
+.kpi-card--overdue:hover {
+  border-color: var(--dp-danger, #EF4444);
+  border-left-color: var(--dp-danger, #EF4444);
+}
