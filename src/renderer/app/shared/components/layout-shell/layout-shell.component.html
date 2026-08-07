@@ -46,10 +46,12 @@
       </a>
     </nav>
 
-    <!-- Collapse Toggle -->
-    <button class="sidebar-collapse-toggle" (click)="toggleCollapse()">
-      <mat-icon>{{ isCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
-    </button>
+    <!-- Collapse Toggle: circular button floating on sidebar right edge -->
+    <div class="sidebar-toggle-wrapper">
+      <button class="sidebar-collapse-toggle" (click)="toggleCollapse()">
+        <mat-icon>{{ isCollapsed() ? 'chevron_right' : 'chevron_left' }}</mat-icon>
+      </button>
+    </div>
 
     <!-- User Block -->
     <div class="user-block" *ngIf="authState.currentUser() as user">

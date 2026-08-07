@@ -18,9 +18,10 @@
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
+  overflow: visible;
   transition: width 0.2s ease;
   flex-shrink: 0;
+  position: relative;
 }
 
 .shell.shell--collapsed .shell__sidebar {
