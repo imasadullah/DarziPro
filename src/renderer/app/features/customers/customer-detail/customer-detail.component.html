@@ -2,98 +2,96 @@
   <div class="page-container">
 
     <!-- ── Loading State ─────────────────────────────────────────────────────── -->
-    <div class="loading-overlay" *ngIf="loading()">
-      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
-      <span>Loading customer profile…</span>
-    </div>
+    @if (loading()) {
+      <div class="state-panel">
+        <mat-progress-spinner mode="indeterminate" diameter="36" />
+        <span class="state-text">Loading customer profile…</span>
+      </div>
+    }
 
     <!-- ── Error State ───────────────────────────────────────────────────────── -->
-    <div class="error-state" *ngIf="error() && !loading()">
-      <mat-icon class="error-icon">error_outline</mat-icon>
-      <p>{{ error() }}</p>
-      <button mat-stroked-button (click)="navigateBack()">
-        <mat-icon>arrow_back</mat-icon>
-        Back to Customers
-      </button>
-    </div>
+    @if (error() && !loading()) {
+      <div class="state-panel state-panel--error">
+        <mat-icon class="state-icon">error_outline</mat-icon>
+        <p>{{ error() }}</p>
+        <button class="dp-btn dp-btn--secondary" (click)="navigateBack()">
+          <mat-icon>arrow_back</mat-icon>
+          Back to Customers
+        </button>
+      </div>
+    }
 
-    <ng-container *ngIf="!loading() && !error() && selectedCustomer() as customer">
+    @if (!loading() && !error() && selectedCustomer(); as customer) {
 
-      <!-- ── Page Navigation ──────────────────────────────────────────────────── -->
-      <div class="page-nav">
-        <button mat-icon-button class="back-btn" (click)="navigateBack()" id="back-btn" aria-label="Back to customers list">
+      <!-- ── §3.4 Breadcrumb ──────────────────────────────────────────────────── -->
+      <nav class="breadcrumb" aria-label="breadcrumb">
+        <button class="breadcrumb__back" (click)="navigateBack()" id="back-btn" aria-label="Back to customers">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <span class="breadcrumb">
-          <a class="breadcrumb-link" (click)="navigateBack()">Customers</a>
-          <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
-          <span class="breadcrumb-current">{{ customer.fullName }}</span>
-        </span>
-      </div>
+        <span class="breadcrumb__link" (click)="navigateBack()">Customers</span>
+        <span class="breadcrumb__separator">›</span>
+        <span class="breadcrumb__current">{{ customer.fullName }}</span>
+      </nav>
 
-      <!-- ── Profile Header Card ──────────────────────────────────────────────── -->
-      <div class="profile-header">
-        <div class="profile-avatar-wrap">
-          <div class="profile-avatar">
-            {{ getInitials(customer.fullName) }}
-          </div>
-        </div>
+      <!-- ── §11.2 Detail Layout: Profile Card (280px) + Tabs ─────────────────── -->
+      <div class="detail-layout">
 
-        <div class="profile-info">
-          <div class="profile-name-row">
-            <h1 class="profile-name">{{ customer.fullName }}</h1>
-            <span class="customer-code-badge">{{ customer.customerCode }}</span>
-          </div>
+        <!-- LEFT: Profile Card ──────────────────────────────────────────────── -->
+        <aside class="profile-card">
+          <div class="profile-card__avatar">{{ getInitials(customer.fullName) }}</div>
+          <div class="profile-card__name">{{ customer.fullName }}</div>
+          <div class="profile-card__code">{{ customer.customerCode }}</div>
 
-          <div class="profile-meta">
-            <div class="meta-item">
-              <mat-icon class="meta-icon">phone</mat-icon>
-              <span>{{ customer.phoneNumber }}</span>
+          <div class="profile-card__divider"></div>
+
+          <div class="profile-card__meta">
+            <div class="profile-meta__row">
+              <mat-icon class="profile-meta__icon">phone</mat-icon>
+              <span class="profile-meta__value">{{ customer.phoneNumber }}</span>
             </div>
-            <div class="meta-item" *ngIf="customer.address">
-              <mat-icon class="meta-icon">location_on</mat-icon>
-              <span>{{ customer.address }}</span>
-            </div>
-            <div class="meta-item">
-              <mat-icon class="meta-icon">calendar_today</mat-icon>
-              <span>Customer since {{ formatDate(customer.created_at) }}</span>
+            @if (customer.address) {
+              <div class="profile-meta__row">
+                <mat-icon class="profile-meta__icon">location_on</mat-icon>
+                <span class="profile-meta__value">{{ customer.address }}</span>
+              </div>
+            }
+            <div class="profile-meta__row">
+              <mat-icon class="profile-meta__icon">calendar_today</mat-icon>
+              <span class="profile-meta__value">Since {{ formatDate(customer.created_at) }}</span>
             </div>
           </div>
-        </div>
 
-        <div class="profile-actions">
-          <button
-            mat-flat-button
-            color="primary"
-            class="btn-edit"
-            (click)="navigateToEdit()"
-            id="edit-customer-btn">
-            <mat-icon>edit</mat-icon>
-            Edit
-          </button>
-        </div>
-      </div>
+          <div class="profile-card__divider"></div>
 
-      <!-- ── Tabs Panel ────────────────────────────────────────────────────────── -->
-      <div class="tabs-container">
-        <mat-tab-group animationDuration="200ms" class="customer-tabs">
+          <div class="profile-card__actions">
+            <button
+              class="dp-btn dp-btn--primary dp-btn--full"
+              (click)="navigateToEdit()"
+              id="edit-customer-btn">
+              <mat-icon>edit</mat-icon>
+              Edit Profile
+            </button>
+          </div>
+        </aside>
 
-          <!-- Profile Tab -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon class="tab-icon">person</mat-icon>
-              Profile
-            </ng-template>
+        <!-- RIGHT: Tabbed content ───────────────────────────────────────────── -->
+        <div class="detail-tabs">
+          <mat-tab-group animationDuration="200ms" class="customer-tabs">
 
-            <div class="tab-content">
-              <div class="info-grid">
+            <!-- ── Overview Tab ───────────────────────────────────────────── -->
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">person</mat-icon>
+                Overview
+              </ng-template>
+              <div class="tab-content">
 
-                <div class="info-card">
-                  <h3 class="info-card-title">Customer Details</h3>
+                <div class="info-section">
+                  <div class="info-section__title">Customer Details</div>
                   <div class="info-rows">
                     <div class="info-row">
                       <span class="info-label">Customer Code</span>
-                      <span class="info-value code-value">{{ customer.customerCode }}</span>
+                      <span class="info-value cell-mono">{{ customer.customerCode }}</span>
                     </div>
                     <div class="info-row">
                       <span class="info-label">Full Name</span>
@@ -101,7 +99,7 @@
                     </div>
                     <div class="info-row">
                       <span class="info-label">Phone Number</span>
-                      <span class="info-value phone-value">{{ customer.phoneNumber }}</span>
+                      <span class="info-value cell-mono">{{ customer.phoneNumber }}</span>
                     </div>
                     <div class="info-row">
                       <span class="info-label">Address</span>
@@ -118,272 +116,282 @@
                   </div>
                 </div>
 
-                <div class="info-card" *ngIf="customer.notes">
-                  <h3 class="info-card-title">Notes</h3>
-                  <p class="notes-text">{{ customer.notes }}</p>
+                @if (customer.notes) {
+                  <div class="info-section">
+                    <div class="info-section__title">Notes</div>
+                    <p class="notes-text">{{ customer.notes }}</p>
+                  </div>
+                }
+
+              </div>
+            </mat-tab>
+
+            <!-- ── Measurements Tab ───────────────────────────────────────── -->
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">straighten</mat-icon>
+                Measurements
+                @if (measurements().length > 0) {
+                  <span class="tab-badge">{{ measurements().length }}</span>
+                }
+              </ng-template>
+              <div class="tab-content">
+
+                <div class="tab-toolbar">
+                  <span class="tab-section-title">Measurement History</span>
+                  <button
+                    class="dp-btn dp-btn--primary"
+                    (click)="navigateToNewMeasurement()"
+                    id="add-measurement-btn">
+                    <mat-icon>add</mat-icon>
+                    Add Measurement
+                  </button>
                 </div>
 
-              </div>
-            </div>
-          </mat-tab>
-
-          <!-- ── Measurements Tab ────────────────────────────────────────────── -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon class="tab-icon">straighten</mat-icon>
-              Measurements
-              <span class="tab-count" *ngIf="measurements().length > 0">{{ measurements().length }}</span>
-            </ng-template>
-
-            <div class="tab-content">
-
-              <!-- Measurements Tab Header -->
-              <div class="tab-toolbar">
-                <h3 class="tab-section-title">Measurement History</h3>
-                <button
-                  mat-flat-button
-                  color="primary"
-                  class="btn-add-measurement"
-                  (click)="navigateToNewMeasurement()"
-                  id="add-measurement-btn">
-                  <mat-icon>add</mat-icon>
-                  Add Measurement
-                </button>
-              </div>
-
-              <!-- Loading measurements -->
-              <div class="measurements-loading" *ngIf="measurementsLoading()">
-                <mat-progress-spinner mode="indeterminate" diameter="32" color="primary" />
-                <span>Loading measurements…</span>
-              </div>
-
-              <!-- Empty state -->
-              <div class="measurements-empty" *ngIf="!measurementsLoading() && measurements().length === 0">
-                <mat-icon class="empty-icon">straighten</mat-icon>
-                <h4>No measurements yet</h4>
-                <p>Add the first measurement for this customer.</p>
-                <button
-                  mat-stroked-button
-                  color="primary"
-                  (click)="navigateToNewMeasurement()"
-                  id="add-first-measurement-btn">
-                  <mat-icon>add</mat-icon>
-                  Add Measurement
-                </button>
-              </div>
-
-              <!-- Measurement Cards -->
-              <div
-                class="measurement-cards"
-                *ngIf="!measurementsLoading() && measurements().length > 0">
-
-                <div
-                  class="measurement-card"
-                  *ngFor="let m of measurements()"
-                  (click)="navigateToMeasurement(m.id)"
-                  [id]="'measurement-card-' + m.id">
-
-                  <div class="mcard-header">
-                    <div class="mcard-type">
-                      <mat-icon class="mcard-icon">{{ getTypeIcon(m.measurementType) }}</mat-icon>
-                      <span class="mcard-type-badge" [ngClass]="getTypeBadge(m.measurementType)">
-                        {{ getTypeLabel(m.measurementType) }}
-                      </span>
-                    </div>
-                    <span class="mcard-date">{{ formatShortDate(m.created_at) }}</span>
+                @if (measurementsLoading()) {
+                  <div class="loading-inline">
+                    <mat-progress-spinner mode="indeterminate" diameter="28" />
+                    <span>Loading measurements…</span>
                   </div>
+                }
 
-                  <!-- Top measurement values preview -->
-                  <div class="mcard-values" *ngIf="getTopValues(m).length > 0">
-                    <div class="mcard-value" *ngFor="let v of getTopValues(m)">
-                      <span class="mcard-value-label">{{ v.label }}</span>
-                      <span class="mcard-value-num">{{ v.value }}</span>
-                    </div>
-                  </div>
-
-                  <!-- Notes preview -->
-                  <p class="mcard-notes" *ngIf="m.notes">{{ m.notes }}</p>
-
-                  <!-- Card Actions -->
-                  <div class="mcard-actions" (click)="$event.stopPropagation()">
-                    <button
-                      mat-stroked-button
-                      class="btn-copy"
-                      [disabled]="copyingId() === m.id"
-                      (click)="copyMeasurement(m.id)"
-                      [id]="'copy-from-detail-' + m.id"
-                      matTooltip="Create a copy of these measurements">
-                      <mat-icon>content_copy</mat-icon>
-                      {{ copyingId() === m.id ? 'Copying…' : 'Copy' }}
-                    </button>
-                    <button
-                      mat-stroked-button
-                      class="btn-view"
-                      (click)="navigateToMeasurement(m.id)"
-                      [id]="'view-from-detail-' + m.id">
-                      <mat-icon>open_in_new</mat-icon>
-                      View
+                @if (!measurementsLoading() && measurements().length === 0) {
+                  <div class="tab-empty">
+                    <mat-icon class="tab-empty__icon">straighten</mat-icon>
+                    <p class="tab-empty__title">No measurements yet</p>
+                    <p class="tab-empty__text">Add the first measurement for this customer.</p>
+                    <button class="dp-btn dp-btn--secondary" (click)="navigateToNewMeasurement()" id="add-first-measurement-btn">
+                      <mat-icon>add</mat-icon>
+                      Add Measurement
                     </button>
                   </div>
-                </div>
+                }
 
-              </div>
+                @if (!measurementsLoading() && measurements().length > 0) {
+                  <div class="measurement-cards">
+                    @for (m of measurements(); track m.id) {
+                      <div
+                        class="measurement-card"
+                        (click)="navigateToMeasurement(m.id)"
+                        [id]="'measurement-card-' + m.id">
 
-            </div>
-          </mat-tab>
+                        <div class="mcard-header">
+                          <div class="mcard-type">
+                            <mat-icon class="mcard-icon">{{ getTypeIcon(m.measurementType) }}</mat-icon>
+                            <span class="mcard-type-badge" [ngClass]="getTypeBadge(m.measurementType)">
+                              {{ getTypeLabel(m.measurementType) }}
+                            </span>
+                          </div>
+                          <span class="mcard-date">{{ formatShortDate(m.created_at) }}</span>
+                        </div>
 
-          <!-- Orders Tab (Placeholder for Phase 4) -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon class="tab-icon">shopping_basket</mat-icon>
-              Orders
-            </ng-template>
-            <div class="tab-content">
+                        @if (getTopValues(m).length > 0) {
+                          <div class="mcard-values">
+                            @for (v of getTopValues(m); track v.label) {
+                              <div class="mcard-value">
+                                <span class="mcard-value-label">{{ v.label }}</span>
+                                <span class="mcard-value-num">{{ v.value }}</span>
+                              </div>
+                            }
+                          </div>
+                        }
 
-              <!-- Orders Tab Header -->
-              <div class="orders-tab-header">
-                <span class="orders-count" *ngIf="!customerOrdersLoading()">
-                  {{ customerOrders().length }} order{{ customerOrders().length !== 1 ? 's' : '' }}
-                </span>
-                <button mat-flat-button color="primary" class="new-order-btn" (click)="navigateToNewOrder()" id="new-order-from-customer">
-                  <mat-icon>add</mat-icon>
-                  New Order
-                </button>
-              </div>
+                        @if (m.notes) {
+                          <p class="mcard-notes">{{ m.notes }}</p>
+                        }
 
-              <!-- Loading -->
-              <div class="loading-inline" *ngIf="customerOrdersLoading()">
-                <mat-progress-spinner mode="indeterminate" diameter="28" color="primary" />
-                <span>Loading orders…</span>
-              </div>
-
-              <!-- Empty State -->
-              <div class="orders-empty" *ngIf="!customerOrdersLoading() && customerOrders().length === 0">
-                <mat-icon class="empty-icon">receipt_long</mat-icon>
-                <p>No orders yet for this customer.</p>
-                <button mat-stroked-button (click)="navigateToNewOrder()">
-                  <mat-icon>add</mat-icon>
-                  Create First Order
-                </button>
-              </div>
-
-              <!-- Orders List -->
-              <div class="customer-orders-list" *ngIf="!customerOrdersLoading() && customerOrders().length > 0">
-                <div class="customer-order-card"
-                  *ngFor="let order of customerOrders(); trackBy: trackByOrder"
-                  (click)="navigateToOrder(order.id)"
-                  [attr.id]="'customer-order-' + order.id">
-                  <div class="co-left">
-                    <span class="co-number">{{ order.orderNumber }}</span>
-                    <span class="co-garment">{{ getGarmentLabel(order.garmentType) }}</span>
+                        <div class="mcard-actions" (click)="$event.stopPropagation()">
+                          <button
+                            class="dp-btn dp-btn--secondary dp-btn--sm"
+                            [disabled]="copyingId() === m.id"
+                            (click)="copyMeasurement(m.id)"
+                            [id]="'copy-from-detail-' + m.id"
+                            [matTooltip]="'Create a copy of these measurements'">
+                            <mat-icon>content_copy</mat-icon>
+                            {{ copyingId() === m.id ? 'Copying…' : 'Copy' }}
+                          </button>
+                          <button
+                            class="dp-btn dp-btn--secondary dp-btn--sm"
+                            (click)="navigateToMeasurement(m.id)"
+                            [id]="'view-from-detail-' + m.id">
+                            <mat-icon>open_in_new</mat-icon>
+                            View
+                          </button>
+                        </div>
+                      </div>
+                    }
                   </div>
-                  <div class="co-center">
-                    <span class="co-status" [ngClass]="getOrderStatusColor(order.status)">{{ order.status }}</span>
-                    <span class="co-delivery">
-                      <mat-icon class="co-icon">event</mat-icon>
-                      {{ formatShortDate(order.deliveryDate) }}
-                    </span>
+                }
+
+              </div>
+            </mat-tab>
+
+            <!-- ── Orders Tab ─────────────────────────────────────────────── -->
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">shopping_basket</mat-icon>
+                Orders
+              </ng-template>
+              <div class="tab-content">
+
+                <div class="tab-toolbar">
+                  <span class="tab-section-title">
+                    @if (!customerOrdersLoading()) {
+                      {{ customerOrders().length }} order{{ customerOrders().length !== 1 ? 's' : '' }}
+                    }
+                  </span>
+                  <button class="dp-btn dp-btn--primary" (click)="navigateToNewOrder()" id="new-order-from-customer">
+                    <mat-icon>add</mat-icon>
+                    New Order
+                  </button>
+                </div>
+
+                @if (customerOrdersLoading()) {
+                  <div class="loading-inline">
+                    <mat-progress-spinner mode="indeterminate" diameter="28" />
+                    <span>Loading orders…</span>
                   </div>
-                  <div class="co-right">
-                    <span class="co-balance" [class.co-balance-due]="order.remainingAmount > 0">
-                      {{ formatCurrency(order.remainingAmount) }}
-                    </span>
-                    <mat-icon class="co-arrow">chevron_right</mat-icon>
+                }
+
+                @if (!customerOrdersLoading() && customerOrders().length === 0) {
+                  <div class="tab-empty">
+                    <mat-icon class="tab-empty__icon">receipt_long</mat-icon>
+                    <p class="tab-empty__title">No orders yet</p>
+                    <p class="tab-empty__text">No orders for this customer yet.</p>
+                    <button class="dp-btn dp-btn--secondary" (click)="navigateToNewOrder()">
+                      <mat-icon>add</mat-icon>
+                      Create First Order
+                    </button>
                   </div>
-                </div>
+                }
+
+                @if (!customerOrdersLoading() && customerOrders().length > 0) {
+                  <div class="linked-list">
+                    @for (order of customerOrders(); track order.id; let last = $last) {
+                      <div
+                        class="linked-row"
+                        [class.linked-row--last]="last"
+                        (click)="navigateToOrder(order.id)"
+                        [attr.id]="'customer-order-' + order.id">
+                        <div class="linked-row__left">
+                          <span class="cell-mono linked-row__code">{{ order.orderNumber }}</span>
+                          <span class="linked-row__sub">{{ getGarmentLabel(order.garmentType) }}</span>
+                        </div>
+                        <div class="linked-row__center">
+                          <span class="co-status" [ngClass]="getOrderStatusColor(order.status)">{{ order.status }}</span>
+                          <span class="linked-row__sub">
+                            <mat-icon class="co-icon">event</mat-icon>
+                            {{ formatShortDate(order.deliveryDate) }}
+                          </span>
+                        </div>
+                        <div class="linked-row__right">
+                          <span class="cell-currency" [class.cell-currency--due]="order.remainingAmount > 0">
+                            {{ formatCurrency(order.remainingAmount) }}
+                          </span>
+                          <mat-icon class="row-arrow">chevron_right</mat-icon>
+                        </div>
+                      </div>
+                    }
+                  </div>
+                }
+
               </div>
+            </mat-tab>
 
-            </div>
-          </mat-tab>
+            <!-- ── Payments Tab ───────────────────────────────────────────── -->
+            <mat-tab>
+              <ng-template mat-tab-label>
+                <mat-icon class="tab-icon">payments</mat-icon>
+                Payments
+                @if (customerPayments().length > 0) {
+                  <span class="tab-badge">{{ customerPayments().length }}</span>
+                }
+              </ng-template>
+              <div class="tab-content">
 
+                <!-- Summary Bar -->
+                @if (customerPayments().length > 0) {
+                  <div class="payments-summary">
+                    <div class="summary-item">
+                      <span class="summary-label">Total Paid</span>
+                      <span class="summary-value summary-value--paid">{{ formatCurrency(getTotalPaid()) }}</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-item">
+                      <span class="summary-label">Outstanding</span>
+                      <span class="summary-value summary-value--outstanding">{{ formatCurrency(getTotalOutstanding()) }}</span>
+                    </div>
+                    <div class="summary-divider"></div>
+                    <div class="summary-item">
+                      <span class="summary-label">Transactions</span>
+                      <span class="summary-value">{{ customerPayments().length }}</span>
+                    </div>
+                  </div>
+                }
 
-          <!-- ── Payments Tab ─────────────────────────────────────────────── -->
-          <mat-tab>
-            <ng-template mat-tab-label>
-              <mat-icon class="tab-icon">payments</mat-icon>
-              Payments
-              <span class="tab-badge" *ngIf="customerPayments().length > 0">
-                {{ customerPayments().length }}
-              </span>
-            </ng-template>
-            <div class="tab-content">
+                @if (customerPaymentsLoading()) {
+                  <div class="loading-inline">
+                    <mat-progress-spinner mode="indeterminate" diameter="28" />
+                  </div>
+                }
 
-              <!-- Summary Bar -->
-              <div class="payments-summary-bar" *ngIf="customerPayments().length > 0">
-                <div class="summary-item">
-                  <span class="summary-label">Total Paid</span>
-                  <span class="summary-value paid">{{ formatCurrency(getTotalPaid()) }}</span>
-                </div>
-                <div class="summary-divider"></div>
-                <div class="summary-item">
-                  <span class="summary-label">Outstanding</span>
-                  <span class="summary-value outstanding">{{ formatCurrency(getTotalOutstanding()) }}</span>
-                </div>
-                <div class="summary-divider"></div>
-                <div class="summary-item">
-                  <span class="summary-label">Total Transactions</span>
-                  <span class="summary-value">{{ customerPayments().length }}</span>
-                </div>
+                @if (!customerPaymentsLoading() && customerPayments().length === 0) {
+                  <div class="tab-empty">
+                    <mat-icon class="tab-empty__icon">account_balance_wallet</mat-icon>
+                    <p class="tab-empty__title">No payments yet</p>
+                    <p class="tab-empty__text">No payments recorded for this customer.</p>
+                  </div>
+                }
+
+                @if (!customerPaymentsLoading() && customerPayments().length > 0) {
+                  <table class="dp-table dp-table--compact" aria-label="Customer payments">
+                    <thead>
+                      <tr>
+                        <th>Payment #</th>
+                        <th>Order #</th>
+                        <th>Amount</th>
+                        <th>Method</th>
+                        <th>Date</th>
+                        <th></th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      @for (pay of customerPayments(); track pay.id) {
+                        <tr
+                          class="dp-table__row"
+                          (click)="navigateToPayment(pay.id)">
+                          <td><span class="cell-mono">{{ pay.paymentNumber }}</span></td>
+                          <td>
+                            <button
+                              class="dp-link"
+                              (click)="navigateToOrder(pay.orderId); $event.stopPropagation()">
+                              {{ pay.order?.orderNumber ?? '—' }}
+                            </button>
+                          </td>
+                          <td>
+                            <span class="cell-currency cell-currency--paid">{{ formatCurrency(pay.amount) }}</span>
+                          </td>
+                          <td>
+                            <span class="pay-method-chip" [ngClass]="'method-' + pay.paymentMethod">
+                              {{ getPaymentMethodLabel(pay.paymentMethod) }}
+                            </span>
+                          </td>
+                          <td><span class="cell-date">{{ formatShortDate(pay.paymentDate) }}</span></td>
+                          <td><mat-icon class="row-arrow">chevron_right</mat-icon></td>
+                        </tr>
+                      }
+                    </tbody>
+                  </table>
+                }
+
               </div>
+            </mat-tab>
 
-              <!-- Loading -->
-              <div class="tab-loading" *ngIf="customerPaymentsLoading()">
-                <mat-progress-spinner mode="indeterminate" diameter="32" />
-              </div>
+          </mat-tab-group>
+        </div><!-- /detail-tabs -->
 
-              <!-- Empty -->
-              <div class="tab-empty" *ngIf="!customerPaymentsLoading() && customerPayments().length === 0">
-                <mat-icon>account_balance_wallet</mat-icon>
-                <p>No payments recorded for this customer yet.</p>
-              </div>
-
-              <!-- Payments Table -->
-              <table class="payments-table" *ngIf="!customerPaymentsLoading() && customerPayments().length > 0">
-                <thead>
-                  <tr>
-                    <th>Payment #</th>
-                    <th>Order #</th>
-                    <th>Amount</th>
-                    <th>Method</th>
-                    <th>Date</th>
-                    <th></th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr
-                    *ngFor="let pay of customerPayments(); trackBy: trackByPayment"
-                    class="payment-row"
-                    (click)="navigateToPayment(pay.id)">
-                    <td>
-                      <span class="pay-num-badge">{{ pay.paymentNumber }}</span>
-                    </td>
-                    <td>
-                      <button mat-button class="order-link"
-                        (click)="navigateToOrder(pay.orderId); $event.stopPropagation()">
-                        {{ pay.order?.orderNumber ?? '—' }}
-                      </button>
-                    </td>
-                    <td class="pay-amount">{{ formatCurrency(pay.amount) }}</td>
-                    <td>
-                      <span class="pay-method-chip" [ngClass]="'method-' + pay.paymentMethod">
-                        {{ getPaymentMethodLabel(pay.paymentMethod) }}
-                      </span>
-                    </td>
-                    <td class="pay-date-cell">{{ formatShortDate(pay.paymentDate) }}</td>
-                    <td class="pay-actions">
-                      <mat-icon class="row-arrow">chevron_right</mat-icon>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-
-            </div>
-          </mat-tab>
-
-        </mat-tab-group>
-      </div>
-
-    </ng-container>
+      </div><!-- /detail-layout -->
+    }
 
   </div>
 </app-layout-shell>

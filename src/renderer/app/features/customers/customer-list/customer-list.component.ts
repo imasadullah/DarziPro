@@ -2,21 +2,13 @@ import {
   Component,
   OnInit,
   inject,
-  ChangeDetectionStrategy,
-  ViewChild,
-  AfterViewInit,
-  signal
+  ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators';
 
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatSortModule, MatSort, Sort } from '@angular/material/sort';
-import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -25,6 +17,9 @@ import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
+import { PageHeaderComponent } from '../../../shared/ui/page-header/page-header';
+import { SearchBarComponent } from '../../../shared/ui/search-bar/search-bar';
+import { PaginatorComponent } from '../../../shared/ui/paginator/paginator';
 import { CustomerStoreService } from '../store/customer-store.service';
 import { CustomerModel } from '../models/customer.model';
 import {
@@ -39,11 +34,9 @@ import {
     CommonModule,
     ReactiveFormsModule,
     LayoutShellComponent,
-    MatTableModule,
-    MatSortModule,
-    MatPaginatorModule,
-    MatInputModule,
-    MatFormFieldModule,
+    PageHeaderComponent,
+    SearchBarComponent,
+    PaginatorComponent,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
@@ -55,24 +48,13 @@ import {
   styleUrls: ['./customer-list.component.css'],
   changeDetection: ChangeDetectionStrategy.OnPush
 })
-export class CustomerListComponent implements OnInit, AfterViewInit {
-  @ViewChild(MatSort) sort!: MatSort;
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
+export class CustomerListComponent implements OnInit {
   public readonly store = inject(CustomerStoreService);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
   private readonly snackBar = inject(MatSnackBar);
 
   public readonly searchControl = new FormControl('');
-  public readonly displayedColumns = [
-    'customerCode',
-    'fullName',
-    'phoneNumber',
-    'address',
-    'created_at',
-    'actions'
-  ];
 
   ngOnInit(): void {
     this.store.loadCustomers();
@@ -84,9 +66,6 @@ export class CustomerListComponent implements OnInit, AfterViewInit {
       });
   }
 
-  ngAfterViewInit(): void {
-    // Sort is handled server-side via loadCustomers re-calls
-  }
 
   navigateToAdd(): void {
     this.router.navigate(['/customers/new']);
@@ -101,10 +80,14 @@ export class CustomerListComponent implements OnInit, AfterViewInit {
     this.router.navigate(['/customers', customer.id, 'edit']);
   }
 
-  onPageChange(event: PageEvent): void {
-    this.store.setPageSize(event.pageSize);
-    this.store.setPage(event.pageIndex + 1);
+  onPageChange(newPage: number): void {
+    this.store.setPage(newPage);
   }
+
+  onSearch(query: string): void {
+    this.store.searchCustomers(query);
+  }
+
 
   openDeleteDialog(event: Event, customer: CustomerModel): void {
     event.stopPropagation();

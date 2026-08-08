@@ -18,12 +18,9 @@ import {
 import { Subject } from 'rxjs';
 import { takeUntil } from 'rxjs/operators';
 
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatCardModule } from '@angular/material/card';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
 import { CustomerStoreService } from '../store/customer-store.service';
@@ -36,12 +33,9 @@ import { ToastService } from '../../../shared/components/services/toast.service'
     CommonModule,
     ReactiveFormsModule,
     LayoutShellComponent,
-    MatInputModule,
-    MatFormFieldModule,
     MatButtonModule,
     MatIconModule,
-    MatProgressSpinnerModule,
-    MatCardModule
+    MatProgressSpinnerModule
   ],
   templateUrl: './customer-form.component.html',
   styleUrls: ['./customer-form.component.css'],

@@ -1,0 +1,47 @@
+@if (totalPages > 1) {
+  <nav class="dp-paginator" aria-label="Pagination">
+
+    <!-- PREV -->
+    <button
+      class="dp-paginator__side"
+      [disabled]="currentPage === 1"
+      (click)="go(currentPage - 1)"
+      aria-label="Previous page">
+      <span class="dp-paginator__side-icon">
+        <mat-icon>chevron_left</mat-icon>
+      </span>
+      <span class="dp-paginator__side-label">PREV</span>
+    </button>
+
+    <!-- Page numbers -->
+    <div class="dp-paginator__pages">
+      @for (item of pages; track $index) {
+        @if (item.type === 'ellipsis') {
+          <span class="dp-paginator__ellipsis" aria-hidden="true">…</span>
+        } @else if (item.type === 'page' && isPage(item)) {
+          <button
+            class="dp-paginator__page"
+            [class.dp-paginator__page--active]="item.value === currentPage"
+            (click)="go(item.value)"
+            [attr.aria-label]="'Page ' + item.value"
+            [attr.aria-current]="item.value === currentPage ? 'page' : null">
+            {{ item.value }}
+          </button>
+        }
+      }
+    </div>
+
+    <!-- NEXT -->
+    <button
+      class="dp-paginator__side"
+      [disabled]="currentPage === totalPages"
+      (click)="go(currentPage + 1)"
+      aria-label="Next page">
+      <span class="dp-paginator__side-label">NEXT</span>
+      <span class="dp-paginator__side-icon">
+        <mat-icon>chevron_right</mat-icon>
+      </span>
+    </button>
+
+  </nav>
+}

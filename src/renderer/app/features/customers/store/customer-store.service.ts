@@ -23,7 +23,7 @@ export class CustomerStoreService {
   #error = signal<string | null>(null);
   #searchQuery = signal<string>('');
   #page = signal<number>(1);
-  #pageSize = signal<number>(20);
+  #pageSize = signal<number>(10);
   #totalCount = signal<number>(0);
 
   // ── Public Read-Only Signals ────────────────────────────────────────────────

@@ -1,0 +1,127 @@
+:host {
+  display: flex;
+  justify-content: center;
+}
+
+/* ── Pill container ──────────────────────────────────────────────────────────── */
+.dp-paginator {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 52px;
+  padding: 0 8px;
+  background: var(--dp-surface, #FFFFFF);
+  border: 1px solid var(--dp-border, #E5E7EB);
+  border-radius: 100px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+/* ── PREV / NEXT buttons ─────────────────────────────────────────────────────── */
+.dp-paginator__side {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0 10px;
+  height: 100%;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  font-family: var(--dp-font-sans, 'Inter', sans-serif);
+  letter-spacing: 0.06em;
+  color: var(--dp-text, #111827);
+  text-transform: uppercase;
+  transition: opacity 0.15s ease;
+}
+
+.dp-paginator__side[disabled] {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Circle icon wrapper (matches the reference: 32px circle, thin border) */
+.dp-paginator__side-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid var(--dp-border, #E5E7EB);
+  background: transparent;
+  transition: background 0.15s ease;
+  flex-shrink: 0;
+  color: var(--dp-text, #111827);
+}
+
+.dp-paginator__side-icon mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.dp-paginator__side:not([disabled]):hover .dp-paginator__side-icon {
+  background: var(--dp-surface-hover, #F3F4F6);
+}
+
+.dp-paginator__side-label {
+  /* visible label text */
+}
+
+/* ── Page numbers list ───────────────────────────────────────────────────────── */
+.dp-paginator__pages {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 0 4px;
+}
+
+/* ── Individual page circles ─────────────────────────────────────────────────── */
+.dp-paginator__page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--dp-border, #E5E7EB);
+  background: transparent;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--dp-font-sans, 'Inter', sans-serif);
+  color: var(--dp-text-secondary, #6B7280);
+  cursor: pointer;
+  transition: background 0.1s ease, color 0.1s ease, border-color 0.1s ease;
+  padding: 0;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+.dp-paginator__page:hover:not(.dp-paginator__page--active) {
+  background: var(--dp-surface-hover, #F3F4F6);
+  border-color: #D1D5DB;
+  color: var(--dp-text, #111827);
+}
+
+/* Active: solid accent fill, white text, no border */
+.dp-paginator__page--active {
+  background: var(--dp-accent, #6366F1);
+  border-color: var(--dp-accent, #6366F1);
+  color: #FFFFFF;
+  font-weight: 700;
+  cursor: default;
+}
+
+/* ── Ellipsis ────────────────────────────────────────────────────────────────── */
+.dp-paginator__ellipsis {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  font-size: 14px;
+  color: var(--dp-text-tertiary, #9CA3AF);
+  /* no circle, no border — just plain centered dots */
+  user-select: none;
+}
