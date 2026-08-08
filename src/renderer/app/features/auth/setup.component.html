@@ -1,67 +1,107 @@
 <div class="setup-container">
-  <mat-card class="setup-card">
+  <div class="setup-card">
     <div class="setup-header">
-      <mat-icon class="scissors-icon">content_cut</mat-icon>
+      <div class="setup-logo">
+        <mat-icon>content_cut</mat-icon>
+      </div>
       <h1>Configure Darzi Pro</h1>
       <p class="subtitle">Welcome! Set up your Tailor Shop Owner Account to get started.</p>
     </div>
 
-    <mat-card-content>
-      <form [formGroup]="setupForm" (ngSubmit)="onSubmit()" class="setup-form">
-        <!-- Full Name -->
-        <mat-form-field appearance="outline">
-          <mat-label>Owner Full Name</mat-label>
-          <input matInput formControlName="fullName" placeholder="e.g. Muhammad Asad" autocomplete="name">
-          <mat-error *ngIf="setupForm.get('fullName')?.hasError('required')">Name is required</mat-error>
-          <mat-error *ngIf="setupForm.get('fullName')?.hasError('minlength')">Name must be at least 3
-            characters</mat-error>
-        </mat-form-field>
+    <form [formGroup]="setupForm" (ngSubmit)="onSubmit()" class="setup-form">
+      <!-- Full Name -->
+      <div class="dp-field">
+        <label class="dp-field__label" for="fullName">
+          Owner Full Name<span class="dp-field__required">*</span>
+        </label>
+        <input id="fullName" class="dp-input" type="text" formControlName="fullName" placeholder="e.g. Asad Ullah"
+          autocomplete="name"
+          [class.dp-input--error]="setupForm.get('fullName')?.invalid && setupForm.get('fullName')?.touched">
+        <p class="dp-field__error"
+          *ngIf="setupForm.get('fullName')?.hasError('required') && setupForm.get('fullName')?.touched">
+          Name is required
+        </p>
+        <p class="dp-field__error"
+          *ngIf="setupForm.get('fullName')?.hasError('minlength') && setupForm.get('fullName')?.touched">
+          Name must be at least 3 characters
+        </p>
+      </div>
 
-        <!-- Username -->
-        <mat-form-field appearance="outline">
-          <mat-label>Username</mat-label>
-          <input matInput formControlName="username" placeholder="e.g. owner_admin" autocomplete="username">
-          <mat-error *ngIf="setupForm.get('username')?.hasError('required')">Username is required</mat-error>
-          <mat-error *ngIf="setupForm.get('username')?.hasError('minlength')">Username must be at least 3
-            characters</mat-error>
-        </mat-form-field>
+      <!-- Username -->
+      <div class="dp-field">
+        <label class="dp-field__label" for="username">
+          Username<span class="dp-field__required">*</span>
+        </label>
+        <input id="username" class="dp-input" type="text" formControlName="username" placeholder="e.g. owner_admin"
+          autocomplete="username"
+          [class.dp-input--error]="setupForm.get('username')?.invalid && setupForm.get('username')?.touched">
+        <p class="dp-field__error"
+          *ngIf="setupForm.get('username')?.hasError('required') && setupForm.get('username')?.touched">
+          Username is required
+        </p>
+        <p class="dp-field__error"
+          *ngIf="setupForm.get('username')?.hasError('minlength') && setupForm.get('username')?.touched">
+          Username must be at least 3 characters
+        </p>
+      </div>
 
-        <!-- Password -->
-        <mat-form-field appearance="outline">
-          <mat-label>Password</mat-label>
-          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
-            autocomplete="new-password">
-          <button mat-icon-button matSuffix type="button" (click)="hidePassword.set(!hidePassword())">
+      <!-- Password -->
+      <div class="dp-field">
+        <label class="dp-field__label" for="password">
+          Password<span class="dp-field__required">*</span>
+        </label>
+        <div class="dp-input-wrap">
+          <input id="password" class="dp-input" [type]="hidePassword() ? 'password' : 'text'" formControlName="password"
+            autocomplete="new-password"
+            [class.dp-input--error]="setupForm.get('password')?.invalid && setupForm.get('password')?.touched">
+          <button type="button" class="dp-input__suffix-btn" (click)="hidePassword.set(!hidePassword())"
+            [attr.aria-label]="hidePassword() ? 'Show password' : 'Hide password'">
             <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
           </button>
-          <mat-error *ngIf="setupForm.get('password')?.hasError('required')">Password is required</mat-error>
-          <mat-error *ngIf="setupForm.get('password')?.hasError('minlength')">Password must be at least 6
-            characters</mat-error>
-        </mat-form-field>
+        </div>
+        <p class="dp-field__error"
+          *ngIf="setupForm.get('password')?.hasError('required') && setupForm.get('password')?.touched">
+          Password is required
+        </p>
+        <p class="dp-field__error"
+          *ngIf="setupForm.get('password')?.hasError('minlength') && setupForm.get('password')?.touched">
+          Password must be at least 6 characters
+        </p>
+      </div>
 
-        <!-- Confirm Password -->
-        <mat-form-field appearance="outline">
-          <mat-label>Confirm Password</mat-label>
-          <input matInput [type]="hidePassword() ? 'password' : 'text'" formControlName="confirmPassword"
-            autocomplete="new-password">
-          <mat-error *ngIf="setupForm.hasError('mismatch')">Passwords do not match</mat-error>
-        </mat-form-field>
+      <!-- Confirm Password -->
+      <div class="dp-field">
+        <label class="dp-field__label" for="confirmPassword">
+          Confirm Password<span class="dp-field__required">*</span>
+        </label>
+        <input id="confirmPassword" class="dp-input" [type]="hidePassword() ? 'password' : 'text'"
+          formControlName="confirmPassword" autocomplete="new-password"
+          [class.dp-input--error]="setupForm.hasError('mismatch') && setupForm.get('confirmPassword')?.touched">
+        <p class="dp-field__error" *ngIf="setupForm.hasError('mismatch') && setupForm.get('confirmPassword')?.touched">
+          Passwords do not match
+        </p>
+      </div>
 
-        <!-- PIN (Optional) -->
-        <mat-form-field appearance="outline">
-          <mat-label>Login PIN (Optional, 4-6 digits)</mat-label>
-          <input matInput type="password" formControlName="pin" maxlength="6" placeholder="e.g. 1234">
-          <mat-icon matSuffix>pin</mat-icon>
-          <mat-hint>Used for quick-switch locks and numeric PIN log-in</mat-hint>
-          <mat-error *ngIf="setupForm.get('pin')?.hasError('pattern')">PIN must be 4 to 6 numeric digits</mat-error>
-        </mat-form-field>
+      <!-- PIN (Optional) -->
+      <div class="dp-field">
+        <label class="dp-field__label" for="pin">
+          Login PIN <span class="dp-field__optional">(Optional, 4-6 digits)</span>
+        </label>
+        <div class="dp-input-wrap">
+          <input id="pin" class="dp-input" type="password" formControlName="pin" maxlength="6" placeholder="e.g. 1234"
+            [class.dp-input--error]="setupForm.get('pin')?.invalid && setupForm.get('pin')?.touched">
+          <mat-icon class="dp-input__suffix-icon">pin</mat-icon>
+        </div>
+        <p class="dp-field__helper">Used for quick-switch locks and numeric PIN log-in</p>
+        <p class="dp-field__error" *ngIf="setupForm.get('pin')?.hasError('pattern') && setupForm.get('pin')?.touched">
+          PIN must be 4 to 6 numeric digits
+        </p>
+      </div>
 
-        <button mat-raised-button color="primary" type="submit" class="submit-btn"
-          [disabled]="setupForm.invalid || loading()">
-          <span *ngIf="!loading()">Complete Registration</span>
-          <span *ngIf="loading()">Registering Account...</span>
-        </button>
-      </form>
-    </mat-card-content>
-  </mat-card>
+      <button type="submit" class="dp-btn dp-btn--primary setup-submit" [disabled]="setupForm.invalid || loading()">
+        <span *ngIf="!loading()">Complete Registration</span>
+        <span *ngIf="loading()">Registering Account...</span>
+      </button>
+    </form>
+  </div>
 </div>

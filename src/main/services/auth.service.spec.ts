@@ -2,7 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 
 // Mock TypeORM entities and data-source to avoid decorator evaluation in esbuild
 vi.mock('../database/entities/user.entity', () => ({
-  User: class User {}
+  User: class User { }
 }));
 
 vi.mock('../config/data-source', () => ({
@@ -59,17 +59,17 @@ describe('AuthService Cryptography & Sessions (Main Process)', () => {
       const mockUser: any = {
         id: 10,
         username: 'asad',
-        fullName: 'Muhammad Asad',
+        fullName: 'Asad Ullah',
         role: 'owner'
       };
 
       AuthService.setCurrentUser(mockUser);
-      
+
       const session = AuthService.getCurrentUser();
       expect(session).not.toBeNull();
       expect(session?.id).toBe(10);
       expect(session?.username).toBe('asad');
-      expect(session?.fullName).toBe('Muhammad Asad');
+      expect(session?.fullName).toBe('Asad Ullah');
       expect(session?.role).toBe('owner');
     });
 

@@ -1,20 +1,64 @@
 .setup-container {
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  background-color: var(--bg-color);
   padding: 24px;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.setup-container::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image: url('/assets/images/tailor-bg-3.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  filter: saturate(1.05);
+  transform: scale(1.02);
+  /* avoids edge gaps from the blur below */
+}
+
+.setup-container::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  /* background: linear-gradient(135deg,
+      rgba(17, 24, 39, 0.72) 0%,
+      rgba(49, 46, 129, 0.65) 50%,
+      rgba(99, 102, 241, 0.55) 100%); */
+  backdrop-filter: blur(2px);
 }
 
 .setup-card {
+  position: relative;
+  z-index: 1;
   width: 100%;
-  max-width: 480px;
-  border-radius: 16px;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-lg);
-  background-color: var(--surface-color);
-  padding: 32px 16px;
+  max-width: 440px;
+  border-radius: var(--dp-radius-xl);
+  border: 1px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 40px 32px;
+  box-sizing: border-box;
+  animation: setup-card-in 0.4s ease-out;
+}
+
+@keyframes setup-card-in {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .setup-header {
@@ -22,48 +66,216 @@
   margin-bottom: 32px;
 }
 
-.scissors-icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
-  color: var(--primary-color);
-  margin-bottom: 12px;
+.setup-logo {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--dp-radius-md);
+  background: var(--dp-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
 }
 
-h1 {
-  margin: 0 0 8px 0;
-  font-size: 24px;
+.setup-logo mat-icon {
+  color: var(--dp-text-inverse);
+  font-size: 26px;
+  width: 26px;
+  height: 26px;
+}
+
+.setup-header h1 {
+  margin: 0 0 8px;
+  font-size: 22px;
   font-weight: 700;
-  color: var(--text-color);
+  letter-spacing: -0.02em;
+  color: var(--dp-text);
 }
 
-.subtitle {
+.setup-header .subtitle {
   margin: 0;
   font-size: 14px;
-  color: var(--text-muted);
+  color: var(--dp-text-secondary);
+  line-height: 1.5;
 }
 
 .setup-form {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 18px;
 }
 
-mat-form-field {
-  width: 100%;
-}
-
-.submit-btn {
-  margin-top: 16px;
-  height: 48px;
-  font-size: 16px;
+/* ── Button (scoped here since this component needs it standalone) ───────── */
+.dp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: var(--dp-radius-md);
+  border: none;
+  cursor: pointer;
+  font-family: var(--dp-font-sans);
   font-weight: 600;
-  border-radius: 10px;
-  background-color: var(--primary-color) !important;
-  color: white !important;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
-.submit-btn:disabled {
-  background-color: var(--border-color) !important;
-  color: var(--text-muted) !important;
+.dp-btn--primary {
+  background: var(--dp-accent);
+  color: var(--dp-text-inverse);
+}
+
+.dp-btn--primary:hover:not(:disabled) {
+  background: var(--dp-accent-hover);
+}
+
+.dp-btn--primary:disabled {
+  background: var(--dp-border);
+  color: var(--dp-text-tertiary);
+  cursor: not-allowed;
+}
+
+.dp-field {
+  display: flex;
+  flex-direction: column;
+}
+
+.dp-field__label {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--dp-text);
+  margin-bottom: 6px;
+}
+
+.dp-field__required {
+  color: var(--dp-danger);
+  margin-left: 2px;
+}
+
+.dp-field__optional {
+  color: var(--dp-text-tertiary);
+  font-weight: 400;
+}
+
+.dp-input {
+  width: 100%;
+  height: 40px;
+  padding: 0 12px;
+  font-size: 14px;
+  font-family: var(--dp-font-sans);
+  color: var(--dp-text);
+  background: var(--dp-surface);
+  border: 1px solid var(--dp-border);
+  border-radius: var(--dp-radius-md);
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  box-sizing: border-box;
+}
+
+.dp-input::placeholder {
+  color: var(--dp-text-tertiary);
+}
+
+.dp-input:hover {
+  border-color: #D1D5DB;
+}
+
+.dp-input:focus {
+  border-color: var(--dp-accent);
+  box-shadow: 0 0 0 3px var(--dp-accent-subtle);
+}
+
+.dp-input--error {
+  border-color: var(--dp-danger);
+}
+
+.dp-input--error:focus {
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+}
+
+.dp-input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.dp-input-wrap .dp-input {
+  padding-right: 40px;
+}
+
+.dp-input__suffix-btn {
+  position: absolute;
+  right: 4px;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: transparent;
+  color: var(--dp-text-tertiary);
+  border-radius: var(--dp-radius-sm);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.dp-input__suffix-btn:hover {
+  background: var(--dp-surface-hover);
+  color: var(--dp-text-secondary);
+}
+
+.dp-input__suffix-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.dp-input__suffix-icon {
+  position: absolute;
+  right: 12px;
+  color: var(--dp-text-tertiary);
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  pointer-events: none;
+}
+
+.dp-field__helper {
+  font-size: 13px;
+  color: var(--dp-text-tertiary);
+  margin: 4px 0 0;
+}
+
+.dp-field__error {
+  font-size: 13px;
+  color: var(--dp-danger);
+  margin: 4px 0 0;
+}
+
+.setup-submit {
+  margin-top: 8px;
+  height: 44px;
+  width: 100%;
+  font-size: 15px;
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+  .setup-container {
+    padding: 16px;
+  }
+
+  .setup-card {
+    padding: 28px 20px;
+    border-radius: var(--dp-radius-lg);
+  }
+
+  .setup-header h1 {
+    font-size: 20px;
+  }
+
+  .setup-logo {
+    width: 44px;
+    height: 44px;
+  }
 }

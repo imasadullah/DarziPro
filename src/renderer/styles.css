@@ -1,5 +1,6 @@
 /* Global styles & design system tokens */
 :root {
+  /* ── Legacy tokens (V1 compat) ───────────────────────────────────────────── */
   --primary-color: #2563eb;
   --primary-hover: #1d4ed8;
   --success-color: #16a34a;
@@ -10,17 +11,104 @@
   --text-color: #0f172a;
   --text-muted: #64748b;
   --border-color: #e2e8f0;
-  
+
   --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
   --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
   --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* ── Design System V2 tokens (DESIGN_V2.md §1.3) ─────────────────────────── */
+
+  /* Surface */
+  --dp-bg: #F9FAFB;
+  --dp-surface: #FFFFFF;
+  --dp-surface-hover: #F3F4F6;
+  --dp-surface-raised: #FFFFFF;
+
+  /* Borders */
+  --dp-border: #E5E7EB;
+  --dp-border-subtle: #F3F4F6;
+  --dp-border-focus: #818CF8;
+
+  /* Text */
+  --dp-text: #111827;
+  --dp-text-secondary: #6B7280;
+  --dp-text-tertiary: #9CA3AF;
+  --dp-text-inverse: #FFFFFF;
+
+  /* Accent — indigo */
+  --dp-accent: #6366F1;
+  --dp-accent-hover: #4F46E5;
+  --dp-accent-subtle: #EEF2FF;
+  --dp-accent-muted: #C7D2FE;
+
+  /* Semantic — success */
+  --dp-success: #059669;
+  --dp-success-bg: #ECFDF5;
+
+  /* Semantic — warning */
+  --dp-warning: #D97706;
+  --dp-warning-bg: #FFFBEB;
+
+  /* Semantic — danger */
+  --dp-danger: #DC2626;
+  --dp-danger-bg: #FEF2F2;
+
+  /* Semantic — info */
+  --dp-info: #2563EB;
+  --dp-info-bg: #EFF6FF;
+
+  /* Typography */
+  --dp-font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --dp-font-mono: 'JetBrains Mono', 'SF Mono', 'Fira Code', 'Cascadia Code', monospace;
+
+  /* ── Shadows (dp-prefixed, DESIGN_V2.md §17) ─────────────────────────────── */
+  --dp-shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.03);
+  --dp-shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --dp-shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --dp-shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -4px rgba(0, 0, 0, 0.05);
+
+  /* ── Radii ────────────────────────────────────────────────────────────────── */
+  --dp-radius-sm: 6px;
+  --dp-radius-md: 8px;
+  --dp-radius-lg: 12px;
+  --dp-radius-xl: 16px;
+  --dp-radius-pill: 100px;
+
+  /* ── Spacing ──────────────────────────────────────────────────────────────── */
+  --dp-space-1: 4px;
+  --dp-space-2: 8px;
+  --dp-space-3: 12px;
+  --dp-space-4: 16px;
+  --dp-space-5: 20px;
+  --dp-space-6: 24px;
+  --dp-space-8: 32px;
+  --dp-space-10: 40px;
+  --dp-space-12: 48px;
+
+  /* ── Transitions ──────────────────────────────────────────────────────────── */
+  --dp-transition-fast: 0.1s ease;
+  --dp-transition-normal: 0.15s ease;
+  --dp-transition-slow: 0.25s ease;
+
+  /* ── Z-Index Scale ────────────────────────────────────────────────────────── */
+  --dp-z-dropdown: 100;
+  --dp-z-sticky: 200;
+  --dp-z-modal: 300;
+  --dp-z-toast: 400;
+
+  /* ── Layout ───────────────────────────────────────────────────────────────── */
+  --dp-sidebar-width: 240px;
+  --dp-sidebar-collapsed: 56px;
+  --dp-content-max-width: 1200px;
+  --dp-content-padding: 32px;
 }
 
 * {
   box-sizing: border-box;
 }
 
-html, body {
+html,
+body {
   height: 100%;
   margin: 0;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
