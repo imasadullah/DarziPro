@@ -14,22 +14,11 @@ import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, AbstractContro
 import { Subject, from } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil, finalize, filter, take } from 'rxjs/operators';
 
-import { MatStepperModule } from '@angular/material/stepper';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatRadioModule } from '@angular/material/radio';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatCardModule } from '@angular/material/card';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
 import { CustomerService } from '../../../core/services/customer.service';
@@ -56,22 +45,11 @@ import { getTemplate, getFieldLabel } from '../../measurements/measurement-templ
     CommonModule,
     ReactiveFormsModule,
     LayoutShellComponent,
-    MatStepperModule,
     MatButtonModule,
     MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatRadioModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
     MatProgressSpinnerModule,
     MatSnackBarModule,
-    MatCardModule,
-    MatDividerModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatAutocompleteModule
+    MatTooltipModule
   ],
   templateUrl: './order-wizard.component.html',
   styleUrls: ['./order-wizard.component.css'],
@@ -103,7 +81,48 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
   public readonly saving = signal<boolean>(false);
   public readonly savedOrderId = signal<number | null>(null);
   public readonly measurementMode = signal<'existing' | 'none'>('existing');
-  public readonly today = new Date();
+  public readonly today = new Date().toISOString().split('T')[0]; // ISO string for native date input min
+
+  // ── Custom Stepper State (replaces MatStepper) ─────────────────────────────
+  public readonly currentStep = signal<number>(0);
+  public readonly STEPS = [
+    { label: 'Customer',    icon: 'person' },
+    { label: 'Garment',     icon: 'dry_cleaning' },
+    { label: 'Measurements',icon: 'straighten' },
+    { label: 'Pricing',     icon: 'payments' },
+    { label: 'Delivery',    icon: 'local_shipping' },
+    { label: 'Review',      icon: 'fact_check' }
+  ];
+
+  goNext(): void {
+    const step = this.currentStep();
+    if (this.canAdvanceFrom(step)) {
+      this.currentStep.set(step + 1);
+    }
+  }
+
+  goBack(): void {
+    if (this.currentStep() > 0) this.currentStep.set(this.currentStep() - 1);
+  }
+
+  jumpToStep(step: number): void {
+    this.currentStep.set(step);
+  }
+
+  private canAdvanceFrom(step: number): boolean {
+    switch (step) {
+      case 0: return this.isStep1Valid;
+      case 1: return this.isStep2Valid;
+      case 2: return this.isStep3Valid;
+      case 3: return this.isStep4Valid;
+      case 4: return this.isStep5Valid;
+      default: return true;
+    }
+  }
+
+  isStepCompleted(index: number): boolean {
+    return index < this.currentStep();
+  }
 
   // ── Constants ─────────────────────────────────────────────────────────────
   public readonly GARMENT_TYPE_OPTIONS = GARMENT_TYPE_OPTIONS;
@@ -464,13 +483,19 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
       advanceAmount: order.advanceAmount,
       remainingAmount: order.remainingAmount
     });
+    // Native date input expects ISO YYYY-MM-DD string
+    const deliveryDateStr = order.deliveryDate
+      ? String(order.deliveryDate).split('T')[0]
+      : '';
     this.deliveryForm.patchValue({
-      deliveryDate: new Date(order.deliveryDate),
+      deliveryDate: deliveryDateStr,
       priority: order.priority,
       stitchingNotes: order.stitchingNotes ?? '',
       fabricNotes: order.fabricNotes ?? '',
       specialInstructions: order.specialInstructions ?? ''
     });
+    // Jump to review step in edit mode
+    this.jumpToStep(5);
   }
 
   // ── Navigation Helpers ────────────────────────────────────────────────────

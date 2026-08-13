@@ -13,24 +13,19 @@ import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
 import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
 
-import { MatTableModule } from '@angular/material/table';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatBadgeModule } from '@angular/material/badge';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
+import { PageHeaderComponent } from '../../../shared/ui/page-header/page-header';
+import { SearchBarComponent } from '../../../shared/ui/search-bar/search-bar';
+import { PaginatorComponent } from '../../../shared/ui/paginator/paginator';
+
+
 import { OrderStoreService } from '../store/order-store.service';
 import {
   OrderModel,
@@ -54,22 +49,15 @@ import { ReceiptService } from '../../../core/services/receipt.service';
     CommonModule,
     ReactiveFormsModule,
     LayoutShellComponent,
-    MatTableModule,
+    PageHeaderComponent,
+    SearchBarComponent,
+    PaginatorComponent,
     MatButtonModule,
     MatIconModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatChipsModule,
     MatProgressSpinnerModule,
-    MatPaginatorModule,
     MatTooltipModule,
     MatMenuModule,
-    MatDialogModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatDividerModule,
-    MatBadgeModule
+    MatDialogModule
   ],
   templateUrl: './order-list.component.html',
   styleUrls: ['./order-list.component.css'],
@@ -146,18 +134,41 @@ export class OrderListComponent implements OnInit, OnDestroy {
     this.router.navigate(['/orders/kanban']);
   }
 
+  onSearch(query: string): void {
+    this.store.setSearch(query);
+    this.cdr.markForCheck();
+  }
+
   // ── Filters ───────────────────────────────────────────────────────────────
 
   setStatusFilter(status: OrderStatus | null): void {
     this.store.setStatusFilter(status);
   }
 
+  onSetStatusFilterChange(event: Event): void {
+    const target = event.target as HTMLSelectElement | null;
+    const value = target?.value ?? '';
+    this.setStatusFilter((value || null) as OrderStatus | null);
+  }
+
   setGarmentFilter(garmentType: GarmentType | null): void {
     this.store.setGarmentFilter(garmentType);
   }
 
+  onSetGarmentFilterChange(event: Event): void {
+    const target = event.target as HTMLSelectElement | null;
+    const value = target?.value ?? '';
+    this.setGarmentFilter((value || null) as GarmentType | null);
+  }
+
   setPriorityFilter(priority: OrderPriority | null): void {
     this.store.setPriorityFilter(priority);
+  }
+
+  onPriorityFilterChange(event: Event): void {
+    const target = event.target as HTMLSelectElement | null;
+    const value = target?.value ?? '';
+    this.setPriorityFilter((value || null) as OrderPriority | null);
   }
 
   clearFilters(): void {
@@ -171,8 +182,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
     this.store.setSort(sortBy, newDir);
   }
 
-  onPageChange(event: PageEvent): void {
-    this.store.setPage(event.pageIndex + 1);
+  onPageChange(newPage: number): void {
+    this.store.setPage(newPage);
   }
 
   // ── Delete ────────────────────────────────────────────────────────────────

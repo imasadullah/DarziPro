@@ -1,305 +1,422 @@
-/* ── Page Container ─────────────────────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════════════════════
+   Order List Component — Design V2
+   Follows the same pattern as customer-list.component.css
+   §6.3 priority borders · §6.3 overdue gradient · §12.1 table cols · §1.3 colors
+   ══════════════════════════════════════════════════════════════════════════════ */
+
+/* ── Host & Page Layout ─────────────────────────────────────────────────────── */
+:host {
+  display: block;
+  height: 100%;
+}
+
 .page-container {
   padding: 32px;
-  max-width: 1400px;
-  margin: 0 auto;
-  min-height: 100%;
-}
-
-/* ── Page Header ─────────────────────────────────────────────────────────────── */
-.page-header {
+  height: 100%;
   display: flex;
+  flex-direction: column;
+  gap: 20px;
+  background: var(--dp-bg, #F9FAFB);
+}
+
+/* ── Buttons ─────────────────────────────────────────────────────────────────── */
+.dp-btn {
+  display: inline-flex;
   align-items: center;
-  justify-content: space-between;
-  margin-bottom: 28px;
-}
-
-.page-header-left {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.page-title {
-  font-size: 28px;
-  font-weight: 700;
-  color: #0f172a;
-  margin: 0;
-  letter-spacing: -0.5px;
-}
-
-.total-badge {
-  background: #f1f5f9;
-  color: #64748b;
-  padding: 4px 12px;
-  border-radius: 20px;
+  justify-content: center;
+  gap: 6px;
+  height: 36px;
+  padding: 0 16px;
   font-size: 13px;
-  font-weight: 500;
+  font-weight: 600;
+  font-family: var(--dp-font-sans, 'Inter', sans-serif);
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  white-space: nowrap;
 }
 
-.page-header-right {
+.dp-btn mat-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+}
+
+.dp-btn--primary {
+  background: var(--dp-accent, #6366F1);
+  color: var(--dp-text-inverse, #FFFFFF);
+}
+.dp-btn--primary:hover { background: var(--dp-accent-hover, #4F46E5); }
+
+.dp-btn--secondary {
+  background: var(--dp-surface, #FFFFFF);
+  color: var(--dp-text, #111827);
+  border: 1px solid var(--dp-border, #E5E7EB);
+}
+.dp-btn--secondary:hover { background: var(--dp-surface-hover, #F3F4F6); }
+
+.dp-btn--ghost {
+  background: transparent;
+  color: var(--dp-text-secondary, #6B7280);
+  border: 1px solid var(--dp-border, #E5E7EB);
+}
+.dp-btn--ghost:hover {
+  background: var(--dp-surface-hover, #F3F4F6);
+  color: var(--dp-text, #111827);
+}
+
+/* ── Toolbar ─────────────────────────────────────────────────────────────────── */
+.toolbar {
   display: flex;
   align-items: center;
   gap: 12px;
-}
-
-.view-toggle-btn {
-  border: 1.5px solid #e2e8f0;
-  color: #475569;
-  border-radius: 10px;
-  font-weight: 500;
-}
-
-.new-order-btn {
-  border-radius: 10px;
-  font-weight: 600;
-  letter-spacing: 0.3px;
-  padding: 0 20px;
-  height: 40px;
-}
-
-/* ── Filters Bar ──────────────────────────────────────────────────────────────── */
-.filters-bar {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 12px;
   flex-wrap: wrap;
 }
 
-.search-field {
-  flex: 1;
-  min-width: 280px;
-}
-
-.filter-field {
-  min-width: 160px;
-}
-
-.clear-filters-btn {
-  color: #94a3b8;
-  transition: color 0.2s ease;
-}
-
-.clear-filters-btn:hover {
-  color: #dc2626;
-}
-
-/* ── Sort Bar ─────────────────────────────────────────────────────────────────── */
-.sort-bar {
+.filter-group {
   display: flex;
   align-items: center;
-  gap: 4px;
-  margin-bottom: 20px;
+  gap: 8px;
+  flex-wrap: wrap;
 }
 
-.sort-label {
+/* ── Filter Selects (§9.2 — chip-style native selects) ─────────────────────── */
+.dp-filter-select {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  height: 32px;
+  padding: 0 28px 0 10px;
+  background: var(--dp-surface, #FFFFFF);
+  border: 1px solid var(--dp-border, #E5E7EB);
+  border-radius: 6px;
   font-size: 13px;
-  color: #94a3b8;
   font-weight: 500;
-  margin-right: 4px;
-}
-
-.sort-btn {
-  font-size: 13px;
-  color: #475569;
-  border-radius: 8px;
-  height: 34px;
+  color: var(--dp-text-secondary, #6B7280);
+  cursor: pointer;
+  transition: all 0.15s ease;
   gap: 4px;
 }
 
-.sort-btn mat-icon {
+.dp-filter-select:hover {
+  border-color: #D1D5DB;
+  color: var(--dp-text, #111827);
+}
+
+.dp-filter-select--active {
+  background: var(--dp-accent-subtle, #EEF2FF);
+  color: var(--dp-accent, #6366F1);
+  border-color: var(--dp-accent-muted, #C7D2FE);
+}
+
+.dp-filter-select select {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  width: 100%;
+  height: 100%;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.dp-filter-select .filter-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  flex-shrink: 0;
+  pointer-events: none;
+}
+
+.dp-filter-select .select-caret {
+  position: absolute;
+  right: 6px;
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: 16px;
+  width: 16px;
+  height: 16px;
+  pointer-events: none;
+  color: var(--dp-text-tertiary, #9CA3AF);
+}
+
+/* ── Sort Chips ──────────────────────────────────────────────────────────────── */
+.sort-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid var(--dp-border, #E5E7EB);
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--dp-font-sans, 'Inter', sans-serif);
+  color: var(--dp-text-secondary, #6B7280);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.sort-chip:hover {
+  border-color: #D1D5DB;
+  color: var(--dp-text, #111827);
+}
+
+.sort-chip--active {
+  background: var(--dp-surface-hover, #F3F4F6);
+  color: var(--dp-text, #111827);
+  border-color: #D1D5DB;
+}
+
+.sort-icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+}
+
+/* ── Clear Button ────────────────────────────────────────────────────────────── */
+.clear-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  height: 32px;
+  padding: 0 10px;
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--dp-font-sans, 'Inter', sans-serif);
+  color: var(--dp-text-tertiary, #9CA3AF);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.clear-btn mat-icon {
   font-size: 16px;
   width: 16px;
   height: 16px;
 }
 
-/* ── Loading / Error / Empty ─────────────────────────────────────────────────── */
-.loading-overlay {
+.clear-btn:hover {
+  color: var(--dp-danger, #DC2626);
+  background: #FEF2F2;
+  border-color: #FECACA;
+}
+
+/* ── State Panels ────────────────────────────────────────────────────────────── */
+.state-panel {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: 16px;
-  padding: 60px;
-  color: #64748b;
-  font-size: 14px;
-}
-
-.error-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
   gap: 12px;
-  padding: 48px;
-  color: #dc2626;
-  background: #fef2f2;
-  border-radius: 12px;
-  border: 1px solid #fecaca;
+  padding: 80px 0;
+  flex: 1;
 }
 
-.error-state mat-icon {
+.state-panel--error { color: var(--dp-danger, #DC2626); }
+.state-panel--empty { color: var(--dp-text-tertiary, #9CA3AF); }
+
+.state-icon {
   font-size: 40px;
   width: 40px;
   height: 40px;
 }
 
-.empty-state {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  padding: 80px 24px;
-  text-align: center;
+.state-text {
+  font-size: 14px;
+  color: var(--dp-text-secondary, #6B7280);
 }
 
 .empty-icon-wrap {
-  width: 80px;
-  height: 80px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  width: 56px;
+  height: 56px;
+  border-radius: 14px;
+  background: var(--dp-bg, #F9FAFB);
   display: flex;
   align-items: center;
   justify-content: center;
-  margin-bottom: 8px;
 }
 
 .empty-icon {
-  font-size: 40px;
-  width: 40px;
-  height: 40px;
-  color: #2563eb;
+  font-size: 28px;
+  width: 28px;
+  height: 28px;
+  color: var(--dp-text-tertiary, #9CA3AF);
 }
 
-.empty-state h3 {
-  font-size: 20px;
+.empty-title {
+  font-size: 16px;
   font-weight: 600;
-  color: #0f172a;
-  margin: 0;
+  color: var(--dp-text, #111827);
 }
 
-.empty-state p {
-  font-size: 14px;
-  color: #64748b;
-  margin: 0;
-}
-
-/* ── Table Wrapper ────────────────────────────────────────────────────────────── */
-.table-wrapper {
-  background: #ffffff;
+/* ── Flush Card ──────────────────────────────────────────────────────────────── */
+.dp-card--flush {
+  background: var(--dp-surface, #FFFFFF);
+  border: 1px solid var(--dp-border, #E5E7EB);
   border-radius: 12px;
-  border: 1px solid #e2e8f0;
   overflow: hidden;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
 }
 
-.orders-table {
+.table-card { /* inherits dp-card--flush */ }
+
+/* ── Table ───────────────────────────────────────────────────────────────────── */
+.dp-table {
   width: 100%;
+  border-collapse: collapse;
+  table-layout: fixed;
 }
 
-/* Header */
-.orders-table .mat-mdc-header-row {
-  background: #f8fafc;
-  border-bottom: 1.5px solid #e2e8f0;
+/* ── Column Widths (§12.1) ───────────────────────────────────────────────────── */
+.col-order    { width: 120px; }
+.col-customer { width: auto; }
+.col-garment  { width: 130px; }
+.col-qty      { width: 60px; }
+.col-status   { width: 130px; }
+.col-delivery { width: 120px; }
+.col-balance  { width: 120px; }
+.col-actions  { width: 100px; }
+
+/* ── Header Row ──────────────────────────────────────────────────────────────── */
+.dp-table thead tr {
+  background: var(--dp-bg, #F9FAFB);
+  border-bottom: 1px solid var(--dp-border, #E5E7EB);
 }
 
-.orders-table .mat-mdc-header-cell {
-  color: #64748b;
-  font-size: 12px;
+.dp-table th {
+  padding: 10px 16px;
+  font-size: 11px;
   font-weight: 600;
+  color: var(--dp-text-tertiary, #9CA3AF);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  padding: 14px 16px;
+  letter-spacing: 0.06em;
+  text-align: left;
+  white-space: nowrap;
 }
 
-/* Rows */
-.order-row {
+.th-center { text-align: center; }
+
+/* ── Data Rows ───────────────────────────────────────────────────────────────── */
+.dp-table__row {
+  height: 52px;
   cursor: pointer;
-  transition: background 0.15s ease;
+  transition: background-color 0.1s ease;
+  outline: none;
+  position: relative;
 }
 
-.order-row:hover {
-  background: #f8fafc;
+.dp-table__row:hover { background-color: var(--dp-surface-hover, #F3F4F6); }
+
+.dp-table__row:focus-visible {
+  outline: 2px solid var(--dp-accent-subtle, #EEF2FF);
+  outline-offset: -2px;
 }
 
-.order-row.row-delivered {
-  opacity: 0.7;
-}
-
-.order-row.row-cancelled {
-  opacity: 0.5;
-  background: #fafafa;
-}
-
-.order-row.row-overdue {
-  background: #fff7f7;
-}
-
-.orders-table .mat-mdc-cell {
-  padding: 14px 16px;
+.dp-table td {
+  padding: 0 16px;
   font-size: 14px;
-  color: #0f172a;
-  border-bottom: 1px solid #f1f5f9;
+  color: var(--dp-text, #111827);
+  border-bottom: 1px solid var(--dp-border-subtle, #F3F4F6);
+  vertical-align: middle;
 }
 
-/* ── Cell Styles ──────────────────────────────────────────────────────────────── */
-.order-number-cell {
+.dp-table tbody tr:last-child td { border-bottom: none; }
+
+.td-center { text-align: center; }
+
+/* ── Priority Row Treatment (§6.3) ──────────────────────────────────────────── */
+/* urgent = orange/amber left border (maps to "High" in design spec) */
+.row--priority-urgent {
+  border-left: 3px solid #EA580C;
+}
+
+/* express = red left border (maps to "Urgent" in design spec) */
+.row--priority-express {
+  border-left: 3px solid var(--dp-danger, #DC2626);
+}
+
+/* ── Overdue Row (§6.3) ──────────────────────────────────────────────────────── */
+.row--overdue {
+  background: linear-gradient(90deg, #FEF2F2 0%, var(--dp-surface, #FFFFFF) 4%);
+}
+
+.row--overdue:hover {
+  background: linear-gradient(90deg, #FEE2E2 0%, var(--dp-surface-hover, #F3F4F6) 4%);
+}
+
+/* ── Delivered & Cancelled rows ──────────────────────────────────────────────── */
+.row--delivered { opacity: 0.65; }
+.row--cancelled { opacity: 0.45; }
+
+/* ── Cell Patterns ───────────────────────────────────────────────────────────── */
+
+/* Order Number cell */
+.cell-order-num {
   display: flex;
   align-items: center;
   gap: 6px;
 }
 
-.order-number {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+/* Monospace — Order #, Phone */
+.cell-mono {
+  font-family: var(--dp-font-mono, 'JetBrains Mono', monospace);
   font-size: 13px;
-  font-weight: 600;
-  color: #2563eb;
-  letter-spacing: 0.3px;
+  color: var(--dp-text-secondary, #6B7280);
 }
 
-.overdue-dot {
+/* Overdue / due-today indicator dots */
+.dot {
+  display: inline-block;
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #dc2626;
   flex-shrink: 0;
 }
 
-.due-today-dot {
-  width: 7px;
-  height: 7px;
-  border-radius: 50%;
-  background: #f59e0b;
-  flex-shrink: 0;
-}
+.dot--overdue { background: var(--dp-danger, #DC2626); }
+.dot--today   { background: var(--dp-warning, #D97706); }
 
-.customer-cell {
+/* Customer: name + phone subline */
+.cell-customer {
   display: flex;
   flex-direction: column;
   gap: 2px;
 }
 
-.customer-name {
-  font-weight: 600;
-  color: #0f172a;
+.cell-customer__name {
   font-size: 14px;
+  font-weight: 500;
+  color: var(--dp-text, #111827);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.customer-phone {
+.cell-customer__phone {
   font-size: 12px;
-  color: #94a3b8;
+  color: var(--dp-text-tertiary, #9CA3AF);
 }
 
+/* Garment Chip */
 .garment-chip {
   display: inline-block;
-  background: #eff6ff;
-  color: #2563eb;
+  background: var(--dp-accent-subtle, #EEF2FF);
+  color: var(--dp-accent, #6366F1);
   border-radius: 6px;
   padding: 3px 10px;
   font-size: 12px;
   font-weight: 500;
+  white-space: nowrap;
 }
 
+/* Quantity Badge */
 .qty-badge {
   display: inline-flex;
   align-items: center;
@@ -307,95 +424,128 @@
   width: 28px;
   height: 28px;
   border-radius: 50%;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--dp-bg, #F9FAFB);
+  color: var(--dp-text-secondary, #6B7280);
   font-size: 13px;
   font-weight: 600;
+  border: 1px solid var(--dp-border, #E5E7EB);
 }
 
-/* ── Status Chips ─────────────────────────────────────────────────────────────── */
-.status-group {
-  display: flex;
+/* ── Status Badges (§1.3 — Order Pipeline Colors) ───────────────────────────── */
+.status-badge {
+  display: inline-flex;
   align-items: center;
-  gap: 6px;
-  flex-wrap: wrap;
-}
-
-.status-chip {
-  display: inline-block;
-  padding: 4px 12px;
-  border-radius: 20px;
+  padding: 3px 10px;
+  border-radius: 100px;
   font-size: 12px;
   font-weight: 600;
+  line-height: 1;
   white-space: nowrap;
 }
 
-.status-pending    { background: #fef3c7; color: #92400e; }
-.status-cutting    { background: #dbeafe; color: #1e40af; }
-.status-stitching  { background: #ede9fe; color: #4c1d95; }
-.status-quality    { background: #fce7f3; color: #831843; }
-.status-ready      { background: #d1fae5; color: #065f46; }
-.status-delivered  { background: #f0fdf4; color: #166534; border: 1px solid #bbf7d0; }
-.status-cancelled  { background: #f1f5f9; color: #94a3b8; }
+.status-pending   { background: #FEF3C7; color: #92400E; }
+.status-cutting   { background: #DBEAFE; color: #1E40AF; }
+.status-stitching { background: #E0E7FF; color: #3730A3; }
+.status-quality   { background: #F3E8FF; color: #6B21A8; }
+.status-ready     { background: #D1FAE5; color: #065F46; }
+.status-delivered { background: #F3F4F6; color: #6B7280; }
+.status-cancelled { background: #FEE2E2; color: #991B1B; }
 
-/* ── Priority Badges ──────────────────────────────────────────────────────────── */
-.priority-badge {
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 4px;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-}
-
-.priority-normal  { display: none; }
-.priority-urgent  { background: #fff7ed; color: #c2410c; }
-.priority-express { background: #fef2f2; color: #dc2626; }
-
-/* ── Delivery Date ────────────────────────────────────────────────────────────── */
-.delivery-date {
+/* ── Date Cell ───────────────────────────────────────────────────────────────── */
+.cell-date {
   font-size: 13px;
-  color: #475569;
+  color: var(--dp-text-secondary, #6B7280);
+  white-space: nowrap;
 }
 
-.overdue-date {
-  color: #dc2626;
+.cell-date--overdue {
+  color: var(--dp-danger, #DC2626);
   font-weight: 600;
 }
 
-.due-today-date {
-  color: #d97706;
+.cell-date--today {
+  color: var(--dp-warning, #D97706);
   font-weight: 600;
 }
 
-/* ── Balance ──────────────────────────────────────────────────────────────────── */
-.balance-amount {
+/* ── Currency Cell (§6.4) ────────────────────────────────────────────────────── */
+.cell-currency {
+  font-variant-numeric: tabular-nums;
+  font-weight: 500;
+  color: var(--dp-text, #111827);
+  white-space: nowrap;
   font-size: 14px;
-  font-weight: 600;
 }
 
-.balance-due {
-  color: #dc2626;
+.cell-currency--due   { color: var(--dp-warning, #D97706); }
+.cell-currency--clear { color: var(--dp-success, #059669); }
+
+.cell-currency__prefix {
+  color: var(--dp-text-tertiary, #9CA3AF);
+  margin-right: 2px;
+  font-weight: 400;
+  font-size: 12px;
 }
 
-.balance-clear {
-  color: #16a34a;
-}
-
-/* ── Actions ──────────────────────────────────────────────────────────────────── */
+/* ── Actions Cell ────────────────────────────────────────────────────────────── */
 .actions-cell {
-  width: 120px;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  opacity: 0.25;
+  transition: opacity 0.15s ease;
+  justify-content: flex-end;
 }
 
-.actions-cell button {
-  width: 36px;
-  height: 36px;
-  line-height: 36px;
+.dp-table__row:hover .actions-cell,
+.dp-table__row:focus-within .actions-cell {
+  opacity: 1;
 }
 
-/* ── Paginator ────────────────────────────────────────────────────────────────── */
-.table-paginator {
-  border-top: 1px solid #e2e8f0;
-  background: #f8fafc;
+.action-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 6px;
+  border: none;
+  background: transparent;
+  color: var(--dp-text-tertiary, #9CA3AF);
+  cursor: pointer;
+  transition: all 0.15s ease;
+  padding: 0;
+}
+
+.action-btn mat-icon {
+  font-size: 17px;
+  width: 17px;
+  height: 17px;
+}
+
+.action-btn:hover {
+  background: var(--dp-surface-hover, #F3F4F6);
+  color: var(--dp-text, #111827);
+}
+
+.action-btn:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.action-btn--danger:hover {
+  background: #FEF2F2;
+  color: var(--dp-danger, #DC2626);
+}
+
+/* ── Paginator Wrapper ───────────────────────────────────────────────────────── */
+.paginator-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  border-top: 1px solid var(--dp-border, #E5E7EB);
+  background: var(--dp-bg, #F9FAFB);
+  border-radius: 0 0 12px 12px;
+  flex-shrink: 0;
 }

@@ -1,400 +1,612 @@
 <app-layout-shell>
   <div class="wizard-container">
 
-    <!-- ── Header ──────────────────────────────────────────────────────────── -->
+    <!-- ── Wizard Header ───────────────────────────────────────────────────── -->
     <div class="wizard-header">
-      <button mat-icon-button class="back-btn" (click)="navigateBack()" id="wizard-back-btn">
+      <button class="back-btn" (click)="navigateBack()" id="wizard-back-btn" aria-label="Back to orders">
         <mat-icon>arrow_back</mat-icon>
       </button>
-      <div class="wizard-title-block">
+      <div class="wizard-header__text">
         <h1 class="wizard-title">{{ isEditMode ? 'Edit Order' : 'New Order' }}</h1>
-        <p class="wizard-subtitle">{{ isEditMode ? 'Update order details' : 'Follow the steps to create a new order' }}
+        <p class="wizard-subtitle">
+          {{ isEditMode ? 'Update order details' : 'Follow the steps to create a new order' }}
         </p>
       </div>
     </div>
 
-    <!-- ── Stepper ─────────────────────────────────────────────────────────── -->
-    <mat-stepper linear class="order-stepper" #stepper>
+    <!-- ── Wizard Body ─────────────────────────────────────────────────────── -->
+    <div class="wizard-body">
 
-      <!-- ── Step 1: Customer ─────────────────────────────────────────────── -->
-      <mat-step [completed]="isStep1Valid" label="Select Customer" [stepControl]="customerForm">
-        <div class="step-content">
-          <div class="step-header">
-            <mat-icon class="step-icon">person_search</mat-icon>
-            <div>
-              <h2 class="step-title">Select Customer</h2>
-              <p class="step-desc">Search and select the customer placing this order</p>
+      <!-- ── Stepper Sidebar (§12.4) ───────────────────────────────────────── -->
+      <nav class="wizard-steps" aria-label="Order wizard steps">
+        @for (step of STEPS; track step.label; let i = $index) {
+          <div class="wizard-step"
+            [class.wizard-step--active]="currentStep() === i"
+            [class.wizard-step--completed]="isStepCompleted(i)"
+            (click)="isStepCompleted(i) ? jumpToStep(i) : null"
+            [style.cursor]="isStepCompleted(i) ? 'pointer' : 'default'"
+            [attr.aria-current]="currentStep() === i ? 'step' : null"
+            [attr.aria-label]="'Step ' + (i + 1) + ': ' + step.label">
+
+            <div class="wizard-step__indicator">
+              @if (isStepCompleted(i)) {
+                <mat-icon class="step-check-icon">check</mat-icon>
+              } @else {
+                <span>{{ i + 1 }}</span>
+              }
             </div>
-          </div>
 
-          <!-- Selected Customer Card -->
-          <div class="selected-customer-card" *ngIf="selectedCustomer()">
-            <div class="customer-avatar">{{ selectedCustomer()!.fullName.charAt(0).toUpperCase() }}</div>
-            <div class="customer-info">
-              <span class="customer-name">{{ selectedCustomer()!.fullName }}</span>
-              <span class="customer-meta">{{ selectedCustomer()!.phoneNumber }}</span>
-              <span class="customer-code">{{ selectedCustomer()!.customerCode }}</span>
+            <div class="wizard-step__info">
+              <span class="wizard-step__label">{{ step.label }}</span>
             </div>
-            <button mat-icon-button class="clear-customer-btn" (click)="clearCustomer()" matTooltip="Change customer">
-              <mat-icon>close</mat-icon>
-            </button>
-          </div>
 
-          <!-- Customer Search -->
-          <div class="search-section" *ngIf="!selectedCustomer()">
-            <mat-form-field appearance="outline" class="customer-search-field">
-              <mat-label>Search customer by name or phone</mat-label>
-              <mat-icon matPrefix>search</mat-icon>
-              <input matInput [formControl]="customerSearchControl" [matAutocomplete]="customerAuto"
-                id="customer-search-wizard" placeholder="Start typing to search…" />
-              <mat-spinner matSuffix *ngIf="customerSearching()" diameter="18" />
-              <mat-autocomplete #customerAuto="matAutocomplete">
-                <mat-option *ngFor="let c of customerSearchResults()" [value]="c.fullName"
-                  (onSelectionChange)="selectCustomer(c)">
-                  <div class="autocomplete-option">
-                    <span class="option-name">{{ c.fullName }}</span>
-                    <span class="option-phone">{{ c.phoneNumber }}</span>
+          </div>
+        }
+      </nav>
+
+      <!-- ── Step Content Panel ─────────────────────────────────────────────── -->
+      <div class="wizard-panel">
+
+        <!-- ════════════════════════════════════════════════════════════════════
+             Step 0 — Select Customer
+             ════════════════════════════════════════════════════════════════════ -->
+        @if (currentStep() === 0) {
+          <div class="step-content" id="step-0-customer">
+
+            <div class="step-header">
+              <div class="step-icon-wrap">
+                <mat-icon>person_search</mat-icon>
+              </div>
+              <div>
+                <h2 class="step-title">Select Customer</h2>
+                <p class="step-desc">Search and select the customer placing this order</p>
+              </div>
+            </div>
+
+            <!-- Selected Customer Card -->
+            @if (selectedCustomer()) {
+              <div class="selected-customer-card" id="selected-customer-card">
+                <div class="customer-avatar">
+                  {{ selectedCustomer()!.fullName.charAt(0).toUpperCase() }}
+                </div>
+                <div class="customer-info">
+                  <span class="customer-name">{{ selectedCustomer()!.fullName }}</span>
+                  <span class="customer-meta">{{ selectedCustomer()!.phoneNumber }}</span>
+                  <span class="customer-code">{{ selectedCustomer()!.customerCode }}</span>
+                </div>
+                <button class="icon-btn" (click)="clearCustomer()"
+                  matTooltip="Change customer" id="clear-customer-btn">
+                  <mat-icon>close</mat-icon>
+                </button>
+              </div>
+            }
+
+            <!-- Customer Search -->
+            @if (!selectedCustomer()) {
+              <div class="search-section">
+                <div class="dp-search" [class.dp-search--active]="customerSearchResults().length > 0">
+                  <mat-icon class="dp-search__icon">search</mat-icon>
+                  <input
+                    class="dp-search__input"
+                    [formControl]="customerSearchControl"
+                    id="customer-search-wizard"
+                    placeholder="Search by name or phone…"
+                    autocomplete="off"
+                    aria-label="Search for a customer"
+                    aria-expanded="{{ customerSearchResults().length > 0 }}"
+                    aria-owns="customer-results-list"
+                    role="combobox" />
+                  @if (customerSearching()) {
+                    <mat-progress-spinner diameter="18" mode="indeterminate" class="search-spinner" />
+                  }
+                </div>
+
+                <!-- Custom autocomplete dropdown -->
+                @if (customerSearchResults().length > 0) {
+                  <div class="autocomplete-dropdown" id="customer-results-list" role="listbox">
+                    @for (c of customerSearchResults(); track c.id) {
+                      <div class="autocomplete-option" role="option"
+                        (click)="selectCustomer(c)"
+                        (keydown.enter)="selectCustomer(c)"
+                        tabindex="0"
+                        [id]="'customer-option-' + c.id">
+                        <span class="option-name">{{ c.fullName }}</span>
+                        <span class="option-phone">{{ c.phoneNumber }}</span>
+                      </div>
+                    }
                   </div>
-                </mat-option>
-              </mat-autocomplete>
-            </mat-form-field>
+                }
 
-            <div class="search-hint"
-              *ngIf="!customerSearching() && customerSearchResults().length === 0 && customerSearchControl.value">
-              <mat-icon>info_outline</mat-icon>
-              No customers found.
-              <a class="create-customer-link" (click)="navigateToCreateCustomer()">Create new customer</a>
-            </div>
-          </div>
+                <!-- No results hint -->
+                @if (!customerSearching() && customerSearchResults().length === 0 && customerSearchControl.value) {
+                  <div class="search-hint">
+                    <mat-icon>info_outline</mat-icon>
+                    No customers found.
+                    <a class="hint-link" (click)="navigateToCreateCustomer()" tabindex="0"
+                      (keydown.enter)="navigateToCreateCustomer()">Create new customer</a>
+                  </div>
+                }
+              </div>
+            }
 
-          <div class="step-actions">
-            <button mat-flat-button color="primary" matStepperNext [disabled]="!isStep1Valid" id="step1-next-btn">
-              Continue
-              <mat-icon>arrow_forward</mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-step>
-
-      <!-- ── Step 2: Garment ──────────────────────────────────────────────── -->
-      <mat-step [completed]="isStep2Valid" label="Garment Type" [stepControl]="garmentForm">
-        <div class="step-content">
-          <div class="step-header">
-            <mat-icon class="step-icon">dry_cleaning</mat-icon>
-            <div>
-              <h2 class="step-title">Select Garment</h2>
-              <p class="step-desc">Choose the type of garment for this order</p>
-            </div>
-          </div>
-
-          <div class="garment-grid">
-            <button *ngFor="let g of GARMENT_TYPE_OPTIONS" class="garment-card"
-              [class.garment-card--selected]="garmentForm.get('garmentType')!.value === g.value"
-              (click)="selectGarment(g.value)" [id]="'garment-' + g.value" type="button">
-              <mat-icon class="garment-icon">{{ g.icon }}</mat-icon>
-              <span class="garment-label">{{ g.label }}</span>
-            </button>
-          </div>
-
-          <div class="quantity-row" [formGroup]="garmentForm">
-            <mat-form-field appearance="outline" class="quantity-field">
-              <mat-label>Quantity</mat-label>
-              <mat-icon matPrefix>format_list_numbered</mat-icon>
-              <input matInput type="number" formControlName="quantity" min="1" max="100" id="quantity-input" />
-              <mat-hint>Number of pieces</mat-hint>
-              <mat-error *ngIf="garmentForm.get('quantity')!.hasError('min')">Minimum 1</mat-error>
-            </mat-form-field>
-          </div>
-
-          <div class="step-actions">
-            <button mat-stroked-button matStepperPrevious>Back</button>
-            <button mat-flat-button color="primary" matStepperNext [disabled]="!isStep2Valid" id="step2-next-btn">
-              Continue
-              <mat-icon>arrow_forward</mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-step>
-
-      <!-- ── Step 3: Measurements ─────────────────────────────────────────── -->
-      <mat-step label="Measurements" [stepControl]="measurementForm">
-        <div class="step-content">
-          <div class="step-header">
-            <mat-icon class="step-icon">straighten</mat-icon>
-            <div>
-              <h2 class="step-title">Measurements</h2>
-              <p class="step-desc">Link an existing measurement record to this order (optional)</p>
-            </div>
-          </div>
-
-          <!-- Measurements Loading -->
-          <div class="measurements-loading" *ngIf="measurementsLoading()">
-            <mat-spinner diameter="24" />
-            <span>Loading measurements…</span>
-          </div>
-
-          <!-- No Measurements -->
-          <div class="no-measurements" *ngIf="!measurementsLoading() && customerMeasurements().length === 0">
-            <mat-icon>straighten</mat-icon>
-            <p>No measurements on file for this customer.</p>
-            <p class="no-measurements-sub">You can create a measurement from the customer profile page.</p>
-          </div>
-
-          <!-- Selected Measurement -->
-          <div class="selected-measurement-card" *ngIf="selectedMeasurement()">
-            <div class="m-card-header">
-              <mat-icon>check_circle</mat-icon>
-              <span>{{ getMeasurementTypeLabel(selectedMeasurement()!.measurementType) }}</span>
-              <button mat-icon-button (click)="clearMeasurement()" matTooltip="Remove measurement">
-                <mat-icon>close</mat-icon>
+            <div class="step-actions">
+              <button class="dp-btn dp-btn--primary" (click)="goNext()"
+                [disabled]="!isStep1Valid" id="step1-next-btn">
+                Continue
+                <mat-icon>arrow_forward</mat-icon>
               </button>
             </div>
-            <div class="m-values">
-              <div class="m-value-item" *ngFor="let v of getTopMeasurementValues(selectedMeasurement()!)">
-                <span class="m-value-label">{{ v.label }}</span>
-                <span class="m-value-val">{{ v.value }}</span>
+          </div>
+        }
+
+        <!-- ════════════════════════════════════════════════════════════════════
+             Step 1 — Garment Type
+             ════════════════════════════════════════════════════════════════════ -->
+        @if (currentStep() === 1) {
+          <div class="step-content" id="step-1-garment">
+
+            <div class="step-header">
+              <div class="step-icon-wrap">
+                <mat-icon>dry_cleaning</mat-icon>
+              </div>
+              <div>
+                <h2 class="step-title">Select Garment</h2>
+                <p class="step-desc">Choose the type of garment for this order</p>
               </div>
             </div>
-          </div>
 
-          <!-- Measurement List -->
-          <div class="measurement-list"
-            *ngIf="!measurementsLoading() && customerMeasurements().length > 0 && !selectedMeasurement()">
-            <p class="list-hint">Select a measurement to link to this order:</p>
-            <div class="measurement-cards">
-              <div class="measurement-card" *ngFor="let m of customerMeasurements()" (click)="selectMeasurement(m)"
-                [attr.id]="'measurement-card-' + m.id">
-                <div class="mc-type">{{ getMeasurementTypeLabel(m.measurementType) }}</div>
-                <div class="mc-values">
-                  <div class="mc-value" *ngFor="let v of getTopMeasurementValues(m)">
-                    <span class="mc-val-label">{{ v.label }}</span>
-                    <span class="mc-val-val">{{ v.value }}</span>
+            <div class="garment-grid">
+              @for (g of GARMENT_TYPE_OPTIONS; track g.value) {
+                <button class="garment-card"
+                  [class.garment-card--selected]="garmentForm.get('garmentType')!.value === g.value"
+                  (click)="selectGarment(g.value)"
+                  [id]="'garment-' + g.value"
+                  type="button"
+                  [attr.aria-pressed]="garmentForm.get('garmentType')!.value === g.value">
+                  <mat-icon class="garment-icon">{{ g.icon }}</mat-icon>
+                  <span class="garment-label">{{ g.label }}</span>
+                </button>
+              }
+            </div>
+
+            <!-- Quantity -->
+            <div class="quantity-row" [formGroup]="garmentForm">
+              <div class="dp-field-group">
+                <label class="dp-label" for="quantity-input">Quantity</label>
+                <div class="dp-input-wrap">
+                  <mat-icon class="dp-input-icon">format_list_numbered</mat-icon>
+                  <input class="dp-input" type="number" formControlName="quantity"
+                    min="1" max="100" id="quantity-input" aria-label="Number of pieces" />
+                </div>
+                <span class="dp-hint">Number of pieces</span>
+                @if (garmentForm.get('quantity')!.hasError('min') && garmentForm.get('quantity')!.touched) {
+                  <span class="dp-error">Minimum 1 piece</span>
+                }
+              </div>
+            </div>
+
+            <div class="step-actions">
+              <button class="dp-btn dp-btn--secondary" (click)="goBack()">Back</button>
+              <button class="dp-btn dp-btn--primary" (click)="goNext()"
+                [disabled]="!isStep2Valid" id="step2-next-btn">
+                Continue
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ════════════════════════════════════════════════════════════════════
+             Step 2 — Measurements
+             ════════════════════════════════════════════════════════════════════ -->
+        @if (currentStep() === 2) {
+          <div class="step-content" id="step-2-measurements">
+
+            <div class="step-header">
+              <div class="step-icon-wrap">
+                <mat-icon>straighten</mat-icon>
+              </div>
+              <div>
+                <h2 class="step-title">Measurements</h2>
+                <p class="step-desc">Link an existing measurement record to this order <span class="optional-tag">(optional)</span></p>
+              </div>
+            </div>
+
+            @if (measurementsLoading()) {
+              <div class="measurements-loading">
+                <mat-progress-spinner diameter="24" mode="indeterminate" />
+                <span>Loading measurements…</span>
+              </div>
+            }
+
+            @if (!measurementsLoading() && customerMeasurements().length === 0) {
+              <div class="empty-measurements">
+                <mat-icon>straighten</mat-icon>
+                <p>No measurements on file for this customer.</p>
+                <span class="dp-hint">You can create measurements from the customer profile page.</span>
+              </div>
+            }
+
+            @if (selectedMeasurement()) {
+              <div class="selected-measurement-card" id="selected-measurement-card">
+                <div class="smc-header">
+                  <mat-icon class="smc-check">check_circle</mat-icon>
+                  <span class="smc-type">{{ getMeasurementTypeLabel(selectedMeasurement()!.measurementType) }}</span>
+                  <button class="icon-btn" (click)="clearMeasurement()"
+                    matTooltip="Remove measurement" id="clear-measurement-btn">
+                    <mat-icon>close</mat-icon>
+                  </button>
+                </div>
+                <div class="smc-values">
+                  @for (v of getTopMeasurementValues(selectedMeasurement()!); track v.label) {
+                    <div class="smc-value-item">
+                      <span class="smc-val-label">{{ v.label }}</span>
+                      <span class="smc-val-val">{{ v.value }}</span>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            @if (!measurementsLoading() && customerMeasurements().length > 0 && !selectedMeasurement()) {
+              <div class="measurement-list">
+                <p class="list-hint">Select a measurement to link to this order:</p>
+                <div class="measurement-cards">
+                  @for (m of customerMeasurements(); track m.id) {
+                    <div class="measurement-card"
+                      (click)="selectMeasurement(m)"
+                      (keydown.enter)="selectMeasurement(m)"
+                      tabindex="0"
+                      role="button"
+                      [attr.id]="'measurement-card-' + m.id">
+                      <div class="mc-type">{{ getMeasurementTypeLabel(m.measurementType) }}</div>
+                      <div class="mc-values">
+                        @for (v of getTopMeasurementValues(m); track v.label) {
+                          <div class="mc-value">
+                            <span class="mc-val-label">{{ v.label }}</span>
+                            <span class="mc-val-val">{{ v.value }}</span>
+                          </div>
+                        }
+                      </div>
+                      <div class="mc-date">{{ m.created_at | date:'mediumDate' }}</div>
+                    </div>
+                  }
+                </div>
+              </div>
+            }
+
+            <div class="step-actions">
+              <button class="dp-btn dp-btn--secondary" (click)="goBack()">Back</button>
+              <button class="dp-btn dp-btn--primary" (click)="goNext()" id="step3-next-btn">
+                Continue
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ════════════════════════════════════════════════════════════════════
+             Step 3 — Pricing
+             ════════════════════════════════════════════════════════════════════ -->
+        @if (currentStep() === 3) {
+          <div class="step-content" id="step-3-pricing">
+
+            <div class="step-header">
+              <div class="step-icon-wrap">
+                <mat-icon>payments</mat-icon>
+              </div>
+              <div>
+                <h2 class="step-title">Pricing</h2>
+                <p class="step-desc">Set the total cost and advance payment received</p>
+              </div>
+            </div>
+
+            <div class="pricing-form" [formGroup]="pricingForm">
+              <div class="dp-field-group">
+                <label class="dp-label" for="total-amount-input">Total Amount</label>
+                <div class="dp-input-wrap dp-input-wrap--prefix">
+                  <span class="dp-input-prefix">Rs</span>
+                  <input class="dp-input dp-input--has-prefix" type="number"
+                    formControlName="totalAmount" min="0" id="total-amount-input"
+                    placeholder="0" />
+                </div>
+                @if (pricingForm.get('totalAmount')!.hasError('min') && pricingForm.get('totalAmount')!.touched) {
+                  <span class="dp-error">Amount cannot be negative</span>
+                }
+              </div>
+
+              <div class="dp-field-group">
+                <label class="dp-label" for="advance-amount-input">Advance Received</label>
+                <div class="dp-input-wrap dp-input-wrap--prefix">
+                  <span class="dp-input-prefix">Rs</span>
+                  <input class="dp-input dp-input--has-prefix" type="number"
+                    formControlName="advanceAmount" min="0" id="advance-amount-input"
+                    placeholder="0" />
+                </div>
+                @if (pricingForm.get('advanceAmount')!.hasError('min') && pricingForm.get('advanceAmount')!.touched) {
+                  <span class="dp-error">Amount cannot be negative</span>
+                }
+              </div>
+
+              <div class="remaining-display">
+                <span class="remaining-label">Remaining Balance</span>
+                <span class="remaining-value"
+                  [class.remaining-zero]="pricingForm.get('remainingAmount')!.value === 0">
+                  Rs {{ (pricingForm.get('remainingAmount')!.value ?? 0) | number }}
+                </span>
+              </div>
+            </div>
+
+            <div class="step-actions">
+              <button class="dp-btn dp-btn--secondary" (click)="goBack()">Back</button>
+              <button class="dp-btn dp-btn--primary" (click)="goNext()"
+                [disabled]="!isStep4Valid" id="step4-next-btn">
+                Continue
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
+            </div>
+          </div>
+        }
+
+        <!-- ════════════════════════════════════════════════════════════════════
+             Step 4 — Delivery Details
+             ════════════════════════════════════════════════════════════════════ -->
+        @if (currentStep() === 4) {
+          <div class="step-content" id="step-4-delivery">
+
+            <div class="step-header">
+              <div class="step-icon-wrap">
+                <mat-icon>local_shipping</mat-icon>
+              </div>
+              <div>
+                <h2 class="step-title">Delivery Details</h2>
+                <p class="step-desc">Set delivery date, priority, and special instructions</p>
+              </div>
+            </div>
+
+            <div class="delivery-form" [formGroup]="deliveryForm">
+
+              <div class="delivery-top-row">
+                <!-- Delivery Date — native date picker -->
+                <div class="dp-field-group">
+                  <label class="dp-label" for="delivery-date-input">Delivery Date</label>
+                  <div class="dp-input-wrap">
+                    <mat-icon class="dp-input-icon">calendar_today</mat-icon>
+                    <input class="dp-input" type="date"
+                      formControlName="deliveryDate"
+                      [min]="today"
+                      id="delivery-date-input"
+                      aria-label="Delivery date" />
+                  </div>
+                  @if (deliveryForm.get('deliveryDate')!.hasError('required') && deliveryForm.get('deliveryDate')!.touched) {
+                    <span class="dp-error">Delivery date is required</span>
+                  }
+                </div>
+
+                <!-- Priority Selector -->
+                <div class="priority-selector">
+                  <p class="dp-label">Priority</p>
+                  <div class="priority-options">
+                    @for (p of ORDER_PRIORITY_OPTIONS; track p.value) {
+                      <button class="priority-btn"
+                        [class.priority-btn--active]="deliveryForm.get('priority')!.value === p.value"
+                        [class]="'priority-btn priority-btn--' + p.value + (deliveryForm.get('priority')!.value === p.value ? ' priority-btn--active' : '')"
+                        type="button"
+                        (click)="deliveryForm.patchValue({ priority: p.value })"
+                        [id]="'priority-' + p.value"
+                        [attr.aria-pressed]="deliveryForm.get('priority')!.value === p.value">
+                        {{ p.label }}
+                      </button>
+                    }
                   </div>
                 </div>
-                <div class="mc-date">{{ m.created_at | date:'mediumDate' }}</div>
+              </div>
+
+              <!-- Notes -->
+              <div class="dp-field-group">
+                <label class="dp-label" for="stitching-notes">Stitching Notes</label>
+                <div class="dp-input-wrap dp-input-wrap--textarea">
+                  <mat-icon class="dp-input-icon dp-input-icon--top">content_cut</mat-icon>
+                  <textarea class="dp-textarea" formControlName="stitchingNotes"
+                    rows="3" id="stitching-notes"
+                    placeholder="e.g., Double pocket, round hem…"></textarea>
+                </div>
+              </div>
+
+              <div class="dp-field-group">
+                <label class="dp-label" for="fabric-notes">Fabric Notes</label>
+                <div class="dp-input-wrap dp-input-wrap--textarea">
+                  <mat-icon class="dp-input-icon dp-input-icon--top">texture</mat-icon>
+                  <textarea class="dp-textarea" formControlName="fabricNotes"
+                    rows="3" id="fabric-notes"
+                    placeholder="e.g., Wash before cutting, shrinks…"></textarea>
+                </div>
+              </div>
+
+              <div class="dp-field-group">
+                <label class="dp-label" for="special-instructions">Special Instructions</label>
+                <div class="dp-input-wrap dp-input-wrap--textarea">
+                  <mat-icon class="dp-input-icon dp-input-icon--top">star_outline</mat-icon>
+                  <textarea class="dp-textarea" formControlName="specialInstructions"
+                    rows="3" id="special-instructions"
+                    placeholder="Any other requirements…"></textarea>
+                </div>
               </div>
             </div>
-          </div>
 
-          <div class="step-actions">
-            <button mat-stroked-button matStepperPrevious>Back</button>
-            <button mat-flat-button color="primary" matStepperNext id="step3-next-btn">
-              Continue
-              <mat-icon>arrow_forward</mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-step>
-
-      <!-- ── Step 4: Pricing ──────────────────────────────────────────────── -->
-      <mat-step [completed]="isStep4Valid" label="Pricing" [stepControl]="pricingForm">
-        <div class="step-content">
-          <div class="step-header">
-            <mat-icon class="step-icon">payments</mat-icon>
-            <div>
-              <h2 class="step-title">Pricing</h2>
-              <p class="step-desc">Set the total cost and advance payment received</p>
+            <div class="step-actions">
+              <button class="dp-btn dp-btn--secondary" (click)="goBack()">Back</button>
+              <button class="dp-btn dp-btn--primary" (click)="goNext()"
+                [disabled]="!isStep5Valid" id="step5-next-btn">
+                Review Order
+                <mat-icon>arrow_forward</mat-icon>
+              </button>
             </div>
           </div>
+        }
 
-          <div class="pricing-form" [formGroup]="pricingForm">
-            <mat-form-field appearance="outline" class="pricing-field">
-              <mat-label>Total Amount</mat-label>
-              <span matPrefix>Rs&nbsp;</span>
-              <input matInput type="number" formControlName="totalAmount" min="0" id="total-amount-input" />
-              <mat-error *ngIf="pricingForm.get('totalAmount')!.hasError('min')">Amount cannot be negative</mat-error>
-            </mat-form-field>
+        <!-- ════════════════════════════════════════════════════════════════════
+             Step 5 — Review & Submit
+             ════════════════════════════════════════════════════════════════════ -->
+        @if (currentStep() === 5) {
+          <div class="step-content" id="step-5-review">
 
-            <mat-form-field appearance="outline" class="pricing-field">
-              <mat-label>Advance Received</mat-label>
-              <span matPrefix>Rs&nbsp;</span>
-              <input matInput type="number" formControlName="advanceAmount" min="0" id="advance-amount-input" />
-              <mat-error *ngIf="pricingForm.get('advanceAmount')!.hasError('min')">Amount cannot be negative</mat-error>
-            </mat-form-field>
-
-            <div class="remaining-display">
-              <div class="remaining-label">Remaining Balance</div>
-              <div class="remaining-value" [class.remaining-zero]="pricingForm.get('remainingAmount')!.value === 0">
-                Rs {{ (pricingForm.get('remainingAmount')!.value ?? 0) | number }}
+            <div class="step-header">
+              <div class="step-icon-wrap">
+                <mat-icon>fact_check</mat-icon>
+              </div>
+              <div>
+                <h2 class="step-title">Review Order</h2>
+                <p class="step-desc">Confirm all details before saving</p>
               </div>
             </div>
-          </div>
 
-          <div class="step-actions">
-            <button mat-stroked-button matStepperPrevious>Back</button>
-            <button mat-flat-button color="primary" matStepperNext [disabled]="!isStep4Valid" id="step4-next-btn">
-              Continue
-              <mat-icon>arrow_forward</mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-step>
+            @if (!savedOrderId()) {
+              <!-- Review Summary Grid -->
+              <div class="review-grid">
+                <div class="review-card">
+                  <div class="review-card__title">
+                    <mat-icon>person</mat-icon> Customer
+                  </div>
+                  <div class="review-row">
+                    <span>Name</span>
+                    <strong>{{ selectedCustomer()?.fullName ?? '—' }}</strong>
+                  </div>
+                  <div class="review-row">
+                    <span>Phone</span>
+                    <strong>{{ selectedCustomer()?.phoneNumber ?? '—' }}</strong>
+                  </div>
+                </div>
 
-      <!-- ── Step 5: Delivery ─────────────────────────────────────────────── -->
-      <mat-step [completed]="isStep5Valid" label="Delivery" [stepControl]="deliveryForm">
-        <div class="step-content">
-          <div class="step-header">
-            <mat-icon class="step-icon">local_shipping</mat-icon>
-            <div>
-              <h2 class="step-title">Delivery Details</h2>
-              <p class="step-desc">Set delivery date, priority, and special instructions</p>
-            </div>
-          </div>
+                <div class="review-card">
+                  <div class="review-card__title">
+                    <mat-icon>dry_cleaning</mat-icon> Garment
+                  </div>
+                  <div class="review-row">
+                    <span>Type</span>
+                    <strong>{{ garmentForm.get('garmentType')!.value | titlecase }}</strong>
+                  </div>
+                  <div class="review-row">
+                    <span>Quantity</span>
+                    <strong>{{ garmentForm.get('quantity')!.value }} piece{{ garmentForm.get('quantity')!.value > 1 ? 's' : '' }}</strong>
+                  </div>
+                </div>
 
-          <div class="delivery-form" [formGroup]="deliveryForm">
-            <div class="delivery-top-row">
-              <mat-form-field appearance="outline" class="date-field">
-                <mat-label>Delivery Date</mat-label>
-                <mat-icon matPrefix>calendar_today</mat-icon>
-                <input matInput [matDatepicker]="picker" formControlName="deliveryDate" [min]="today"
-                  id="delivery-date-input" placeholder="Select date" />
-                <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-                <mat-datepicker #picker></mat-datepicker>
-                <mat-error *ngIf="deliveryForm.get('deliveryDate')!.hasError('required')">Required</mat-error>
-              </mat-form-field>
+                <div class="review-card">
+                  <div class="review-card__title">
+                    <mat-icon>payments</mat-icon> Pricing
+                  </div>
+                  <div class="review-row">
+                    <span>Total</span>
+                    <strong class="review-amount">{{ formatCurrency(pricingForm.get('totalAmount')!.value) }}</strong>
+                  </div>
+                  <div class="review-row">
+                    <span>Advance</span>
+                    <strong>{{ formatCurrency(pricingForm.get('advanceAmount')!.value) }}</strong>
+                  </div>
+                  <div class="review-row">
+                    <span>Balance</span>
+                    <strong class="review-balance">{{ formatCurrency(pricingForm.get('remainingAmount')!.value) }}</strong>
+                  </div>
+                </div>
 
-              <div class="priority-selector">
-                <p class="priority-label">Priority</p>
-                <div class="priority-options">
-                  <button *ngFor="let p of ORDER_PRIORITY_OPTIONS" class="priority-btn" type="button"
-                    [class.priority-btn--active]="deliveryForm.get('priority')!.value === p.value"
-                    [class]="'priority-btn--' + p.value" (click)="deliveryForm.patchValue({ priority: p.value })"
-                    [id]="'priority-' + p.value">
-                    {{ p.label }}
+                <div class="review-card">
+                  <div class="review-card__title">
+                    <mat-icon>local_shipping</mat-icon> Delivery
+                  </div>
+                  <div class="review-row">
+                    <span>Date</span>
+                    <strong>{{ formatDate(deliveryForm.get('deliveryDate')!.value) }}</strong>
+                  </div>
+                  <div class="review-row">
+                    <span>Priority</span>
+                    <strong [class]="'priority-val--' + deliveryForm.get('priority')!.value">
+                      {{ deliveryForm.get('priority')!.value | titlecase }}
+                    </strong>
+                  </div>
+                </div>
+
+                @if (selectedMeasurement()) {
+                  <div class="review-card review-card--full">
+                    <div class="review-card__title">
+                      <mat-icon>straighten</mat-icon> Measurements
+                    </div>
+                    <div class="review-row">
+                      <span>Type</span>
+                      <strong>{{ getMeasurementTypeLabel(selectedMeasurement()!.measurementType) }}</strong>
+                    </div>
+                  </div>
+                }
+
+                @if (deliveryForm.get('stitchingNotes')!.value || deliveryForm.get('fabricNotes')!.value || deliveryForm.get('specialInstructions')!.value) {
+                  <div class="review-card review-card--full">
+                    <div class="review-card__title">
+                      <mat-icon>notes</mat-icon> Notes
+                    </div>
+                    @if (deliveryForm.get('stitchingNotes')!.value) {
+                      <div class="review-row">
+                        <span>Stitching</span>
+                        <strong>{{ deliveryForm.get('stitchingNotes')!.value }}</strong>
+                      </div>
+                    }
+                    @if (deliveryForm.get('fabricNotes')!.value) {
+                      <div class="review-row">
+                        <span>Fabric</span>
+                        <strong>{{ deliveryForm.get('fabricNotes')!.value }}</strong>
+                      </div>
+                    }
+                    @if (deliveryForm.get('specialInstructions')!.value) {
+                      <div class="review-row">
+                        <span>Special</span>
+                        <strong>{{ deliveryForm.get('specialInstructions')!.value }}</strong>
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+
+              <div class="step-actions">
+                <button class="dp-btn dp-btn--secondary" (click)="goBack()" [disabled]="saving()">Back</button>
+                <button class="dp-btn dp-btn--primary" [disabled]="saving()" (click)="submitOrder()"
+                  id="submit-order-btn">
+                  @if (saving()) {
+                    <mat-progress-spinner diameter="16" mode="indeterminate" class="btn-spinner" />
+                    Saving…
+                  } @else {
+                    <mat-icon>save</mat-icon>
+                    {{ isEditMode ? 'Update Order' : 'Save Order' }}
+                  }
+                </button>
+              </div>
+            }
+
+            <!-- ── Success State ──────────────────────────────────────────── -->
+            @if (savedOrderId()) {
+              <div class="success-state" id="success-state">
+                <div class="success-icon-wrap">
+                  <mat-icon class="success-icon">check_circle</mat-icon>
+                </div>
+                <h3 class="success-title">
+                  Order {{ isEditMode ? 'Updated' : 'Created' }} Successfully!
+                </h3>
+                <p class="success-desc">Your order has been saved to the system.</p>
+                <div class="success-actions">
+                  <button class="dp-btn dp-btn--primary" (click)="navigateToOrder()" id="view-order-btn">
+                    <mat-icon>visibility</mat-icon>
+                    View Order
+                  </button>
+                  <button class="dp-btn dp-btn--secondary" (click)="printReceipt()" id="btn-wizard-print-receipt">
+                    <mat-icon>print</mat-icon>
+                    Print Receipt
                   </button>
                 </div>
               </div>
-            </div>
+            }
 
-            <mat-form-field appearance="outline" class="notes-field">
-              <mat-label>Stitching Notes</mat-label>
-              <mat-icon matPrefix>content_cut</mat-icon>
-              <textarea matInput formControlName="stitchingNotes" rows="3" id="stitching-notes"
-                placeholder="e.g., Double pocket, round hem…"></textarea>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="notes-field">
-              <mat-label>Fabric Notes</mat-label>
-              <mat-icon matPrefix>texture</mat-icon>
-              <textarea matInput formControlName="fabricNotes" rows="3" id="fabric-notes"
-                placeholder="e.g., Wash before cutting, shrinks…"></textarea>
-            </mat-form-field>
-
-            <mat-form-field appearance="outline" class="notes-field">
-              <mat-label>Special Instructions</mat-label>
-              <mat-icon matPrefix>star_outline</mat-icon>
-              <textarea matInput formControlName="specialInstructions" rows="3" id="special-instructions"
-                placeholder="Any other requirements…"></textarea>
-            </mat-form-field>
           </div>
+        }
 
-          <div class="step-actions">
-            <button mat-stroked-button matStepperPrevious>Back</button>
-            <button mat-flat-button color="primary" matStepperNext [disabled]="!isStep5Valid" id="step5-next-btn">
-              Review Order
-              <mat-icon>arrow_forward</mat-icon>
-            </button>
-          </div>
-        </div>
-      </mat-step>
-
-      <!-- ── Step 6: Review ───────────────────────────────────────────────── -->
-      <mat-step label="Review & Submit">
-        <div class="step-content">
-          <div class="step-header">
-            <mat-icon class="step-icon">fact_check</mat-icon>
-            <div>
-              <h2 class="step-title">Review Order</h2>
-              <p class="step-desc">Confirm all details before saving</p>
-            </div>
-          </div>
-
-          <!-- Summary Cards -->
-          <div class="review-grid" *ngIf="!savedOrderId()">
-            <div class="review-card">
-              <div class="review-card-title"><mat-icon>person</mat-icon> Customer</div>
-              <div class="review-row"><span>Name</span><strong>{{ selectedCustomer()?.fullName ?? '—' }}</strong></div>
-              <div class="review-row"><span>Phone</span><strong>{{ selectedCustomer()?.phoneNumber ?? '—' }}</strong>
-              </div>
-            </div>
-
-            <div class="review-card">
-              <div class="review-card-title"><mat-icon>dry_cleaning</mat-icon> Garment</div>
-              <div class="review-row"><span>Type</span><strong>{{ garmentForm.get('garmentType')!.value | titlecase
-                  }}</strong></div>
-              <div class="review-row"><span>Quantity</span><strong>{{ garmentForm.get('quantity')!.value }}</strong>
-              </div>
-            </div>
-
-            <div class="review-card">
-              <div class="review-card-title"><mat-icon>payments</mat-icon> Pricing</div>
-              <div class="review-row"><span>Total</span><strong class="review-amount">{{
-                  formatCurrency(pricingForm.get('totalAmount')!.value) }}</strong></div>
-              <div class="review-row"><span>Advance</span><strong>{{
-                  formatCurrency(pricingForm.get('advanceAmount')!.value) }}</strong></div>
-              <div class="review-row"><span>Balance</span><strong class="review-balance">{{
-                  formatCurrency(pricingForm.get('remainingAmount')!.value) }}</strong></div>
-            </div>
-
-            <div class="review-card">
-              <div class="review-card-title"><mat-icon>local_shipping</mat-icon> Delivery</div>
-              <div class="review-row"><span>Date</span><strong>{{ formatDate(deliveryForm.get('deliveryDate')!.value)
-                  }}</strong></div>
-              <div class="review-row"><span>Priority</span><strong
-                  class="priority-{{ deliveryForm.get('priority')!.value }}">{{ deliveryForm.get('priority')!.value |
-                  titlecase }}</strong></div>
-            </div>
-
-            <div class="review-card review-card--full" *ngIf="selectedMeasurement()">
-              <div class="review-card-title"><mat-icon>straighten</mat-icon> Measurements</div>
-              <div class="review-row"><span>Type</span><strong>{{
-                  getMeasurementTypeLabel(selectedMeasurement()!.measurementType) }}</strong></div>
-            </div>
-
-            <div class="review-card review-card--full"
-              *ngIf="deliveryForm.get('stitchingNotes')!.value || deliveryForm.get('fabricNotes')!.value || deliveryForm.get('specialInstructions')!.value">
-              <div class="review-card-title"><mat-icon>notes</mat-icon> Notes</div>
-              <div class="review-row" *ngIf="deliveryForm.get('stitchingNotes')!.value"><span>Stitching</span><strong>{{
-                  deliveryForm.get('stitchingNotes')!.value }}</strong></div>
-              <div class="review-row" *ngIf="deliveryForm.get('fabricNotes')!.value"><span>Fabric</span><strong>{{
-                  deliveryForm.get('fabricNotes')!.value }}</strong></div>
-              <div class="review-row" *ngIf="deliveryForm.get('specialInstructions')!.value">
-                <span>Special</span><strong>{{ deliveryForm.get('specialInstructions')!.value }}</strong>
-              </div>
-            </div>
-          </div>
-
-          <!-- Success State -->
-          <div class="success-state" *ngIf="savedOrderId()">
-            <div class="success-icon-wrap">
-              <mat-icon class="success-icon">check_circle</mat-icon>
-            </div>
-            <h3>Order {{ isEditMode ? 'Updated' : 'Created' }} Successfully!</h3>
-            <p>Your order has been saved to the system.</p>
-            <div class="success-actions">
-              <button mat-flat-button color="primary" (click)="navigateToOrder()" id="view-order-btn">
-                <mat-icon>visibility</mat-icon>
-                View Order
-              </button>
-              <button mat-stroked-button (click)="printReceipt()" id="btn-wizard-print-receipt">
-                <mat-icon>print</mat-icon>
-                Print Receipt
-              </button>
-            </div>
-          </div>
-
-          <div class="step-actions" *ngIf="!savedOrderId()">
-            <button mat-stroked-button matStepperPrevious [disabled]="saving()">Back</button>
-            <button mat-flat-button color="primary" [disabled]="saving()" (click)="submitOrder()" id="submit-order-btn">
-              <mat-spinner *ngIf="saving()" diameter="18" class="btn-spinner" />
-              <mat-icon *ngIf="!saving()">save</mat-icon>
-              {{ saving() ? 'Saving…' : (isEditMode ? 'Update Order' : 'Save Order') }}
-            </button>
-          </div>
-        </div>
-      </mat-step>
-
-    </mat-stepper>
-
-  </div>
+      </div><!-- /wizard-panel -->
+    </div><!-- /wizard-body -->
+  </div><!-- /wizard-container -->
 </app-layout-shell>

@@ -1,132 +1,208 @@
 <app-layout-shell>
   <div class="page-container">
 
-    <!-- ── Loading ────────────────────────────────────────────────────────── -->
-    <div class="loading-overlay" *ngIf="loading()">
-      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
-      <span>Loading order…</span>
-    </div>
-
-    <!-- ── Error ──────────────────────────────────────────────────────────── -->
-    <div class="error-state" *ngIf="error() && !loading()">
-      <mat-icon>error_outline</mat-icon>
-      <p>{{ error() }}</p>
-      <button mat-stroked-button (click)="navigateBack()">Back to Orders</button>
-    </div>
-
-    <ng-container *ngIf="!loading() && !error() && order() as o">
-
-      <!-- ── Page Nav ────────────────────────────────────────────────────── -->
-      <div class="page-nav">
-        <button mat-icon-button class="back-btn" (click)="navigateBack()" id="back-to-orders">
-          <mat-icon>arrow_back</mat-icon>
-        </button>
-        <span class="breadcrumb">
-          <a class="breadcrumb-link" (click)="navigateBack()">Orders</a>
-          <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
-          <span class="breadcrumb-current">{{ o.orderNumber }}</span>
-        </span>
+    <!-- ── Loading ──────────────────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="state-panel">
+        <mat-progress-spinner mode="indeterminate" diameter="36" />
+        <span class="state-text">Loading order…</span>
       </div>
+    }
 
-      <!-- ── Order Header ────────────────────────────────────────────────── -->
+    <!-- ── Error ────────────────────────────────────────────────────────────── -->
+    @if (error() && !loading()) {
+      <div class="state-panel state-panel--error">
+        <mat-icon class="state-icon">error_outline</mat-icon>
+        <span class="state-text">{{ error() }}</span>
+        <button class="dp-btn dp-btn--secondary" (click)="navigateBack()">Back to Orders</button>
+      </div>
+    }
+
+    @if (!loading() && !error() && order(); as o) {
+
+      <!-- ── Breadcrumb (§12.3 / §3.3) ──────────────────────────────────── -->
+      <nav class="breadcrumb" aria-label="Page breadcrumb">
+        <a class="breadcrumb__link" (click)="navigateBack()" role="button" tabindex="0"
+          (keydown.enter)="navigateBack()" id="back-to-orders">
+          Orders
+        </a>
+        <mat-icon class="breadcrumb__sep">chevron_right</mat-icon>
+        <span class="breadcrumb__current" aria-current="page">{{ o.orderNumber }}</span>
+      </nav>
+
+      <!-- ── Order Header ──────────────────────────────────────────────────── -->
       <div class="order-header">
-        <div class="order-header-left">
-          <div class="order-number-wrap">
-            <span class="order-number">{{ o.orderNumber }}</span>
-            <span class="status-chip" [ngClass]="getStatusColor(o.status)">{{ o.status }}</span>
-            <span class="priority-badge" [ngClass]="getPriorityColor(o.priority)" *ngIf="o.priority !== 'normal'">
-              {{ o.priority | titlecase }}
-            </span>
-            <span class="overdue-badge" *ngIf="isOverdue()">⚠ Overdue</span>
-            <span class="due-today-badge" *ngIf="isDueToday()">Due Today</span>
+        <div class="order-header__left">
+          <div class="order-header__title-row">
+            <span class="order-number cell-mono">{{ o.orderNumber }}</span>
+            <span class="status-badge" [ngClass]="getStatusColor(o.status)">{{ o.status }}</span>
+            @if (o.priority !== 'normal') {
+              <span class="priority-badge" [ngClass]="getPriorityColor(o.priority)">
+                {{ o.priority | titlecase }}
+              </span>
+            }
+            @if (isOverdue()) {
+              <span class="alert-badge alert-badge--overdue">⚠ Overdue</span>
+            }
+            @if (isDueToday()) {
+              <span class="alert-badge alert-badge--today">Due Today</span>
+            }
           </div>
-          <p class="order-dates">
-            Placed {{ formatShortDate(o.orderDate) }} · Deliver by <strong [class.overdue-text]="isOverdue()">{{ formatDate(o.deliveryDate) }}</strong>
+          <p class="order-meta">
+            Placed {{ formatShortDate(o.orderDate) }}
+            <span class="order-meta__sep">·</span>
+            Deliver by
+            <strong [class.overdue-text]="isOverdue()">{{ formatDate(o.deliveryDate) }}</strong>
           </p>
         </div>
 
-        <div class="order-header-actions">
-          <button mat-stroked-button (click)="navigateToEdit()" [disabled]="!isEditable(o.status)" id="edit-order-btn">
+        <!-- ── Header Actions (§12.5 — print as secondary button) ────────── -->
+        <div class="order-header__actions">
+          <button class="dp-btn dp-btn--secondary" (click)="navigateToEdit()"
+            [disabled]="!isEditable(o.status)" id="edit-order-btn">
             <mat-icon>edit</mat-icon>
             Edit
           </button>
 
-          <button mat-stroked-button (click)="printOrderReceipt()" id="btn-print-order-receipt"
-            matTooltip="Print order receipt">
+          <button class="dp-btn dp-btn--secondary" (click)="printOrderReceipt()"
+            id="btn-print-order-receipt" matTooltip="Print order receipt">
             <mat-icon>print</mat-icon>
             Print Receipt
           </button>
 
-          <button mat-stroked-button color="accent" (click)="printDeliveryReceipt()" id="btn-print-delivery-receipt"
-            *ngIf="o.status === 'Delivered'"
-            matTooltip="Print delivery confirmation">
-            <mat-icon>local_shipping</mat-icon>
-            Delivery Receipt
-          </button>
+          @if (o.status === 'Delivered') {
+            <button class="dp-btn dp-btn--secondary" (click)="printDeliveryReceipt()"
+              id="btn-print-delivery-receipt" matTooltip="Print delivery confirmation">
+              <mat-icon>local_shipping</mat-icon>
+              Delivery Receipt
+            </button>
+          }
 
-          <button mat-flat-button color="primary" [matMenuTriggerFor]="statusMenu" id="change-status-btn"
+          <button class="dp-btn dp-btn--primary" [matMenuTriggerFor]="statusMenu"
+            id="change-status-btn"
             [disabled]="o.status === 'Delivered' || o.status === 'Cancelled'">
             <mat-icon>update</mat-icon>
             Change Status
             <mat-icon>arrow_drop_down</mat-icon>
           </button>
           <mat-menu #statusMenu="matMenu">
-            <button mat-menu-item *ngFor="let s of ALL_STATUSES"
-              [disabled]="s === o.status || s === 'Cancelled'"
-              (click)="changeStatus(s)"
-              [attr.id]="'status-to-' + s">
-              <span class="status-option" [ngClass]="getStatusColor(s)">{{ s }}</span>
-            </button>
+            @for (s of ALL_STATUSES; track s) {
+              <button mat-menu-item
+                [disabled]="s === o.status || s === 'Cancelled'"
+                (click)="changeStatus(s)"
+                [attr.id]="'status-to-' + s">
+                <span class="status-option" [ngClass]="getStatusColor(s)">{{ s }}</span>
+              </button>
+            }
           </mat-menu>
 
-          <button mat-stroked-button color="warn" (click)="cancelOrder()" id="cancel-order-btn"
-            *ngIf="o.status !== 'Cancelled' && o.status !== 'Delivered'">
-            <mat-icon>cancel</mat-icon>
-            Cancel
-          </button>
+          @if (o.status !== 'Cancelled' && o.status !== 'Delivered') {
+            <button class="dp-btn dp-btn--danger" (click)="cancelOrder()" id="cancel-order-btn">
+              <mat-icon>cancel</mat-icon>
+              Cancel
+            </button>
+          }
         </div>
       </div>
 
-      <!-- ── Main Content Grid ───────────────────────────────────────────── -->
+      <!-- ── Main Content Grid ──────────────────────────────────────────────── -->
       <div class="content-grid">
 
-        <!-- LEFT COLUMN -->
+        <!-- LEFT COLUMN ─────────────────────────────────────────────────── -->
         <div class="left-column">
 
-          <!-- ── Customer Card ─────────────────────────────────────────── -->
+          <!-- ── Status Timeline (§12.3) ──────────────────────────────── -->
           <div class="info-card">
             <div class="card-header">
-              <mat-icon>person</mat-icon>
-              <h3>Customer</h3>
+              <mat-icon class="card-header__icon">timeline</mat-icon>
+              <h3 class="card-header__title">Progress</h3>
+              @if (o.status === 'Cancelled') {
+                <span class="card-badge card-badge--danger">Cancelled</span>
+              }
             </div>
-            <div class="customer-block" (click)="navigateToCustomer()" style="cursor:pointer" matTooltip="View customer profile">
+
+            <div class="timeline" [class.timeline--cancelled]="o.status === 'Cancelled'">
+              @for (step of STATUS_TIMELINE; track step; let i = $index; let last = $last) {
+                <div class="timeline__step">
+                  <!-- Dot -->
+                  <div class="timeline__dot-col">
+                    <div class="timeline__dot"
+                      [class.timeline__dot--completed]="isStepCompleted(step)"
+                      [class.timeline__dot--current]="isStepActive(step)">
+                    </div>
+                    @if (!last) {
+                      <div class="timeline__connector"
+                        [class.timeline__connector--completed]="isStepCompleted(step) || isStepActive(step)">
+                      </div>
+                    }
+                  </div>
+
+                  <!-- Label + action -->
+                  <div class="timeline__body">
+                    <span class="timeline__label"
+                      [class.timeline__label--completed]="isStepCompleted(step)"
+                      [class.timeline__label--current]="isStepActive(step)">
+                      {{ step }}
+                    </span>
+                    @if (canAdvanceTo(step)) {
+                      <button class="dp-btn dp-btn--accent-sm"
+                        (click)="changeStatus(step)"
+                        [attr.id]="'advance-to-' + step">
+                        <mat-icon>arrow_forward</mat-icon>
+                        Move to {{ step }}
+                      </button>
+                    }
+                  </div>
+                </div>
+              }
+
+              @if (o.status === 'Cancelled') {
+                <div class="cancelled-banner">
+                  <mat-icon>block</mat-icon>
+                  Order Cancelled
+                </div>
+              }
+            </div>
+          </div>
+
+          <!-- ── Customer Card ───────────────────────────────────────────── -->
+          <div class="info-card">
+            <div class="card-header">
+              <mat-icon class="card-header__icon">person</mat-icon>
+              <h3 class="card-header__title">Customer</h3>
+            </div>
+            <div class="customer-block" (click)="navigateToCustomer()"
+              matTooltip="View customer profile" role="button" tabindex="0"
+              (keydown.enter)="navigateToCustomer()">
               <div class="customer-avatar">{{ getInitials(o.customer?.fullName ?? 'C') }}</div>
               <div class="customer-details">
                 <span class="cust-name">{{ o.customer?.fullName ?? '—' }}</span>
-                <span class="cust-phone">
-                  <mat-icon class="inline-icon">phone</mat-icon>
+                <span class="cust-meta">
+                  <mat-icon class="meta-icon">phone</mat-icon>
                   {{ o.customer?.phoneNumber ?? '—' }}
                 </span>
-                <span class="cust-address" *ngIf="o.customer?.address">
-                  <mat-icon class="inline-icon">place</mat-icon>
-                  {{ o.customer?.address }}
-                </span>
+                @if (o.customer?.address) {
+                  <span class="cust-meta">
+                    <mat-icon class="meta-icon">place</mat-icon>
+                    {{ o.customer?.address }}
+                  </span>
+                }
               </div>
               <mat-icon class="nav-arrow">chevron_right</mat-icon>
             </div>
           </div>
 
-          <!-- ── Order Info Card ─────────────────────────────────────── -->
+          <!-- ── Order Info Card ─────────────────────────────────────────── -->
           <div class="info-card">
             <div class="card-header">
-              <mat-icon>receipt_long</mat-icon>
-              <h3>Order Details</h3>
+              <mat-icon class="card-header__icon">receipt_long</mat-icon>
+              <h3 class="card-header__title">Order Details</h3>
             </div>
             <div class="detail-grid">
               <div class="detail-item">
                 <span class="detail-label">Garment</span>
                 <span class="detail-value">
-                  <mat-icon class="inline-icon">{{ getGarmentIcon(o.garmentType) }}</mat-icon>
+                  <mat-icon class="meta-icon">{{ getGarmentIcon(o.garmentType) }}</mat-icon>
                   {{ getGarmentLabel(o.garmentType) }}
                 </span>
               </div>
@@ -140,204 +216,180 @@
               </div>
               <div class="detail-item">
                 <span class="detail-label">Priority</span>
-                <span class="detail-value priority-{{ o.priority }}">{{ o.priority | titlecase }}</span>
+                <span class="detail-value" [ngClass]="'priority-val--' + o.priority">
+                  {{ o.priority | titlecase }}
+                </span>
               </div>
             </div>
           </div>
 
-          <!-- ── Measurements Card ───────────────────────────────────── -->
-          <div class="info-card" *ngIf="o.measurement">
-            <div class="card-header">
-              <mat-icon>straighten</mat-icon>
-              <h3>Measurements</h3>
-              <span class="card-badge">{{ getMeasurementTypeLabel(o.measurement.measurementType) }}</span>
-            </div>
-            <div class="measurement-values-grid">
-              <div class="mv-item" *ngFor="let v of getMeasurementValues()">
-                <span class="mv-label">{{ v.label }}</span>
-                <span class="mv-value">{{ v.value }}</span>
+          <!-- ── Measurements Card ───────────────────────────────────────── -->
+          @if (o.measurement) {
+            <div class="info-card">
+              <div class="card-header">
+                <mat-icon class="card-header__icon">straighten</mat-icon>
+                <h3 class="card-header__title">Measurements</h3>
+                <span class="card-badge">{{ getMeasurementTypeLabel(o.measurement.measurementType) }}</span>
+              </div>
+              <div class="measurement-grid">
+                @for (v of getMeasurementValues(); track v.label) {
+                  <div class="mv-item">
+                    <span class="mv-label">{{ v.label }}</span>
+                    <span class="mv-value">{{ v.value }}</span>
+                  </div>
+                }
               </div>
             </div>
-          </div>
+          }
 
-          <!-- ── Notes Card ──────────────────────────────────────────── -->
-          <div class="info-card" *ngIf="o.stitchingNotes || o.fabricNotes || o.specialInstructions">
-            <div class="card-header">
-              <mat-icon>notes</mat-icon>
-              <h3>Notes</h3>
+          <!-- ── Notes Card ──────────────────────────────────────────────── -->
+          @if (o.stitchingNotes || o.fabricNotes || o.specialInstructions) {
+            <div class="info-card">
+              <div class="card-header">
+                <mat-icon class="card-header__icon">notes</mat-icon>
+                <h3 class="card-header__title">Notes</h3>
+              </div>
+              @if (o.stitchingNotes) {
+                <div class="notes-section">
+                  <span class="note-label">Stitching Notes</span>
+                  <p class="note-text">{{ o.stitchingNotes }}</p>
+                </div>
+              }
+              @if (o.fabricNotes) {
+                <div class="notes-section">
+                  <span class="note-label">Fabric Notes</span>
+                  <p class="note-text">{{ o.fabricNotes }}</p>
+                </div>
+              }
+              @if (o.specialInstructions) {
+                <div class="notes-section">
+                  <span class="note-label">Special Instructions</span>
+                  <p class="note-text">{{ o.specialInstructions }}</p>
+                </div>
+              }
             </div>
-            <div class="notes-section" *ngIf="o.stitchingNotes">
-              <span class="note-label">Stitching Notes</span>
-              <p class="note-text">{{ o.stitchingNotes }}</p>
-            </div>
-            <div class="notes-section" *ngIf="o.fabricNotes">
-              <span class="note-label">Fabric Notes</span>
-              <p class="note-text">{{ o.fabricNotes }}</p>
-            </div>
-            <div class="notes-section" *ngIf="o.specialInstructions">
-              <span class="note-label">Special Instructions</span>
-              <p class="note-text">{{ o.specialInstructions }}</p>
-            </div>
-          </div>
+          }
 
-        </div>
+        </div><!-- /left-column -->
 
-        <!-- RIGHT COLUMN -->
+        <!-- RIGHT COLUMN ────────────────────────────────────────────────── -->
         <div class="right-column">
 
-          <!-- ── Pricing Card ───────────────────────────────── -->
+          <!-- ── Pricing Card ────────────────────────────────────────────── -->
           <div class="info-card pricing-card">
             <div class="card-header">
-              <mat-icon>payments</mat-icon>
-              <h3>Payment Summary</h3>
+              <mat-icon class="card-header__icon">payments</mat-icon>
+              <h3 class="card-header__title">Payment Summary</h3>
               <span class="payment-status-badge" [ngClass]="getPaymentStatusClass(o)">
                 {{ getPaymentStatusLabel(o) }}
               </span>
             </div>
             <div class="pricing-row">
-              <span>Total Amount</span>
+              <span class="pricing-label">Total Amount</span>
               <span class="pricing-total">{{ formatCurrency(o.totalAmount) }}</span>
             </div>
             <div class="pricing-row">
-              <span>Advance Paid</span>
+              <span class="pricing-label">Advance Paid</span>
               <span class="pricing-advance">{{ formatCurrency(o.advanceAmount) }}</span>
             </div>
-            <mat-divider class="pricing-divider"></mat-divider>
+            <div class="pricing-divider"></div>
             <div class="pricing-row pricing-balance-row">
               <span class="pricing-balance-label">Remaining Balance</span>
               <span class="pricing-balance" [class.balance-zero]="o.remainingAmount == 0">
                 {{ formatCurrency(o.remainingAmount) }}
               </span>
             </div>
-            <div class="receive-payment-action" *ngIf="o.remainingAmount > 0 && o.status !== 'Cancelled'">
-              <button
-                mat-flat-button
-                color="primary"
-                class="btn-receive-payment"
-                (click)="navigateToReceivePayment(o.id)"
-                id="btn-receive-payment">
-                <mat-icon>add_card</mat-icon>
-                Receive Payment
-              </button>
-            </div>
-          </div>
-
-          <!-- ── Status Timeline ──────────────────────────────────────── -->
-          <div class="info-card">
-            <div class="card-header">
-              <mat-icon>timeline</mat-icon>
-              <h3>Status Timeline</h3>
-            </div>
-
-            <div class="timeline" [class.timeline-cancelled]="o.status === 'Cancelled'">
-              <div
-                *ngFor="let step of STATUS_TIMELINE; let i = index"
-                class="timeline-step"
-                [class.step-completed]="isStepCompleted(step)"
-                [class.step-active]="isStepActive(step)"
-                [class.step-pending]="!isStepCompleted(step) && !isStepActive(step)">
-
-                <div class="step-connector" *ngIf="i > 0"></div>
-
-                <div class="step-node">
-                  <mat-icon *ngIf="isStepCompleted(step)">check</mat-icon>
-                  <mat-icon *ngIf="isStepActive(step)">radio_button_checked</mat-icon>
-                  <mat-icon *ngIf="!isStepCompleted(step) && !isStepActive(step)">radio_button_unchecked</mat-icon>
-                </div>
-
-                <div class="step-info">
-                  <span class="step-label">{{ step }}</span>
-                  <button
-                    *ngIf="canAdvanceTo(step)"
-                    mat-stroked-button
-                    class="advance-btn"
-                    (click)="changeStatus(step)"
-                    [attr.id]="'advance-to-' + step">
-                    <mat-icon>arrow_forward</mat-icon>
-                    Move to {{ step }}
-                  </button>
-                </div>
-              </div>
-
-              <!-- Cancelled state -->
-              <div class="cancelled-banner" *ngIf="o.status === 'Cancelled'">
-                <mat-icon>cancel</mat-icon>
-                Order Cancelled
-              </div>
-            </div>
-          </div>
-
-        </div>
-      </div>
-
-      <!-- ── Payments Section ─────────────────────────────── -->
-      <div class="payments-section">
-        <div class="payments-section-header">
-          <div class="payments-section-title">
-            <mat-icon>receipt</mat-icon>
-            <h3>Payment History</h3>
-            <span class="payments-count" *ngIf="orderPayments().length > 0">
-              {{ orderPayments().length }} payment{{ orderPayments().length !== 1 ? 's' : '' }}
-            </span>
-          </div>
-          <button
-            mat-flat-button
-            color="primary"
-            (click)="navigateToReceivePayment(o.id)"
-            *ngIf="o.remainingAmount > 0 && o.status !== 'Cancelled'"
-            id="btn-section-receive-payment">
-            <mat-icon>add_card</mat-icon>
-            Receive Payment
-          </button>
-        </div>
-
-        <!-- Loading -->
-        <div class="payments-loading" *ngIf="paymentsLoading()">
-          <mat-progress-spinner mode="indeterminate" diameter="28" />
-          <span>Loading payments…</span>
-        </div>
-
-        <!-- Empty -->
-        <div class="payments-empty" *ngIf="!paymentsLoading() && orderPayments().length === 0">
-          <mat-icon>account_balance_wallet</mat-icon>
-          <p>No payments recorded yet.</p>
-        </div>
-
-        <!-- Table -->
-        <table class="payments-table" *ngIf="!paymentsLoading() && orderPayments().length > 0">
-          <thead>
-            <tr>
-              <th>Payment #</th>
-              <th>Amount</th>
-              <th>Method</th>
-              <th>Date</th>
-              <th>Notes</th>
-              <th></th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let pay of orderPayments()" class="payment-row">
-              <td>
-                <span class="pay-num-badge">{{ pay.paymentNumber }}</span>
-              </td>
-              <td class="pay-amount">{{ formatCurrency(pay.amount) }}</td>
-              <td>
-                <span class="pay-method-chip" [ngClass]="'method-' + pay.paymentMethod">
-                  {{ getPaymentMethodLabel(pay.paymentMethod) }}
-                </span>
-              </td>
-              <td class="pay-date-cell">{{ formatShortDate(pay.paymentDate) }}</td>
-              <td class="pay-notes">{{ pay.notes || '—' }}</td>
-              <td class="pay-actions">
-                <button mat-icon-button (click)="navigateToPayment(pay.id)" matTooltip="View payment">
-                  <mat-icon>open_in_new</mat-icon>
+            @if (o.remainingAmount > 0 && o.status !== 'Cancelled') {
+              <div class="receive-payment-action">
+                <button class="dp-btn dp-btn--primary dp-btn--block"
+                  (click)="navigateToReceivePayment(o.id)" id="btn-receive-payment">
+                  <mat-icon>add_card</mat-icon>
+                  Receive Payment
                 </button>
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </div>
+              </div>
+            }
+          </div>
 
-    </ng-container>
+        </div><!-- /right-column -->
+      </div><!-- /content-grid -->
+
+      <!-- ── Payments Section ──────────────────────────────────────────────── -->
+      <div class="payments-section dp-card--flush">
+
+        <div class="payments-header">
+          <div class="payments-header__left">
+            <mat-icon class="card-header__icon">receipt</mat-icon>
+            <h3 class="card-header__title">Payment History</h3>
+            @if (orderPayments().length > 0) {
+              <span class="count-badge">
+                {{ orderPayments().length }} payment{{ orderPayments().length !== 1 ? 's' : '' }}
+              </span>
+            }
+          </div>
+          @if (o.remainingAmount > 0 && o.status !== 'Cancelled') {
+            <button class="dp-btn dp-btn--primary"
+              (click)="navigateToReceivePayment(o.id)" id="btn-section-receive-payment">
+              <mat-icon>add_card</mat-icon>
+              Receive Payment
+            </button>
+          }
+        </div>
+
+        @if (paymentsLoading()) {
+          <div class="payments-loading">
+            <mat-progress-spinner mode="indeterminate" diameter="28" />
+            <span class="state-text">Loading payments…</span>
+          </div>
+        }
+
+        @if (!paymentsLoading() && orderPayments().length === 0) {
+          <div class="payments-empty">
+            <mat-icon>account_balance_wallet</mat-icon>
+            <p>No payments recorded yet.</p>
+          </div>
+        }
+
+        @if (!paymentsLoading() && orderPayments().length > 0) {
+          <table class="dp-table payments-table" aria-label="Payment history">
+            <thead>
+              <tr>
+                <th>Payment #</th>
+                <th>Amount</th>
+                <th>Method</th>
+                <th>Date</th>
+                <th>Notes</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (pay of orderPayments(); track pay.id) {
+                <tr class="dp-table__row" (click)="navigateToPayment(pay.id)"
+                  tabindex="0" (keydown.enter)="navigateToPayment(pay.id)"
+                  [id]="'payment-row-' + pay.id">
+                  <td><span class="cell-mono pay-num">{{ pay.paymentNumber }}</span></td>
+                  <td><span class="pay-amount">{{ formatCurrency(pay.amount) }}</span></td>
+                  <td>
+                    <span class="pay-method-chip" [ngClass]="'method-' + pay.paymentMethod">
+                      {{ getPaymentMethodLabel(pay.paymentMethod) }}
+                    </span>
+                  </td>
+                  <td><span class="cell-date">{{ formatShortDate(pay.paymentDate) }}</span></td>
+                  <td><span class="pay-notes">{{ pay.notes || '—' }}</span></td>
+                  <td class="actions-cell" (click)="$event.stopPropagation()">
+                    <button class="action-btn" (click)="navigateToPayment(pay.id)"
+                      matTooltip="View payment" [id]="'view-payment-' + pay.id">
+                      <mat-icon>open_in_new</mat-icon>
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        }
+
+      </div><!-- /payments-section -->
+
+    }<!-- /ng-if order -->
+
   </div>
 </app-layout-shell>

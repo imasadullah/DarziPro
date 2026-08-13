@@ -1,117 +1,147 @@
 <app-layout-shell>
   <div class="kanban-page">
 
-    <!-- ── Header ────────────────────────────────────────────────────────── -->
+    <!-- ── Header ──────────────────────────────────────────────────────────── -->
     <div class="kanban-header">
-      <div class="kanban-header-left">
-        <button mat-icon-button (click)="navigateToList()" id="kanban-back-btn">
+      <div class="kanban-header__left">
+        <!-- Back breadcrumb -->
+        <button class="back-btn" (click)="navigateToList()" id="kanban-back-btn"
+          aria-label="Back to order list">
           <mat-icon>arrow_back</mat-icon>
         </button>
-        <div>
+        <div class="kanban-header__text">
           <h1 class="kanban-title">Kanban Board</h1>
-          <p class="kanban-subtitle">Drag orders between columns to update their status</p>
+          <p class="kanban-subtitle">Drag cards between columns to update order status</p>
         </div>
       </div>
-      <button mat-flat-button color="primary" (click)="navigateToNew()" id="kanban-new-order-btn">
+      <button class="dp-btn dp-btn--primary" (click)="navigateToNew()" id="kanban-new-order-btn">
         <mat-icon>add</mat-icon>
         New Order
       </button>
     </div>
 
-    <!-- ── Loading ───────────────────────────────────────────────────────── -->
-    <div class="kanban-loading" *ngIf="loading()">
-      <mat-progress-spinner mode="indeterminate" diameter="36" color="primary" />
-      <span>Loading orders…</span>
-    </div>
-
-    <!-- ── Kanban Board ───────────────────────────────────────────────────── -->
-    <div class="kanban-board" *ngIf="!loading()" cdkDropListGroup>
-      <div *ngFor="let col of columns" class="kanban-column" [class]="col.colorClass">
-
-        <!-- Column Header -->
-        <div class="col-header">
-          <div class="col-header-left">
-            <span class="col-title">{{ col.label }}</span>
-            <span class="col-count">{{ col.orders.length }}</span>
-          </div>
-        </div>
-
-        <!-- Drop List -->
-        <div
-          class="col-body"
-          cdkDropList
-          [id]="getColumnListId(col)"
-          [cdkDropListData]="col.orders"
-          [cdkDropListConnectedTo]="getAllListIds()"
-          (cdkDropListDropped)="onDrop($event, col.status)">
-
-          <!-- Order Cards -->
-          <div
-            *ngFor="let order of col.orders"
-            class="order-card"
-            [class.card-overdue]="isOverdue(order)"
-            [class.card-due-today]="isDueToday(order)"
-            cdkDrag
-            [cdkDragData]="order"
-            (click)="navigateToOrder(order)"
-            [attr.id]="'kanban-card-' + order.id">
-
-            <!-- Drag Handle -->
-            <div class="drag-handle" cdkDragHandle>
-              <mat-icon>drag_indicator</mat-icon>
-            </div>
-
-            <!-- Card Header -->
-            <div class="card-top">
-              <span class="card-order-number">{{ order.orderNumber }}</span>
-              <span class="card-priority priority-{{ order.priority }}" *ngIf="order.priority !== 'normal'">
-                {{ order.priority }}
-              </span>
-            </div>
-
-            <!-- Customer Name -->
-            <div class="card-customer">
-              <mat-icon class="card-customer-icon">person</mat-icon>
-              <span>{{ order.customer?.fullName ?? '—' }}</span>
-            </div>
-
-            <!-- Garment -->
-            <div class="card-garment">
-              <mat-icon class="card-garment-icon">{{ getGarmentIcon(order.garmentType) }}</mat-icon>
-              <span>{{ getGarmentLabel(order.garmentType) }}</span>
-              <span class="card-qty" *ngIf="order.quantity > 1">×{{ order.quantity }}</span>
-            </div>
-
-            <!-- Footer: Delivery & Balance -->
-            <div class="card-footer">
-              <span class="card-delivery" [class.delivery-overdue]="isOverdue(order)" [class.delivery-today]="isDueToday(order)">
-                <mat-icon class="footer-icon">event</mat-icon>
-                {{ formatShortDate(order.deliveryDate) }}
-              </span>
-              <span class="card-balance" *ngIf="order.remainingAmount > 0">
-                <mat-icon class="footer-icon">account_balance_wallet</mat-icon>
-                {{ formatCurrency(order.remainingAmount) }}
-              </span>
-              <span class="card-paid" *ngIf="order.remainingAmount == 0">
-                <mat-icon class="footer-icon">check_circle</mat-icon>
-                Paid
-              </span>
-            </div>
-
-            <!-- Drag Placeholder -->
-            <div *cdkDragPlaceholder class="drag-placeholder"></div>
-
-          </div>
-
-          <!-- Empty Column -->
-          <div class="col-empty" *ngIf="col.orders.length === 0">
-            <mat-icon>inbox</mat-icon>
-            <span>No orders</span>
-          </div>
-
-        </div>
+    <!-- ── Loading ─────────────────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="kanban-loading">
+        <mat-progress-spinner mode="indeterminate" diameter="36" />
+        <span class="kanban-loading__text">Loading orders…</span>
       </div>
-    </div>
+    }
 
-  </div>
+    <!-- ── Kanban Board ─────────────────────────────────────────────────────── -->
+    @if (!loading()) {
+      <div class="kanban-board" cdkDropListGroup>
+
+        @for (col of columns; track col.status) {
+          <div class="kanban-column" [class]="'kanban-column--' + col.colorClass">
+
+            <!-- Column Header -->
+            <div class="kanban-column__header">
+              <div class="kanban-column__header-left">
+                <span class="kanban-column__dot" [ngClass]="'dot--' + col.colorClass"></span>
+                <span class="kanban-column__title">{{ col.label }}</span>
+              </div>
+              <span class="kanban-column__count">{{ col.orders.length }}</span>
+            </div>
+
+            <!-- Drop List -->
+            <div
+              class="kanban-column__body"
+              cdkDropList
+              [id]="getColumnListId(col)"
+              [cdkDropListData]="col.orders"
+              [cdkDropListConnectedTo]="getAllListIds()"
+              (cdkDropListDropped)="onDrop($event, col.status)">
+
+              <!-- Order Cards -->
+              @for (order of col.orders; track order.id) {
+                <div
+                  class="kanban-card"
+                  [class.kanban-card--overdue]="isOverdue(order)"
+                  [class.kanban-card--today]="isDueToday(order)"
+                  [class.kanban-card--priority-urgent]="order.priority === 'urgent'"
+                  [class.kanban-card--priority-express]="order.priority === 'express'"
+                  cdkDrag
+                  [cdkDragData]="order"
+                  (click)="navigateToOrder(order)"
+                  [attr.id]="'kanban-card-' + order.id"
+                  tabindex="0"
+                  (keydown.enter)="navigateToOrder(order)"
+                  [attr.aria-label]="'Order ' + order.orderNumber + ' for ' + (order.customer?.fullName ?? 'customer')">
+
+                  <!-- Drag Handle -->
+                  <div class="kanban-card__drag-handle" cdkDragHandle aria-label="Drag to reorder">
+                    <mat-icon>drag_indicator</mat-icon>
+                  </div>
+
+                  <!-- Card Top: order # + priority -->
+                  <div class="kanban-card__top">
+                    <span class="kanban-card__order-num">{{ order.orderNumber }}</span>
+                    @if (order.priority !== 'normal') {
+                      <span class="kanban-card__priority-badge"
+                        [class.kanban-card__priority-badge--urgent]="order.priority === 'urgent'"
+                        [class.kanban-card__priority-badge--express]="order.priority === 'express'">
+                        {{ order.priority }}
+                      </span>
+                    }
+                  </div>
+
+                  <!-- Customer -->
+                  <div class="kanban-card__customer">
+                    <mat-icon class="kanban-card__icon">person</mat-icon>
+                    <span>{{ order.customer?.fullName ?? '—' }}</span>
+                  </div>
+
+                  <!-- Garment + Qty -->
+                  <div class="kanban-card__garment">
+                    <mat-icon class="kanban-card__icon">{{ getGarmentIcon(order.garmentType) }}</mat-icon>
+                    <span>{{ getGarmentLabel(order.garmentType) }}</span>
+                    @if (order.quantity > 1) {
+                      <span class="kanban-card__qty">×{{ order.quantity }}</span>
+                    }
+                  </div>
+
+                  <!-- Footer: Delivery date + Balance -->
+                  <div class="kanban-card__footer">
+                    <span class="kanban-card__delivery"
+                      [class.kanban-card__delivery--overdue]="isOverdue(order)"
+                      [class.kanban-card__delivery--today]="isDueToday(order)">
+                      <mat-icon class="kanban-card__footer-icon">event</mat-icon>
+                      {{ formatShortDate(order.deliveryDate) }}
+                    </span>
+                    @if (order.remainingAmount > 0) {
+                      <span class="kanban-card__balance">
+                        <mat-icon class="kanban-card__footer-icon">account_balance_wallet</mat-icon>
+                        {{ formatCurrency(order.remainingAmount) }}
+                      </span>
+                    } @else {
+                      <span class="kanban-card__paid">
+                        <mat-icon class="kanban-card__footer-icon">check_circle</mat-icon>
+                        Paid
+                      </span>
+                    }
+                  </div>
+
+                  <!-- CDK Drag Placeholder -->
+                  <div *cdkDragPlaceholder class="kanban-card__placeholder"></div>
+
+                </div>
+              }
+
+              <!-- Empty column state -->
+              @if (col.orders.length === 0) {
+                <div class="kanban-column__empty">
+                  <mat-icon>inbox</mat-icon>
+                  <span>No orders</span>
+                </div>
+              }
+
+            </div><!-- /col-body -->
+          </div><!-- /kanban-column -->
+        }
+
+      </div><!-- /kanban-board -->
+    }
+
+  </div><!-- /kanban-page -->
 </app-layout-shell>
