@@ -17,7 +17,7 @@ import { debounceTime, distinctUntilChanged, takeUntil, finalize, filter, take }
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ToastService } from '../../../shared/components/services/toast.service';
 import { MatTooltipModule } from '@angular/material/tooltip';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
@@ -48,7 +48,6 @@ import { getTemplate, getFieldLabel } from '../../measurements/measurement-templ
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatSnackBarModule,
     MatTooltipModule
   ],
   templateUrl: './order-wizard.component.html',
@@ -63,7 +62,7 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
   private readonly measurementService = inject(MeasurementService);
   private readonly store = inject(OrderStoreService);
   private readonly receiptService = inject(ReceiptService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly cdr = inject(ChangeDetectorRef);
   private readonly destroy$ = new Subject<void>();
 
@@ -348,7 +347,7 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
 
   submitOrder(): void {
     if (!this.selectedCustomer()) {
-      this.snackBar.open('Please select a customer.', 'Dismiss', { duration: 3000 });
+      this.toast.warning('Please select a customer.', 3000);
       return;
     }
 
@@ -381,15 +380,13 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
         (order) => {
           this.saving.set(false);
           this.savedOrderId.set(order.id);
-          this.snackBar.open(`Order ${order.orderNumber} updated successfully!`, 'View', {
-            duration: 4000,
-            panelClass: ['snack-success']
-          }).onAction().subscribe(() => this.router.navigate(['/orders', order.id]));
+          this.toast.success(`Order ${order.orderNumber} updated successfully!`, 4000);
+          this.router.navigate(['/orders', order.id]);
           this.cdr.markForCheck();
         },
         (msg) => {
           this.saving.set(false);
-          this.snackBar.open(msg, 'Dismiss', { duration: 5000, panelClass: ['snack-error'] });
+          this.toast.error(msg, 5000);
           this.cdr.markForCheck();
         }
       );
@@ -399,15 +396,12 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
         (order) => {
           this.saving.set(false);
           this.savedOrderId.set(order.id);
-          this.snackBar.open(`Order ${order.orderNumber} created!`, 'View', {
-            duration: 4000,
-            panelClass: ['snack-success']
-          });
+          this.toast.success(`Order ${order.orderNumber} created!`, 4000);
           this.cdr.markForCheck();
         },
         (msg) => {
           this.saving.set(false);
-          this.snackBar.open(msg, 'Dismiss', { duration: 5000, panelClass: ['snack-error'] });
+          this.toast.error(msg, 5000);
           this.cdr.markForCheck();
         }
       );
@@ -450,11 +444,7 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
       const order = this.store.selectedOrder();
       if (!order) return;
       if (!isEditable(order.status)) {
-        this.snackBar.open(
-          `Cannot edit a ${order.status} order.`,
-          'Dismiss',
-          { duration: 4000 }
-        );
+        this.toast.info(`Cannot edit a ${order.status} order.`, 4000);
         this.router.navigate(['/orders', id]);
         return;
       }

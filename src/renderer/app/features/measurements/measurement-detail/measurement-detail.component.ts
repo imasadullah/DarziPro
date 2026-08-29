@@ -17,7 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatCardModule } from '@angular/material/card';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ToastService } from '../../../shared/components/services/toast.service';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
@@ -43,7 +43,6 @@ import {
     MatCardModule,
     MatChipsModule,
     MatTooltipModule,
-    MatSnackBarModule,
     MatDividerModule
   ],
   templateUrl: './measurement-detail.component.html',
@@ -55,7 +54,7 @@ export class MeasurementDetailComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
   private readonly store = inject(MeasurementStoreService);
   private readonly measurementService = inject(MeasurementService);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
 
   public readonly copying = signal<boolean>(false);
@@ -104,23 +103,14 @@ export class MeasurementDetailComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.success && res.data) {
-            this.snackBar.open('Measurement copied. Redirecting to copy…', 'Dismiss', {
-              duration: 3000,
-              panelClass: ['snack-success']
-            });
+            this.toast.success('Measurement copied. Redirecting to copy…', 3000);
             this.router.navigate(['/measurements', res.data.id]);
           } else {
-            this.snackBar.open(res.error ?? 'Failed to copy measurement.', 'Dismiss', {
-              duration: 4000,
-              panelClass: ['snack-error']
-            });
+            this.toast.error(res.error ?? 'Failed to copy measurement.', 4000);
           }
         },
         error: (err) => {
-          this.snackBar.open(err.message ?? 'Failed to copy measurement.', 'Dismiss', {
-            duration: 4000,
-            panelClass: ['snack-error']
-          });
+          this.toast.error(err.message ?? 'Failed to copy measurement.', 4000);
         }
       });
   }
@@ -133,14 +123,11 @@ export class MeasurementDetailComponent implements OnInit, OnDestroy {
     this.store.deleteMeasurement(
       m.id,
       () => {
-        this.snackBar.open('Measurement deleted.', 'Dismiss', {
-          duration: 3000,
-          panelClass: ['snack-success']
-        });
+        this.toast.success('Measurement deleted.', 3000);
         this.router.navigate(['/measurements/list']);
       },
       (msg) => {
-        this.snackBar.open(msg, 'Dismiss', { duration: 4000, panelClass: ['snack-error'] });
+        this.toast.error(msg, 4000);
       }
     );
   }

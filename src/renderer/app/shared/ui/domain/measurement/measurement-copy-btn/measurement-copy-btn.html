@@ -1,0 +1,17 @@
+<button
+  type="button"
+  class="mcb"
+  [class.mcb--disabled]="disabled || loading"
+  [disabled]="disabled || loading"
+  (click)="onClick()"
+  id="measurement-copy-from-previous-btn"
+  aria-label="Copy measurements from previous record"
+>
+  @if (loading) {
+    <span class="mcb__spinner" aria-hidden="true"></span>
+    <span>Copying…</span>
+  } @else {
+    <mat-icon class="mcb__icon">content_copy</mat-icon>
+    <span>Copy from Previous</span>
+  }
+</button>

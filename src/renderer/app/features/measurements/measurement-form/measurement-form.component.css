@@ -87,7 +87,7 @@
 
 .section-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   gap: 16px;
 }
 
@@ -118,10 +118,52 @@
   color: #64748b;
 }
 
-/* ── Customer Selector ───────────────────────────────────────────────────────── */
-.customer-selector { display: flex; flex-direction: column; gap: 8px; }
+/* ── Customer Search (§9.1 dp-search — matches Order Wizard Step 1 exactly) ──── */
+.dp-search {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px;
+  background: var(--dp-surface, #FFFFFF);
+  border: 1px solid var(--dp-border, #E5E7EB);
+  border-radius: 8px;
+  width: 100%;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
 
-.customer-search-field { width: 100%; }
+.dp-search:focus-within {
+  border-color: var(--dp-accent, #6366F1);
+  box-shadow: 0 0 0 3px var(--dp-accent-subtle, #EEF2FF);
+}
+
+/* Open-dropdown state: square bottom corners to join the results panel */
+.dp-search--active {
+  border-radius: 8px 8px 0 0;
+  border-bottom-color: transparent;
+}
+
+.dp-search__icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  color: var(--dp-text-tertiary, #9CA3AF);
+  flex-shrink: 0;
+}
+
+.dp-search__input {
+  flex: 1;
+  border: none;
+  outline: none;
+  font-size: 14px;
+  color: var(--dp-text, #111827);
+  background: transparent;
+  font-family: var(--dp-font-sans, 'Inter', sans-serif);
+}
+
+.dp-search__input::placeholder {
+  color: var(--dp-text-tertiary, #9CA3AF);
+}
 
 .search-results {
   background: #fff;
@@ -251,11 +293,19 @@
   margin-top: -8px;
 }
 
-/* ── Values Grid ─────────────────────────────────────────────────────────────── */
+/* ── Values Grid (legacy, kept for custom-type layout) ───────────────────────── */
 .values-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 12px;
+}
+
+/* Error container below the dp-measurement-grid */
+.values-errors {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin-top: 4px;
 }
 
 .value-field { width: 100%; }
@@ -299,6 +349,15 @@
 }
 
 .full-width-field { grid-column: 1 / -1; }
+
+/* Ensure dp-measurement-notes host elements participate in the notes-grid */
+dp-measurement-notes {
+  display: block;
+}
+
+dp-measurement-notes.full-width-field {
+  grid-column: 1 / -1;
+}
 
 /* ── Server Error ────────────────────────────────────────────────────────────── */
 .server-error {

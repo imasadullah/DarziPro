@@ -1,0 +1,98 @@
+/* ── Host ────────────────────────────────────────────────────────────────────── */
+:host {
+  display: block;
+}
+
+/* ── Field wrapper ───────────────────────────────────────────────────────────── */
+.mf {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+/* ── Label ───────────────────────────────────────────────────────────────────── */
+.mf__label {
+  display: block;
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--dp-text-secondary, #6B7280);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  cursor: default;
+}
+
+/* ── Input wrapper (positions the unit suffix absolutely) ────────────────────── */
+.mf__input-wrap {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+/* ── Native input ────────────────────────────────────────────────────────────── */
+.mf__input {
+  /* Sizing — taller and larger font than standard DpInput */
+  width: 100%;
+  height: 44px;
+  padding: 0 38px 0 12px; /* right padding reserves space for the unit suffix */
+
+  /* Typography — readability from arm's length */
+  font-size: 16px;
+  font-weight: 600;
+  font-family: var(--dp-font-sans, 'Inter', sans-serif);
+  font-variant-numeric: tabular-nums;
+  color: var(--dp-text, #111827);
+
+  /* Surface */
+  background: var(--dp-surface, #FFFFFF);
+  border: 1.5px solid var(--dp-border, #E5E7EB);
+  border-radius: 8px;
+  outline: none;
+
+  /* Behaviour */
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  -moz-appearance: textfield; /* hide number spinners in Firefox */
+}
+
+/* Hide spinner arrows in Webkit browsers */
+.mf__input::-webkit-outer-spin-button,
+.mf__input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.mf__input:focus {
+  border-color: var(--dp-accent, #6366F1);
+  box-shadow: 0 0 0 3px var(--dp-accent-subtle, #EEF2FF);
+}
+
+.mf__input:hover:not(:focus):not(:disabled) {
+  border-color: var(--dp-border-focus, #818CF8);
+}
+
+.mf__input:disabled {
+  background: var(--dp-surface-hover, #F3F4F6);
+  color: var(--dp-text-tertiary, #9CA3AF);
+  cursor: not-allowed;
+  border-color: var(--dp-border, #E5E7EB);
+}
+
+.mf__input[readonly] {
+  background: var(--dp-surface-hover, #F3F4F6);
+  cursor: default;
+}
+
+/* ── Unit suffix ─────────────────────────────────────────────────────────────── */
+.mf__unit {
+  /* Absolutely positioned inside the input-wrap to overlay the right edge */
+  position: absolute;
+  right: 12px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dp-text-tertiary, #9CA3AF);
+  pointer-events: none;
+  user-select: none;
+  line-height: 1;
+}

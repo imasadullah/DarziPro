@@ -1,171 +1,174 @@
 <app-layout-shell>
   <div class="page-container">
 
-    <!-- ── Page Header ─────────────────────────────────────────────────────── -->
-    <div class="page-header">
-      <div class="page-title-group">
-        <h1 class="page-title">Measurements</h1>
-        <span class="page-subtitle">All customer body measurements</span>
-      </div>
+    <!-- ── Page Header ──────────────────────────────────────────────────────── -->
+    <dp-page-header
+      title="Measurements"
+      [subtitle]="!loading() ? (totalCount() | number) + ' records' : ''">
       <button
-        mat-flat-button
-        color="primary"
-        class="btn-new"
+        class="dp-btn dp-btn--primary"
+        (click)="navigateToNew()"
         id="new-measurement-btn"
-        (click)="navigateToNew()">
+        aria-label="Create new measurement">
         <mat-icon>add</mat-icon>
         New Measurement
       </button>
-    </div>
+    </dp-page-header>
 
-    <!-- ── Search Bar ──────────────────────────────────────────────────────── -->
+    <!-- ── Toolbar: Search ───────────────────────────────────────────────────── -->
     <div class="toolbar">
-      <mat-form-field appearance="outline" class="search-field">
-        <mat-label>Search measurements</mat-label>
-        <mat-icon matPrefix>search</mat-icon>
-        <input
-          matInput
-          [ngModel]="searchQuery()"
-          (ngModelChange)="onSearch($event)"
-          placeholder="Search by type or customer..."
-          id="measurement-search-input"
-          autocomplete="off" />
-        <button
-          *ngIf="searchQuery()"
-          matSuffix
-          mat-icon-button
-          (click)="onSearch('')"
-          aria-label="Clear search">
-          <mat-icon>close</mat-icon>
-        </button>
-      </mat-form-field>
+      <dp-search-bar
+        placeholder="Search by customer name, phone, or garment type…"
+        [value]="searchQuery()"
+        (searchQuery)="onSearch($event)"
+        id="measurement-search">
+      </dp-search-bar>
     </div>
 
-    <!-- ── Loading Spinner ─────────────────────────────────────────────────── -->
-    <div class="loading-overlay" *ngIf="loading()">
-      <mat-progress-spinner mode="indeterminate" diameter="40" color="primary" />
-      <span>Loading measurements…</span>
-    </div>
+    <!-- ── Loading State ────────────────────────────────────────────────────── -->
+    @if (loading()) {
+      <div class="state-panel">
+        <mat-progress-spinner mode="indeterminate" diameter="36" />
+        <span class="state-text">Loading measurements…</span>
+      </div>
+    }
 
-    <!-- ── Empty State ─────────────────────────────────────────────────────── -->
-    <div class="empty-state" *ngIf="!loading() && rows().length === 0">
-      <mat-icon class="empty-icon">straighten</mat-icon>
-      <h3>No measurements found</h3>
-      <p>Add your first measurement to get started.</p>
-      <button mat-flat-button color="primary" (click)="navigateToNew()">
-        <mat-icon>add</mat-icon>
-        Add Measurement
-      </button>
-    </div>
+    <!-- ── Empty State ───────────────────────────────────────────────────────── -->
+    @if (!loading() && filteredRows().length === 0) {
+      <div class="state-panel state-panel--empty">
+        <div class="empty-icon-wrap">
+          <mat-icon class="empty-icon">straighten</mat-icon>
+        </div>
+        @if (searchQuery()) {
+          <span class="empty-title">No measurements match your search</span>
+          <span class="state-text">Try adjusting your search term.</span>
+          <button class="dp-btn dp-btn--secondary" (click)="onSearch('')">Clear Search</button>
+        } @else {
+          <span class="empty-title">No measurements yet</span>
+          <span class="state-text">Add the first measurement to get started.</span>
+          <button class="dp-btn dp-btn--primary" (click)="navigateToNew()">
+            <mat-icon>add</mat-icon>
+            Add Measurement
+          </button>
+        }
+      </div>
+    }
 
-    <!-- ── Data Table ──────────────────────────────────────────────────────── -->
-    <div class="table-card" *ngIf="!loading() && rows().length > 0">
-      <table
-        mat-table
-        [dataSource]="rows()"
-        matSort
-        (matSortChange)="onSort($event)"
-        class="measurements-table">
+    <!-- ── Data Table ────────────────────────────────────────────────────────── -->
+    @if (!loading() && filteredRows().length > 0) {
+      <div class="table-card dp-card--flush">
 
-        <!-- Type Column -->
-        <ng-container matColumnDef="type">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header="measurementType">
-            Garment Type
-          </th>
-          <td mat-cell *matCellDef="let row" class="type-cell">
-            <div class="type-badge-wrap">
-              <mat-icon class="type-icon">{{ getTypeIcon(row.measurementType) }}</mat-icon>
-              <span class="type-badge" [ngClass]="getTypeBadge(row.measurementType)">
-                {{ getTypeLabel(row.measurementType) }}
-              </span>
-            </div>
-          </td>
-        </ng-container>
+        <table class="dp-table" aria-label="Measurements table">
+          <colgroup>
+            <col class="col-type">
+            <col class="col-customer">
+            <col class="col-phone">
+            <col class="col-date">
+            <col class="col-actions">
+          </colgroup>
+          <thead>
+            <tr>
+              <th>Garment Type</th>
+              <th>Customer</th>
+              <th>Phone</th>
+              <th>Created</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of filteredRows(); track row.id) {
+              <tr
+                class="dp-table__row"
+                (click)="navigateToDetail(row.id)"
+                [id]="'measurement-row-' + row.id"
+                tabindex="0"
+                (keydown.enter)="navigateToDetail(row.id)"
+                [attr.aria-label]="getTypeLabel(row.measurementType) + ' for ' + getCustomerName(row)">
 
-        <!-- Customer Name Column -->
-        <ng-container matColumnDef="customerName">
-          <th mat-header-cell *matHeaderCellDef>Customer</th>
-          <td mat-cell *matCellDef="let row">
-            <div class="customer-cell">
-              <span class="customer-name-text">{{ getCustomerName(row) }}</span>
-            </div>
-          </td>
-        </ng-container>
+                <!-- Garment Type chip -->
+                <td>
+                  <div class="cell-type">
+                    <mat-icon class="cell-type__icon">{{ getTypeIcon(row.measurementType) }}</mat-icon>
+                    <span class="type-badge" [ngClass]="getTypeBadge(row.measurementType)">
+                      {{ getTypeLabel(row.measurementType) }}
+                    </span>
+                  </div>
+                </td>
 
-        <!-- Phone Column -->
-        <ng-container matColumnDef="phone">
-          <th mat-header-cell *matHeaderCellDef>Phone</th>
-          <td mat-cell *matCellDef="let row" class="phone-cell">
-            {{ getCustomerPhone(row) }}
-          </td>
-        </ng-container>
+                <!-- Customer: name + initials avatar -->
+                <td>
+                  <div class="cell-customer">
+                    <div class="cell-customer__avatar" aria-hidden="true">
+                      {{ getCustomerInitial(row) }}
+                    </div>
+                    <span class="cell-customer__name">{{ getCustomerName(row) }}</span>
+                  </div>
+                </td>
 
-        <!-- Date Column -->
-        <ng-container matColumnDef="created_at">
-          <th mat-header-cell *matHeaderCellDef mat-sort-header="created_at">
-            Created Date
-          </th>
-          <td mat-cell *matCellDef="let row" class="date-cell">
-            {{ formatDate(row.created_at) }}
-          </td>
-        </ng-container>
+                <!-- Phone -->
+                <td>
+                  <span class="cell-mono">{{ getCustomerPhone(row) }}</span>
+                </td>
 
-        <!-- Actions Column -->
-        <ng-container matColumnDef="actions">
-          <th mat-header-cell *matHeaderCellDef class="actions-header">Actions</th>
-          <td mat-cell *matCellDef="let row" class="actions-cell" (click)="$event.stopPropagation()">
-            <button
-              mat-icon-button
-              [matTooltip]="'View Details'"
-              (click)="navigateToDetail(row.id)"
-              id="view-measurement-{{ row.id }}">
-              <mat-icon>visibility</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              [matTooltip]="'Edit'"
-              (click)="navigateToEdit(row.id, $event)"
-              id="edit-measurement-{{ row.id }}">
-              <mat-icon>edit</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              [matTooltip]="'Copy Measurement'"
-              [disabled]="copying() === row.id"
-              (click)="copyMeasurement(row.id, $event)"
-              id="copy-measurement-{{ row.id }}">
-              <mat-icon>content_copy</mat-icon>
-            </button>
-            <button
-              mat-icon-button
-              [matTooltip]="'Delete'"
-              color="warn"
-              (click)="deleteMeasurement(row.id, $event)"
-              id="delete-measurement-{{ row.id }}">
-              <mat-icon>delete_outline</mat-icon>
-            </button>
-          </td>
-        </ng-container>
+                <!-- Date -->
+                <td>
+                  <span class="cell-date">{{ formatDate(row.created_at) }}</span>
+                </td>
 
-        <tr mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></tr>
-        <tr
-          mat-row
-          *matRowDef="let row; columns: displayedColumns;"
-          class="table-row"
-          (click)="navigateToDetail(row.id)"></tr>
-      </table>
+                <!-- Actions -->
+                <td class="actions-cell" (click)="$event.stopPropagation()">
+                  <button
+                    class="action-btn"
+                    [matTooltip]="'View measurement'"
+                    (click)="navigateToDetail(row.id)"
+                    [id]="'view-measurement-' + row.id"
+                    aria-label="View measurement details">
+                    <mat-icon>visibility</mat-icon>
+                  </button>
+                  <button
+                    class="action-btn"
+                    [matTooltip]="'Edit measurement'"
+                    (click)="navigateToEdit(row.id, $event)"
+                    [id]="'edit-measurement-' + row.id"
+                    aria-label="Edit measurement">
+                    <mat-icon>edit</mat-icon>
+                  </button>
+                  <button
+                    class="action-btn"
+                    [matTooltip]="'Copy measurement'"
+                    [disabled]="copying() === row.id"
+                    (click)="copyMeasurement(row.id, $event)"
+                    [id]="'copy-measurement-' + row.id"
+                    aria-label="Copy measurement">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                  <button
+                    class="action-btn action-btn--danger"
+                    [matTooltip]="'Delete measurement'"
+                    (click)="deleteMeasurement(row.id, $event)"
+                    [id]="'delete-measurement-' + row.id"
+                    aria-label="Delete measurement">
+                    <mat-icon>delete_outline</mat-icon>
+                  </button>
+                </td>
 
-      <!-- Paginator -->
-      <mat-paginator
-        [length]="totalCount()"
-        [pageSize]="pageSize()"
-        [pageIndex]="page() - 1"
-        [pageSizeOptions]="[10, 20, 50]"
-        showFirstLastButtons
-        (page)="onPageChange($event)"
-        class="table-paginator">
-      </mat-paginator>
-    </div>
+              </tr>
+            }
+          </tbody>
+        </table>
+
+        <!-- ── Paginator ────────────────────────────────────────────────── -->
+        <div class="paginator-wrap">
+          <dp-paginator
+            [totalItems]="totalCount()"
+            [pageSize]="pageSize()"
+            [currentPage]="page()"
+            (pageChanged)="onPageChange($event)">
+          </dp-paginator>
+        </div>
+
+      </div><!-- /table-card -->
+    }
 
   </div>
 </app-layout-shell>

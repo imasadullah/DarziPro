@@ -13,7 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { ToastService } from '../../../shared/components/services/toast.service';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
@@ -41,7 +41,6 @@ import {
     MatIconModule,
     MatProgressSpinnerModule,
     MatTooltipModule,
-    MatSnackBarModule,
     MatDialogModule
   ],
   templateUrl: './customer-list.component.html',
@@ -52,7 +51,7 @@ export class CustomerListComponent implements OnInit {
   public readonly store = inject(CustomerStoreService);
   private readonly router = inject(Router);
   private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly toast = inject(ToastService);
 
   public readonly searchControl = new FormControl('');
 
@@ -109,17 +108,10 @@ export class CustomerListComponent implements OnInit {
         this.store.deleteCustomer(
           customer.id,
           () => {
-            this.snackBar.open(
-              `${customer.fullName} has been deleted.`,
-              'Dismiss',
-              { duration: 3000, panelClass: ['snack-success'] }
-            );
+            this.toast.success(`${customer.fullName} has been deleted.`, 3000);
           },
           (msg) => {
-            this.snackBar.open(msg, 'Dismiss', {
-              duration: 5000,
-              panelClass: ['snack-error']
-            });
+            this.toast.error(msg, 5000);
           }
         );
       }

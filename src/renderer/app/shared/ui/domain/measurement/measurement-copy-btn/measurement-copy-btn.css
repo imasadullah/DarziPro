@@ -1,0 +1,73 @@
+/* ── Host ────────────────────────────────────────────────────────────────────── */
+:host {
+  display: inline-flex;
+}
+
+/* ── Button base ─────────────────────────────────────────────────────────────── */
+.mcb {
+  /* Layout */
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+
+  /* Reset */
+  background: transparent;
+  border: none;
+  padding: 4px 0;
+  margin: 0;
+  cursor: pointer;
+
+  /* Typography — per §7.5 */
+  font-size: 13px;
+  font-weight: 500;
+  font-family: var(--dp-font-sans, 'Inter', sans-serif);
+  color: var(--dp-accent, #6366F1);
+  text-decoration: none;
+
+  /* Transition */
+  transition: color 0.15s ease, opacity 0.15s ease;
+}
+
+.mcb:hover:not(.mcb--disabled) {
+  text-decoration: underline;
+  color: var(--dp-accent-hover, #4F46E5);
+}
+
+.mcb:focus-visible {
+  outline: 2px solid var(--dp-accent, #6366F1);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* ── Disabled state ──────────────────────────────────────────────────────────── */
+.mcb--disabled,
+.mcb:disabled {
+  color: var(--dp-text-tertiary, #9CA3AF);
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+/* ── Icon ────────────────────────────────────────────────────────────────────── */
+.mcb__icon {
+  font-size: 14px;
+  width: 14px;
+  height: 14px;
+  /* Vertically align with text */
+  line-height: 1;
+}
+
+/* ── Inline loading spinner ──────────────────────────────────────────────────── */
+.mcb__spinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid var(--dp-accent-subtle, #EEF2FF);
+  border-top-color: var(--dp-accent, #6366F1);
+  border-radius: 50%;
+  animation: mcb-spin 0.65s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes mcb-spin {
+  to { transform: rotate(360deg); }
+}

@@ -1,0 +1,69 @@
+/* ── Host ────────────────────────────────────────────────────────────────────── */
+:host {
+  display: block;
+}
+
+/* ── Field wrapper ───────────────────────────────────────────────────────────── */
+.mn {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+/* ── Label ───────────────────────────────────────────────────────────────────── */
+.mn__label {
+  display: block;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--dp-text-secondary, #6B7280);
+  letter-spacing: 0.02em;
+  cursor: default;
+}
+
+/* ── Textarea ────────────────────────────────────────────────────────────────── */
+.mn__textarea {
+  width: 100%;
+  padding: 10px 14px;
+
+  /* Typography */
+  font-size: 14px;
+  font-weight: 400;
+  font-family: var(--dp-font-sans, 'Inter', sans-serif);
+  color: var(--dp-text, #111827);
+  line-height: 1.6;
+
+  /* Surface */
+  background: var(--dp-surface, #FFFFFF);
+  border: 1.5px solid var(--dp-border, #E5E7EB);
+  border-radius: 8px;
+  outline: none;
+  resize: vertical;
+
+  /* Subtle inset appearance for notes */
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.04);
+
+  /* Transitions */
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.mn__textarea::placeholder {
+  color: var(--dp-text-tertiary, #9CA3AF);
+  font-weight: 400;
+}
+
+.mn__textarea:focus {
+  border-color: var(--dp-accent, #6366F1);
+  box-shadow: 0 0 0 3px var(--dp-accent-subtle, #EEF2FF),
+              inset 0 1px 2px rgba(0, 0, 0, 0.04);
+}
+
+.mn__textarea:hover:not(:focus):not(:disabled) {
+  border-color: var(--dp-border-focus, #818CF8);
+}
+
+.mn__textarea:disabled {
+  background: var(--dp-surface-hover, #F3F4F6);
+  color: var(--dp-text-tertiary, #9CA3AF);
+  cursor: not-allowed;
+  resize: none;
+}

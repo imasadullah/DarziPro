@@ -1,0 +1,12 @@
+<div class="mn">
+  <label class="mn__label" [for]="inputId">{{ label }}</label>
+  <textarea
+    class="mn__textarea"
+    [id]="inputId"
+    [rows]="rows"
+    [placeholder]="placeholder"
+    [value]="value ?? ''"
+    [disabled]="disabled"
+    (input)="onInput($event)"
+  ></textarea>
+</div>

@@ -61,20 +61,25 @@
 
           <!-- Customer search -->
           <div *ngIf="!selectedCustomer()">
-            <mat-form-field appearance="outline" class="customer-search-field">
-              <mat-label>Search customer by name or phone</mat-label>
-              <mat-icon matPrefix>search</mat-icon>
+            <div class="dp-search" [class.dp-search--active]="customerSearchResults().length > 0">
+              <mat-icon class="dp-search__icon">search</mat-icon>
               <input
-                matInput
+                class="dp-search__input"
                 formControlName="customerSearch"
                 (input)="onCustomerSearchInput($any($event.target).value)"
-                placeholder="e.g. Ali Khan or 0300-..."
+                placeholder="Search by name or phone…"
                 id="customer-search-input"
-                autocomplete="off" />
-              <mat-hint *ngIf="form.get('customerId')?.errors?.['required'] && form.get('customerId')?.touched">
-                Customer is required.
-              </mat-hint>
-            </mat-form-field>
+                autocomplete="off"
+                aria-label="Search for a customer"
+                aria-autocomplete="list"
+                aria-expanded="{{ customerSearchResults().length > 0 }}"
+                aria-owns="customer-results-list" />
+            </div>
+            <div
+              class="field-error-msg"
+              *ngIf="form.get('customerId')?.errors?.['required'] && form.get('customerId')?.touched">
+              Customer is required.
+            </div>
 
             <!-- Search Results -->
             <div class="search-results" *ngIf="customerSearchResults().length > 0">
@@ -134,33 +139,38 @@
             <h2 class="section-title">Measurements</h2>
             <p class="section-subtitle">Enter values in inches</p>
           </div>
+          <!-- Copy-from-previous trigger: disabled until prefill logic is implemented -->
+          <dp-measurement-copy-btn
+            [disabled]="true"
+            matTooltip="Coming soon — prefill from previous measurement"
+            style="margin-left: auto">
+          </dp-measurement-copy-btn>
         </div>
 
         <div formArrayName="values">
 
           <!-- Standard template fields -->
-          <div class="values-grid" *ngIf="!isCustomType()">
-            <div
-              class="value-row"
-              *ngFor="let ctrl of valueControls; let i = index"
-              [formGroupName]="i">
-              <mat-form-field appearance="outline" class="value-field">
-                <mat-label>{{ ctrl.get('fieldLabel')?.value }}</mat-label>
-                <input
-                  matInput
-                  formControlName="fieldValue"
-                  type="number"
-                  min="0"
-                  step="0.5"
-                  [id]="'field-' + ctrl.get('fieldName')?.value"
-                  placeholder="0" />
-                <span matSuffix class="unit-suffix">{{ ctrl.get('fieldUnit')?.value }}</span>
-                <mat-error>
-                  {{ getValueError(ctrl.get('fieldValue')!) }}
-                </mat-error>
-              </mat-form-field>
+          <ng-container *ngIf="!isCustomType()">
+            <dp-measurement-grid [columns]="3">
+              <dp-measurement-field
+                *ngFor="let ctrl of valueControls; let i = index"
+                [label]="ctrl.get('fieldLabel')?.value"
+                [value]="ctrl.get('fieldValue')?.value"
+                [unit]="ctrl.get('fieldUnit')?.value || 'in'"
+                [inputId]="'field-' + ctrl.get('fieldName')?.value"
+                (valueChange)="ctrl.get('fieldValue')?.setValue($event)">
+              </dp-measurement-field>
+            </dp-measurement-grid>
+            <!-- Per-field validation errors shown below the grid -->
+            <div class="values-errors">
+              <div
+                class="field-error-msg"
+                *ngFor="let ctrl of valueControls"
+                [style.display]="ctrl.get('fieldValue')?.touched && ctrl.get('fieldValue')?.errors ? 'block' : 'none'">
+                {{ getValueError(ctrl.get('fieldValue')!) }}
+              </div>
             </div>
-          </div>
+          </ng-container>
 
           <!-- Custom user-defined fields -->
           <div class="custom-fields" *ngIf="isCustomType()">
@@ -231,38 +241,31 @@
         </div>
 
         <div class="notes-grid">
-          <mat-form-field appearance="outline">
-            <mat-label>General Notes</mat-label>
-            <textarea
-              matInput
-              formControlName="notes"
-              rows="3"
-              placeholder="Any special notes about this customer's fitting..."
-              id="notes-input"></textarea>
-            <mat-error>{{ getFieldError('notes') }}</mat-error>
-          </mat-form-field>
+          <dp-measurement-notes
+            label="General Notes"
+            placeholder="Any special notes about this customer's fitting…"
+            inputId="notes-input"
+            [value]="form.get('notes')?.value"
+            (valueChange)="form.get('notes')?.setValue($event)">
+          </dp-measurement-notes>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Fabric Notes</mat-label>
-            <textarea
-              matInput
-              formControlName="fabricNotes"
-              rows="3"
-              placeholder="Fabric type, shrinkage, pressing instructions..."
-              id="fabric-notes-input"></textarea>
-            <mat-error>{{ getFieldError('fabricNotes') }}</mat-error>
-          </mat-form-field>
+          <dp-measurement-notes
+            label="Fabric Notes"
+            placeholder="Fabric type, shrinkage, pressing instructions…"
+            inputId="fabric-notes-input"
+            [value]="form.get('fabricNotes')?.value"
+            (valueChange)="form.get('fabricNotes')?.setValue($event)">
+          </dp-measurement-notes>
 
-          <mat-form-field appearance="outline" class="full-width-field">
-            <mat-label>Stitching Instructions</mat-label>
-            <textarea
-              matInput
-              formControlName="stitchingInstructions"
-              rows="3"
-              placeholder="Pocket style, collar design, pleat details..."
-              id="stitching-input"></textarea>
-            <mat-error>{{ getFieldError('stitchingInstructions') }}</mat-error>
-          </mat-form-field>
+          <dp-measurement-notes
+            label="Stitching Instructions"
+            placeholder="Pocket style, collar design, pleat details…"
+            inputId="stitching-input"
+            [rows]="4"
+            [value]="form.get('stitchingInstructions')?.value"
+            (valueChange)="form.get('stitchingInstructions')?.setValue($event)"
+            class="full-width-field">
+          </dp-measurement-notes>
         </div>
       </div>
 

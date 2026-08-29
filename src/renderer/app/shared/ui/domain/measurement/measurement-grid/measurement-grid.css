@@ -1,0 +1,16 @@
+/* ── Host ────────────────────────────────────────────────────────────────────── */
+:host {
+  display: block;
+}
+
+/* ── Grid — 3-column default (per §7.5) ─────────────────────────────────────── */
+.mg {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+/* ── 4-column variant for wider garment types ────────────────────────────────── */
+.mg--4col {
+  grid-template-columns: repeat(4, 1fr);
+}

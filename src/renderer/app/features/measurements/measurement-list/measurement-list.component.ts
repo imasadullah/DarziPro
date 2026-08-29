@@ -4,28 +4,23 @@ import {
   OnDestroy,
   inject,
   signal,
+  computed,
   ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { FormsModule } from '@angular/forms';
 import { Subject } from 'rxjs';
-import { debounceTime, distinctUntilChanged, takeUntil } from 'rxjs/operators';
+import { debounceTime, distinctUntilChanged, takeUntil, finalize } from 'rxjs/operators';
 
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatSortModule, Sort } from '@angular/material/sort';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
+import { PageHeaderComponent } from '../../../shared/ui/page-header/page-header';
+import { SearchBarComponent } from '../../../shared/ui/search-bar/search-bar';
+import { PaginatorComponent } from '../../../shared/ui/paginator/paginator';
 import { MeasurementStoreService } from '../store/measurement-store.service';
 import { MeasurementService } from '../../../core/services/measurement.service';
 import { MeasurementModel } from '../models/measurement.model';
@@ -35,7 +30,6 @@ import {
   getTemplate,
   getTypeBadgeClass
 } from '../measurement-templates';
-import { finalize } from 'rxjs/operators';
 import { ToastService } from '../../../shared/components/services/toast.service';
 
 // MeasurementRow is an alias; customer data comes from the joined relation on MeasurementModel
@@ -46,20 +40,14 @@ type MeasurementRow = MeasurementModel;
   standalone: true,
   imports: [
     CommonModule,
-    FormsModule,
     LayoutShellComponent,
-    MatTableModule,
-    MatPaginatorModule,
-    MatSortModule,
-    MatInputModule,
-    MatFormFieldModule,
+    PageHeaderComponent,
+    SearchBarComponent,
+    PaginatorComponent,
     MatButtonModule,
     MatIconModule,
     MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatMenuModule,
-    MatChipsModule,
-    MatDialogModule
+    MatTooltipModule
   ],
   templateUrl: './measurement-list.component.html',
   styleUrls: ['./measurement-list.component.css'],
@@ -73,17 +61,32 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
   private readonly destroy$ = new Subject<void>();
 
   public readonly templates = MEASUREMENT_TEMPLATES;
-  public readonly displayedColumns = ['type', 'customerName', 'phone', 'created_at', 'actions'];
 
-  // Local state for the standalone list (loads all, not per-customer)
+  // Paged data state
   public readonly rows = signal<MeasurementRow[]>([]);
   public readonly loading = signal<boolean>(false);
   public readonly totalCount = signal<number>(0);
   public readonly page = signal<number>(1);
-  public readonly pageSize = signal<number>(20);
+  public readonly pageSize = signal<number>(15);
+
+  // Search — client-side filter of the current page only
+  // NOTE: This is a stop-gap. True server-side search (across all pages)
+  // requires a search/customerName param in MeasurementSearchParams, which
+  // is not yet implemented in the API layer.
   public readonly searchQuery = signal<string>('');
-  public readonly sortField = signal<string>('created_at');
-  public readonly sortDir = signal<'ASC' | 'DESC'>('DESC');
+
+  /** Rows filtered client-side by customer name substring match. */
+  public readonly filteredRows = computed<MeasurementRow[]>(() => {
+    const q = this.searchQuery().toLowerCase().trim();
+    if (!q) return this.rows();
+    return this.rows().filter((r) => {
+      const name = (r.customer?.fullName ?? '').toLowerCase();
+      const phone = (r.customer?.phoneNumber ?? '').toLowerCase();
+      const type = (getTemplate(r.measurementType)?.label ?? r.measurementType).toLowerCase();
+      return name.includes(q) || phone.includes(q) || type.includes(q);
+    });
+  });
+
   public readonly copying = signal<number | null>(null);
 
   private searchSubject = new Subject<string>();
@@ -92,12 +95,11 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
     this.loadMeasurements();
 
     this.searchSubject.pipe(
-      debounceTime(350),
+      debounceTime(300),
       distinctUntilChanged(),
       takeUntil(this.destroy$)
     ).subscribe(() => {
-      this.page.set(1);
-      this.loadMeasurements();
+      // Search is client-side only — no re-fetch needed, filteredRows reacts via signal
     });
   }
 
@@ -133,15 +135,8 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
     this.searchSubject.next(query);
   }
 
-  onPageChange(event: PageEvent): void {
-    this.page.set(event.pageIndex + 1);
-    this.pageSize.set(event.pageSize);
-    this.loadMeasurements();
-  }
-
-  onSort(sort: Sort): void {
-    this.sortField.set(sort.active || 'created_at');
-    this.sortDir.set(sort.direction === 'asc' ? 'ASC' : 'DESC');
+  onPageChange(newPage: number): void {
+    this.page.set(newPage);
     this.loadMeasurements();
   }
 
@@ -193,7 +188,7 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
       .subscribe({
         next: (res) => {
           if (res.success) {
-            this.toast.success('Measurement deleted.', 3000)
+            this.toast.success('Measurement deleted.', 3000);
             this.rows.update((list) => list.filter((m) => m.id !== id));
             this.totalCount.update((n) => Math.max(0, n - 1));
           } else {
@@ -230,5 +225,9 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
 
   getCustomerPhone(row: MeasurementRow): string {
     return row.customer?.phoneNumber ?? '—';
+  }
+
+  getCustomerInitial(row: MeasurementRow): string {
+    return (row.customer?.fullName ?? '?').charAt(0).toUpperCase();
   }
 }

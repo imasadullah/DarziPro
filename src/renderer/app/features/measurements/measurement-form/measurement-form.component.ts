@@ -34,6 +34,11 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { MatChipsModule } from '@angular/material/chips';
 import { MatDividerModule } from '@angular/material/divider';
 
+import { MeasurementGridComponent } from '../../../shared/ui/domain/measurement/measurement-grid/measurement-grid';
+import { MeasurementFieldComponent } from '../../../shared/ui/domain/measurement/measurement-field/measurement-field';
+import { MeasurementCopyBtnComponent } from '../../../shared/ui/domain/measurement/measurement-copy-btn/measurement-copy-btn';
+import { MeasurementNotesComponent } from '../../../shared/ui/domain/measurement/measurement-notes/measurement-notes';
+
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
 import { MeasurementStoreService } from '../store/measurement-store.service';
 import { MeasurementService } from '../../../core/services/measurement.service';
@@ -73,7 +78,11 @@ function nonNegativeNumber(control: AbstractControl): ValidationErrors | null {
     MatSelectModule,
     MatTooltipModule,
     MatChipsModule,
-    MatDividerModule
+    MatDividerModule,
+    MeasurementGridComponent,
+    MeasurementFieldComponent,
+    MeasurementCopyBtnComponent,
+    MeasurementNotesComponent
   ],
   templateUrl: './measurement-form.component.html',
   styleUrls: ['./measurement-form.component.css'],
