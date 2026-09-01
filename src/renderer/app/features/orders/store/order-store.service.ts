@@ -286,6 +286,12 @@ export class OrderStoreService {
     this.loadOrders({ search: query, page: 1 });
   }
 
+  public clearSearch(): void {
+    this.#searchQuery.set('');
+    this.#page.set(1);
+    this.loadOrders({ search: '', page: 1 });
+  }
+
   public setStatusFilter(status: OrderStatus | null): void {
     this.#statusFilter.set(status);
     this.#page.set(1);
@@ -321,7 +327,7 @@ export class OrderStoreService {
     this.#garmentTypeFilter.set(null);
     this.#priorityFilter.set(null);
     this.#page.set(1);
-    this.loadOrders({ page: 1 });
+    this.loadOrders({ search: '', page: 1 });
   }
 
   public clearSelectedOrder(): void {

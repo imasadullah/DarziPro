@@ -308,7 +308,7 @@ export class OrderWizardComponent implements OnInit, OnDestroy {
 
   getTopMeasurementValues(m: MeasurementModel): Array<{ label: string; value: string }> {
     const template = getTemplate(m.measurementType as any);
-    const fields = template ? template.fields.slice(0, 4) : [];
+    const fields = template ? template.fields.slice(0, 6) : [];
     return fields.map((f) => {
       const stored = m.values.find((v) => v.fieldName === f.key);
       return { label: f.label, value: stored?.fieldValue ? `${stored.fieldValue}″` : '—' };

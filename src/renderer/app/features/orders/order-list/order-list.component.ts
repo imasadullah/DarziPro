@@ -97,7 +97,8 @@ export class OrderListComponent implements OnInit, OnDestroy {
   get priorityFilter() { return this.store.priorityFilter; }
 
   ngOnInit(): void {
-    this.store.loadOrders();
+    this.searchControl.setValue('', { emitEvent: false });
+    this.store.clearFilters();
 
     this.searchControl.valueChanges.pipe(
       debounceTime(300),
