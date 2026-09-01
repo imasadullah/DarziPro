@@ -45,25 +45,12 @@ import { BackupTabComponent } from './backup/backup-tab.component';
         </div>
 
         <!-- Global Feedback -->
-        @if (store.successMessage()) {
-          <div class="feedback-bar success-bar">
-            <mat-icon>check_circle</mat-icon>
-            {{ store.successMessage() }}
-          </div>
-        }
-        @if (store.error()) {
-          <div class="feedback-bar error-bar">
-            <mat-icon>error_outline</mat-icon>
-            {{ store.error() }}
-          </div>
-        }
 
         <!-- Tab Container -->
         <div class="tab-shell">
           <mat-tab-group
             animationDuration="200ms"
             class="settings-tabs"
-            (selectedTabChange)="store.clearMessages()"
           >
             <!-- Tab 1: Shop Information -->
             <mat-tab>
