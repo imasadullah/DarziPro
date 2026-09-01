@@ -79,6 +79,12 @@ export class CustomerStoreService {
     this.loadCustomers({ search: query, page: 1, limit: this.#pageSize() });
   }
 
+  public clearSearch(): void {
+    this.#searchQuery.set('');
+    this.#page.set(1);
+    this.loadCustomers({ search: '', page: 1, limit: this.#pageSize() });
+  }
+
   public setPage(page: number): void {
     this.#page.set(page);
     this.loadCustomers({ page });

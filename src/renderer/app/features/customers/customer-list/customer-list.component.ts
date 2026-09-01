@@ -56,7 +56,8 @@ export class CustomerListComponent implements OnInit {
   public readonly searchControl = new FormControl('');
 
   ngOnInit(): void {
-    this.store.loadCustomers();
+    this.searchControl.setValue('', { emitEvent: false });
+    this.store.clearSearch();
 
     this.searchControl.valueChanges
       .pipe(debounceTime(300), distinctUntilChanged())
