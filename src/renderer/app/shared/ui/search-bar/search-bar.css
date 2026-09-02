@@ -1,18 +1,18 @@
 :host {
   display: block;
+  width: 100%;
 }
 
 .dp-search {
   display: flex;
   align-items: center;
   gap: 8px;
-  height: 40px;
+  height: 44px;
   padding: 0 14px;
   background: var(--dp-surface, #FFFFFF);
   border: 1px solid var(--dp-border, #E5E7EB);
   border-radius: 8px;
   width: 100%;
-  max-width: 400px;
   transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
