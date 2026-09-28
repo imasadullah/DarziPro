@@ -10,23 +10,28 @@
 
     <!-- Primary Nav -->
     <nav class="nav-section">
-      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-item" aria-label="Dashboard"
+        matTooltip="Dashboard" [matTooltipDisabled]="!isCollapsed()" matTooltipPosition="right">
         <mat-icon>dashboard</mat-icon>
         <span>Dashboard</span>
       </a>
-      <a routerLink="/customers" routerLinkActive="active" class="nav-item">
+      <a routerLink="/customers" routerLinkActive="active" class="nav-item" aria-label="Customers"
+        matTooltip="Customers" [matTooltipDisabled]="!isCollapsed()" matTooltipPosition="right">
         <mat-icon>people</mat-icon>
         <span>Customers</span>
       </a>
-      <a routerLink="/measurements" routerLinkActive="active" class="nav-item">
+      <a routerLink="/measurements" routerLinkActive="active" class="nav-item" aria-label="Measurements"
+        matTooltip="Measurements" [matTooltipDisabled]="!isCollapsed()" matTooltipPosition="right">
         <mat-icon>straighten</mat-icon>
         <span>Measurements</span>
       </a>
-      <a routerLink="/orders" routerLinkActive="active" class="nav-item">
+      <a routerLink="/orders" routerLinkActive="active" class="nav-item" aria-label="Orders"
+        matTooltip="Orders" [matTooltipDisabled]="!isCollapsed()" matTooltipPosition="right">
         <mat-icon>shopping_basket</mat-icon>
         <span>Orders</span>
       </a>
-      <a routerLink="/payments" routerLinkActive="active" class="nav-item">
+      <a routerLink="/payments" routerLinkActive="active" class="nav-item" aria-label="Payments"
+        matTooltip="Payments" [matTooltipDisabled]="!isCollapsed()" matTooltipPosition="right">
         <mat-icon>payments</mat-icon>
         <span>Payments</span>
       </a>
@@ -36,11 +41,13 @@
 
     <!-- Secondary Nav -->
     <nav class="nav-section">
-      <a routerLink="/reports" routerLinkActive="active" class="nav-item">
+      <a routerLink="/reports" routerLinkActive="active" class="nav-item" aria-label="Reports"
+        matTooltip="Reports" [matTooltipDisabled]="!isCollapsed()" matTooltipPosition="right">
         <mat-icon>bar_chart</mat-icon>
         <span>Reports</span>
       </a>
-      <a routerLink="/settings" routerLinkActive="active" class="nav-item" *ngIf="authState.isOwner()">
+      <a routerLink="/settings" routerLinkActive="active" class="nav-item" *ngIf="authState.isOwner()"
+        aria-label="Settings" matTooltip="Settings" [matTooltipDisabled]="!isCollapsed()" matTooltipPosition="right">
         <mat-icon>settings</mat-icon>
         <span>Settings</span>
       </a>

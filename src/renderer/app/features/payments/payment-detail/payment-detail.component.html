@@ -55,7 +55,7 @@
             <span class="amount-label">Amount Paid</span>
             <span class="amount-value">{{ formatAmount(p.amount) }}</span>
           </div>
-          <div class="method-display" [ngClass]="'method-' + p.paymentMethod">
+          <div class="method-display mt-3" [ngClass]="'method-' + p.paymentMethod">
             <mat-icon>{{ getMethodIcon(p.paymentMethod) }}</mat-icon>
             {{ getMethodLabel(p.paymentMethod) }}
           </div>

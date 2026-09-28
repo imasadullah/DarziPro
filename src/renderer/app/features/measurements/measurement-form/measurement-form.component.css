@@ -380,13 +380,6 @@ dp-measurement-notes.full-width-field {
   padding: 8px 0 16px;
 }
 
-.form-actions button {
-  border-radius: 10px;
-  height: 42px;
-  font-weight: 600;
-  min-width: 140px;
-}
-
 .btn-spinner {
   display: inline-block;
   margin-right: 8px;

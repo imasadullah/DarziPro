@@ -2,6 +2,7 @@ import { Component, inject, ChangeDetectionStrategy, signal } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { RouterModule, Router } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { AuthStateService } from '../../../core/store/auth-state.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { AppShellComponent } from '../../ui/app-shell/app-shell';
@@ -13,6 +14,7 @@ import { AppShellComponent } from '../../ui/app-shell/app-shell';
     CommonModule,
     RouterModule,
     MatIconModule,
+    MatTooltipModule,
     AppShellComponent
   ],
   templateUrl: './layout-shell.component.html',

@@ -82,6 +82,13 @@
   width: 100%;
 }
 
+.currency-prefix {
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 600;
+  padding-right: 6px;
+}
+
 /* ── Balance Card ─────────────────────────────────────────────────────────── */
 
 .balance-card {}

@@ -279,18 +279,19 @@
       <div class="form-actions">
         <button
           type="button"
-          mat-stroked-button
+          class="dp-btn dp-btn--secondary"
           (click)="onCancel()"
+          [disabled]="isSaving"
           id="cancel-btn">
           Cancel
         </button>
         <button
           type="submit"
-          mat-flat-button
-          color="primary"
+          class="dp-btn dp-btn--primary"
           [disabled]="isSaving"
           id="submit-btn">
-          <mat-spinner *ngIf="isSaving" diameter="18" color="accent" class="btn-spinner"></mat-spinner>
+          <mat-spinner *ngIf="isSaving" diameter="16" color="accent" class="btn-spinner"></mat-spinner>
+          <mat-icon *ngIf="!isSaving">{{ isEditMode() ? 'save' : 'straighten' }}</mat-icon>
           {{ isSaving ? 'Saving…' : (isEditMode() ? 'Update Measurement' : 'Save Measurement') }}
         </button>
       </div>
