@@ -70,7 +70,7 @@
 .toolbar {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 5px;
   flex-wrap: wrap;
 }
 
@@ -261,7 +261,7 @@
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  flex: 1;
+  /* flex: 1; */
   min-height: 0;
 }
 
