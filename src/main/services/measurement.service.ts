@@ -1,6 +1,7 @@
 import { AppDataSource } from '../config/data-source';
 import { Measurement, MeasurementType } from '../database/entities/measurement.entity';
 import { MeasurementValue } from '../database/entities/measurement-value.entity';
+import { getPaginationWindow, PaginatedResult, PaginationRequest } from './pagination';
 
 // ── DTOs ──────────────────────────────────────────────────────────────────────
 
@@ -25,18 +26,12 @@ export interface UpdateMeasurementDto {
   values?: MeasurementValueDto[];
 }
 
-export interface MeasurementSearchParams {
+export interface MeasurementSearchParams extends PaginationRequest {
   measurementType?: MeasurementType;
-  page?: number;
-  limit?: number;
+  search?: string;
 }
 
-export interface PaginatedMeasurements {
-  items: Measurement[];
-  total: number;
-  page: number;
-  limit: number;
-}
+export type PaginatedMeasurements = PaginatedResult<Measurement>;
 
 // ── Service ───────────────────────────────────────────────────────────────────
 
@@ -155,22 +150,31 @@ export class MeasurementService {
     params: MeasurementSearchParams = {}
   ): Promise<PaginatedMeasurements> {
     const repo = this.getMeasurementRepo();
-    const page = Math.max(1, params.page ?? 1);
-    const limit = Math.min(100, Math.max(1, params.limit ?? 20));
-    const skip = (page - 1) * limit;
+    const { page, limit, skip } = getPaginationWindow(params);
 
-    const where: Record<string, unknown> = {};
+    const query = repo.createQueryBuilder('measurement')
+      .leftJoinAndSelect('measurement.values', 'values')
+      .leftJoinAndSelect('measurement.customer', 'customer')
+      .orderBy('measurement.created_at', 'DESC')
+      .addOrderBy('measurement.id', 'DESC')
+      .skip(skip)
+      .take(limit);
+
     if (params.measurementType) {
-      where['measurementType'] = params.measurementType;
+      query.andWhere('measurement.measurementType = :measurementType', {
+        measurementType: params.measurementType
+      });
+    }
+    const search = params.search?.trim();
+    if (search) {
+      const typeSearch = search.replace(/[\s-]+/g, '_');
+      query.andWhere(
+        '(customer.fullName LIKE :search OR customer.phoneNumber LIKE :search OR measurement.measurementType LIKE :typeSearch)',
+        { search: `%${search}%`, typeSearch: `%${typeSearch}%` }
+      );
     }
 
-    const [items, total] = await repo.findAndCount({
-      where: Object.keys(where).length ? where : undefined,
-      relations: ['values', 'customer'],
-      order: { created_at: 'DESC' },
-      skip,
-      take: limit
-    });
+    const [items, total] = await query.getManyAndCount();
 
     return { items, total, page, limit };
   }
@@ -183,9 +187,7 @@ export class MeasurementService {
     params: MeasurementSearchParams = {}
   ): Promise<PaginatedMeasurements> {
     const repo = this.getMeasurementRepo();
-    const page = Math.max(1, params.page ?? 1);
-    const limit = Math.min(100, Math.max(1, params.limit ?? 20));
-    const skip = (page - 1) * limit;
+    const { page, limit, skip } = getPaginationWindow(params);
 
     const where: Record<string, unknown> = { customerId };
     if (params.measurementType) {
@@ -195,7 +197,7 @@ export class MeasurementService {
     const [items, total] = await repo.findAndCount({
       where,
       relations: ['values', 'customer'],
-      order: { created_at: 'DESC' },
+      order: { created_at: 'DESC', id: 'DESC' },
       skip,
       take: limit
     });

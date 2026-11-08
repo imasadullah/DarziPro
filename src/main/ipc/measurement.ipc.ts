@@ -1,9 +1,9 @@
 import { ipcMain } from 'electron';
-import { MeasurementService } from '../services/measurement.service';
+import { MeasurementSearchParams, MeasurementService } from '../services/measurement.service';
 import { MeasurementType } from '../database/entities/measurement.entity';
 
 export function registerMeasurementIPCHandlers(): void {
-  ipcMain.handle('measurement:getAll', async (_event, params?: any) => {
+  ipcMain.handle('measurement:getAll', async (_event, params?: MeasurementSearchParams) => {
     try {
       const data = await MeasurementService.getAll(params);
       return { success: true, data };
@@ -53,7 +53,7 @@ export function registerMeasurementIPCHandlers(): void {
 
   ipcMain.handle(
     'measurement:getByCustomer',
-    async (_event, payload: { customerId: number; params?: any }) => {
+    async (_event, payload: { customerId: number; params?: MeasurementSearchParams }) => {
       try {
         const data = await MeasurementService.getByCustomer(
           payload.customerId,

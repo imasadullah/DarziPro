@@ -4,7 +4,6 @@ import {
   OnDestroy,
   inject,
   signal,
-  computed,
   ChangeDetectionStrategy
 } from '@angular/core';
 import { CommonModule } from '@angular/common';
@@ -20,8 +19,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
 import { PageHeaderComponent } from '../../../shared/ui/page-header/page-header';
 import { SearchBarComponent } from '../../../shared/ui/search-bar/search-bar';
-import { PaginatorComponent } from '../../../shared/ui/paginator/paginator';
-import { MeasurementStoreService } from '../store/measurement-store.service';
+import { PAGINATOR_PAGE_SIZE_OPTIONS, PaginatorComponent } from '../../../shared/ui/paginator/paginator';
 import { MeasurementService } from '../../../core/services/measurement.service';
 import { MeasurementModel } from '../models/measurement.model';
 import {
@@ -55,7 +53,6 @@ type MeasurementRow = MeasurementModel;
 })
 export class MeasurementListComponent implements OnInit, OnDestroy {
   private readonly router = inject(Router);
-  private readonly store = inject(MeasurementStoreService);
   private readonly measurementService = inject(MeasurementService);
   private readonly toast = inject(ToastService);
   private readonly destroy$ = new Subject<void>();
@@ -67,25 +64,11 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
   public readonly loading = signal<boolean>(false);
   public readonly totalCount = signal<number>(0);
   public readonly page = signal<number>(1);
-  public readonly pageSize = signal<number>(15);
-
-  // Search — client-side filter of the current page only
-  // NOTE: This is a stop-gap. True server-side search (across all pages)
-  // requires a search/customerName param in MeasurementSearchParams, which
-  // is not yet implemented in the API layer.
+  public readonly pageSize = signal<number>(10);
+  public readonly error = signal<string | null>(null);
+  public readonly pageSizeOptions = PAGINATOR_PAGE_SIZE_OPTIONS;
   public readonly searchQuery = signal<string>('');
-
-  /** Rows filtered client-side by customer name substring match. */
-  public readonly filteredRows = computed<MeasurementRow[]>(() => {
-    const q = this.searchQuery().toLowerCase().trim();
-    if (!q) return this.rows();
-    return this.rows().filter((r) => {
-      const name = (r.customer?.fullName ?? '').toLowerCase();
-      const phone = (r.customer?.phoneNumber ?? '').toLowerCase();
-      const type = (getTemplate(r.measurementType)?.label ?? r.measurementType).toLowerCase();
-      return name.includes(q) || phone.includes(q) || type.includes(q);
-    });
-  });
+  public readonly measurementType = signal<MeasurementType | ''>('');
 
   public readonly copying = signal<number | null>(null);
 
@@ -98,8 +81,9 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
       debounceTime(300),
       distinctUntilChanged(),
       takeUntil(this.destroy$)
-    ).subscribe(() => {
-      // Search is client-side only — no re-fetch needed, filteredRows reacts via signal
+    ).subscribe((query) => {
+      this.page.set(1);
+      this.loadMeasurements(query);
     });
   }
 
@@ -108,12 +92,15 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  private loadMeasurements(): void {
+  private loadMeasurements(search = this.searchQuery()): void {
     this.loading.set(true);
+    this.error.set(null);
     this.measurementService
       .getAll({
         page: this.page(),
-        limit: this.pageSize()
+        limit: this.pageSize(),
+        search: search.trim() || undefined,
+        measurementType: this.measurementType() || undefined
       })
       .pipe(
         finalize(() => this.loading.set(false)),
@@ -124,9 +111,13 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
           if (res.success && res.data) {
             this.rows.set(res.data.items as MeasurementRow[]);
             this.totalCount.set(res.data.total);
+            this.page.set(res.data.page);
+            this.pageSize.set(res.data.limit);
+          } else {
+            this.error.set(res.error ?? 'Failed to load measurements.');
           }
         },
-        error: () => { }
+        error: (err) => this.error.set(err.message ?? 'Failed to load measurements.')
       });
   }
 
@@ -135,8 +126,27 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
     this.searchSubject.next(query);
   }
 
+  onMeasurementTypeChange(type: string): void {
+    this.measurementType.set(type as MeasurementType | '');
+    this.page.set(1);
+    this.loadMeasurements();
+  }
+
+  clearFilters(): void {
+    this.searchQuery.set('');
+    this.measurementType.set('');
+    this.page.set(1);
+    this.searchSubject.next('');
+  }
+
   onPageChange(newPage: number): void {
     this.page.set(newPage);
+    this.loadMeasurements();
+  }
+
+  onPageSizeChange(pageSize: number): void {
+    this.pageSize.set(pageSize);
+    this.page.set(1);
     this.loadMeasurements();
   }
 
@@ -189,8 +199,11 @@ export class MeasurementListComponent implements OnInit, OnDestroy {
         next: (res) => {
           if (res.success) {
             this.toast.success('Measurement deleted.', 3000);
-            this.rows.update((list) => list.filter((m) => m.id !== id));
-            this.totalCount.update((n) => Math.max(0, n - 1));
+            const total = Math.max(0, this.totalCount() - 1);
+            const page = Math.min(this.page(), Math.max(1, Math.ceil(total / this.pageSize())));
+            this.totalCount.set(total);
+            this.page.set(page);
+            this.loadMeasurements();
           } else {
             this.toast.error(res.error ?? 'Failed to delete measurement.', 4000);
           }

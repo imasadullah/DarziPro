@@ -1,6 +1,19 @@
-@if (totalPages > 1) {
+@if (totalItems > 0 || pageSizeOptions.length > 0) {
   <nav class="dp-paginator" aria-label="Pagination">
+    <span class="dp-paginator__summary">Showing {{ rangeStart }}–{{ rangeEnd }} of {{ totalItems }}</span>
 
+    @if (pageSizeOptions.length > 0) {
+      <label class="dp-paginator__size">
+        <span>Rows</span>
+        <select [value]="pageSize" (change)="changePageSize($event)" aria-label="Rows per page">
+          @for (size of pageSizeOptions; track size) {
+            <option [value]="size">{{ size }}</option>
+          }
+        </select>
+      </label>
+    }
+
+    @if (totalPages > 1) {
     <!-- PREV -->
     <button
       class="dp-paginator__side"
@@ -42,6 +55,7 @@
         <mat-icon>chevron_right</mat-icon>
       </span>
     </button>
+    }
 
   </nav>
 }

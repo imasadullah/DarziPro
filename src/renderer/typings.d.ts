@@ -118,6 +118,7 @@ interface UpdateMeasurementDto {
 
 interface MeasurementSearchParams {
   measurementType?: MeasurementType;
+  search?: string;
   page?: number;
   limit?: number;
 }

@@ -51,6 +51,7 @@ export interface UpdateMeasurementDto {
 
 export interface MeasurementSearchParams {
   measurementType?: MeasurementType;
+  search?: string;
   page?: number;
   limit?: number;
 }

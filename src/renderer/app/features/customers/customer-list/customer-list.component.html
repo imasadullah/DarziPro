@@ -120,7 +120,8 @@
       <!-- ── Paginator ──────────────────────────────────────────────────── -->
       <div class="my-2 paginator-wrap">
         <dp-paginator [totalItems]="store.totalCount()" [pageSize]="store.pageSize()" [currentPage]="store.page()"
-          (pageChanged)="onPageChange($event)">
+          [pageSizeOptions]="pageSizeOptions"
+          (pageChanged)="onPageChange($event)" (pageSizeChanged)="onPageSizeChange($event)">
         </dp-paginator>
       </div>
 

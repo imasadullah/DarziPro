@@ -23,8 +23,8 @@ contextBridge.exposeInMainWorld('api', {
       ipcRenderer.invoke('measurement:update', { id, data }),
     delete: (id: number) => ipcRenderer.invoke('measurement:delete', id),
     get: (id: number) => ipcRenderer.invoke('measurement:get', id),
-    getAll: (params?: any) => ipcRenderer.invoke('measurement:getAll', params),
-    getByCustomer: (customerId: number, params?: any) =>
+    getAll: (params?: { measurementType?: string; search?: string; page?: number; limit?: number }) => ipcRenderer.invoke('measurement:getAll', params),
+    getByCustomer: (customerId: number, params?: { measurementType?: string; search?: string; page?: number; limit?: number }) =>
       ipcRenderer.invoke('measurement:getByCustomer', { customerId, params }),
     copy: (measurementId: number) =>
       ipcRenderer.invoke('measurement:copy', measurementId),

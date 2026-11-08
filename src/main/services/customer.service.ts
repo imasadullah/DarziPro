@@ -1,6 +1,7 @@
 import { AppDataSource } from '../config/data-source';
 import { Customer } from '../database/entities/customer.entity';
 import { ILike, Like } from 'typeorm';
+import { getPaginationWindow, PaginatedResult, PaginationRequest } from './pagination';
 
 export interface CreateCustomerDto {
   fullName: string;
@@ -16,18 +17,11 @@ export interface UpdateCustomerDto {
   notes?: string;
 }
 
-export interface CustomerSearchParams {
+export interface CustomerSearchParams extends PaginationRequest {
   search?: string;
-  page?: number;
-  limit?: number;
 }
 
-export interface PaginatedCustomers {
-  items: Customer[];
-  total: number;
-  page: number;
-  limit: number;
-}
+export type PaginatedCustomers = PaginatedResult<Customer>;
 
 export class CustomerService {
   private static getRepository() {
@@ -46,9 +40,7 @@ export class CustomerService {
 
   public static async getAll(params: CustomerSearchParams = {}): Promise<PaginatedCustomers> {
     const repo = this.getRepository();
-    const page = Math.max(1, params.page ?? 1);
-    const limit = Math.min(100, Math.max(1, params.limit ?? 20));
-    const skip = (page - 1) * limit;
+    const { page, limit, skip } = getPaginationWindow(params);
 
     const whereConditions = params.search
       ? [
@@ -60,7 +52,7 @@ export class CustomerService {
 
     const [items, total] = await repo.findAndCount({
       where: whereConditions,
-      order: { created_at: 'DESC' },
+      order: { created_at: 'DESC', id: 'DESC' },
       skip,
       take: limit
     });

@@ -23,6 +23,15 @@
         (searchQuery)="onSearch($event)"
         id="measurement-search">
       </dp-search-bar>
+      <label class="type-filter">
+        <span>Garment type</span>
+        <select [value]="measurementType()" (change)="onMeasurementTypeChange($any($event.target).value)" aria-label="Filter by garment type">
+          <option value="">All types</option>
+          @for (template of templates; track template.type) {
+            <option [value]="template.type">{{ template.label }}</option>
+          }
+        </select>
+      </label>
     </div>
 
     <!-- ── Loading State ────────────────────────────────────────────────────── -->
@@ -33,16 +42,24 @@
       </div>
     }
 
+    @if (error() && !loading()) {
+      <div class="state-panel state-panel--error">
+        <mat-icon class="state-icon">error_outline</mat-icon>
+        <span class="state-text">{{ error() }}</span>
+        <button class="dp-btn dp-btn--secondary" (click)="onPageChange(page())">Retry</button>
+      </div>
+    }
+
     <!-- ── Empty State ───────────────────────────────────────────────────────── -->
-    @if (!loading() && filteredRows().length === 0) {
+    @if (!loading() && !error() && rows().length === 0) {
       <div class="state-panel state-panel--empty">
         <div class="empty-icon-wrap">
           <mat-icon class="empty-icon">straighten</mat-icon>
         </div>
-        @if (searchQuery()) {
+        @if (searchQuery() || measurementType()) {
           <span class="empty-title">No measurements match your search</span>
-          <span class="state-text">Try adjusting your search term.</span>
-          <button class="dp-btn dp-btn--secondary" (click)="onSearch('')">Clear Search</button>
+          <span class="state-text">Try adjusting your search or garment type.</span>
+          <button class="dp-btn dp-btn--secondary" (click)="clearFilters()">Clear Filters</button>
         } @else {
           <span class="empty-title">No measurements yet</span>
           <span class="state-text">Add the first measurement to get started.</span>
@@ -55,7 +72,7 @@
     }
 
     <!-- ── Data Table ────────────────────────────────────────────────────────── -->
-    @if (!loading() && filteredRows().length > 0) {
+    @if (!loading() && !error() && rows().length > 0) {
       <div class="table-card dp-card--flush">
 
         <table class="dp-table" aria-label="Measurements table">
@@ -76,7 +93,7 @@
             </tr>
           </thead>
           <tbody>
-            @for (row of filteredRows(); track row.id) {
+            @for (row of rows(); track row.id) {
               <tr
                 class="dp-table__row"
                 (click)="navigateToDetail(row.id)"
@@ -162,8 +179,10 @@
           <dp-paginator
             [totalItems]="totalCount()"
             [pageSize]="pageSize()"
+            [pageSizeOptions]="pageSizeOptions"
             [currentPage]="page()"
-            (pageChanged)="onPageChange($event)">
+            (pageChanged)="onPageChange($event)"
+            (pageSizeChanged)="onPageSizeChange($event)">
           </dp-paginator>
         </div>
 

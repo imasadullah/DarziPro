@@ -15,8 +15,22 @@ const mockMeasurementRepo = {
   create: vi.fn((data: any) => ({ ...data, id: undefined })),
   save: vi.fn((entity: any) => Promise.resolve({ ...entity, id: entity.id ?? 1 })),
   remove: vi.fn((entity: any) => Promise.resolve(entity)),
-  delete: vi.fn(() => Promise.resolve({ affected: 1 }))
+  delete: vi.fn(() => Promise.resolve({ affected: 1 })),
+  createQueryBuilder: vi.fn()
 };
+
+const mockMeasurementQuery = {
+  leftJoinAndSelect: vi.fn(),
+  orderBy: vi.fn(),
+  addOrderBy: vi.fn(),
+  skip: vi.fn(),
+  take: vi.fn(),
+  andWhere: vi.fn(),
+  getManyAndCount: vi.fn()
+};
+for (const method of ['leftJoinAndSelect', 'orderBy', 'addOrderBy', 'skip', 'take', 'andWhere']) {
+  (mockMeasurementQuery[method as keyof typeof mockMeasurementQuery] as any).mockReturnValue(mockMeasurementQuery);
+}
 
 const mockValueRepo = {
   delete: vi.fn(() => Promise.resolve({ affected: 1 })),
@@ -79,6 +93,8 @@ describe('MeasurementService', () => {
     mockMeasurementRepo.save.mockImplementation((entity: any) =>
       Promise.resolve({ ...entity, id: entity.id ?? 1 })
     );
+    mockMeasurementRepo.createQueryBuilder.mockReturnValue(mockMeasurementQuery);
+    mockMeasurementQuery.getManyAndCount.mockResolvedValue([[], 0]);
   });
 
   // ── create() ──────────────────────────────────────────────────────────────────
@@ -157,7 +173,7 @@ describe('MeasurementService', () => {
       expect(result).toEqual(m);
       expect(mockMeasurementRepo.findOne).toHaveBeenCalledWith({
         where: { id: 1 },
-        relations: ['values']
+        relations: ['values', 'customer']
       });
     });
 
@@ -171,6 +187,34 @@ describe('MeasurementService', () => {
   });
 
   // ── getByCustomer() ───────────────────────────────────────────────────────────
+  describe('getAll()', () => {
+    it('returns a server-paginated, stably ordered page and applies search and type filters', async () => {
+      const items = [makeMeasurement()];
+      mockMeasurementQuery.getManyAndCount.mockResolvedValue([items, 21]);
+
+      const result = await MeasurementService.getAll({
+        page: 3,
+        limit: 10,
+        search: 'Ali',
+        measurementType: 'shirt'
+      });
+
+      expect(result).toEqual({ items, total: 21, page: 3, limit: 10 });
+      expect(mockMeasurementQuery.skip).toHaveBeenCalledWith(20);
+      expect(mockMeasurementQuery.take).toHaveBeenCalledWith(10);
+      expect(mockMeasurementQuery.orderBy).toHaveBeenCalledWith('measurement.created_at', 'DESC');
+      expect(mockMeasurementQuery.addOrderBy).toHaveBeenCalledWith('measurement.id', 'DESC');
+      expect(mockMeasurementQuery.andWhere).toHaveBeenCalledWith(
+        'measurement.measurementType = :measurementType',
+        { measurementType: 'shirt' }
+      );
+      expect(mockMeasurementQuery.andWhere).toHaveBeenCalledWith(
+        expect.stringContaining('customer.fullName LIKE :search'),
+        { search: '%Ali%', typeSearch: '%Ali%' }
+      );
+    });
+  });
+
   describe('getByCustomer()', () => {
     it('returns paginated measurements with default params', async () => {
       const items = [makeMeasurement(), makeMeasurement({ id: 2 })];

@@ -19,7 +19,7 @@ import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { LayoutShellComponent } from '../../../shared/components/layout-shell/layout-shell.component';
 import { PageHeaderComponent } from '../../../shared/ui/page-header/page-header';
 import { SearchBarComponent } from '../../../shared/ui/search-bar/search-bar';
-import { PaginatorComponent } from '../../../shared/ui/paginator/paginator';
+import { PAGINATOR_PAGE_SIZE_OPTIONS, PaginatorComponent } from '../../../shared/ui/paginator/paginator';
 import { CustomerStoreService } from '../store/customer-store.service';
 import { CustomerModel } from '../models/customer.model';
 import {
@@ -54,6 +54,7 @@ export class CustomerListComponent implements OnInit {
   private readonly toast = inject(ToastService);
 
   public readonly searchControl = new FormControl('');
+  public readonly pageSizeOptions = PAGINATOR_PAGE_SIZE_OPTIONS;
 
   ngOnInit(): void {
     this.searchControl.setValue('', { emitEvent: false });
@@ -82,6 +83,10 @@ export class CustomerListComponent implements OnInit {
 
   onPageChange(newPage: number): void {
     this.store.setPage(newPage);
+  }
+
+  onPageSizeChange(pageSize: number): void {
+    this.store.setPageSize(pageSize);
   }
 
   onSearch(query: string): void {

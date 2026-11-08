@@ -63,6 +63,9 @@
   gap: 12px;
 }
 
+.type-filter { display: inline-flex; align-items: center; gap: 8px; color: var(--dp-text-secondary, #6B7280); font-size: 13px; }
+.type-filter select { min-width: 150px; height: 36px; padding: 0 10px; border: 1px solid var(--dp-border, #E5E7EB); border-radius: 8px; background: var(--dp-surface, #FFFFFF); color: var(--dp-text, #111827); font: inherit; }
+
 /* ── State Panels ────────────────────────────────────────────────────────────── */
 .state-panel {
   display: flex;
@@ -75,6 +78,8 @@
 }
 
 .state-panel--empty { color: var(--dp-text-tertiary, #9CA3AF); }
+.state-panel--error { color: var(--dp-danger, #DC2626); }
+.state-panel--error .state-text { color: var(--dp-danger, #DC2626); }
 
 .state-text {
   font-size: 14px;
@@ -307,13 +312,3 @@
 }
 
 /* ── Paginator Wrapper ───────────────────────────────────────────────────────── */
-.paginator-wrap {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 16px;
-  border-top: 1px solid var(--dp-border, #E5E7EB);
-  background: var(--dp-bg, #F9FAFB);
-  border-radius: 0 0 12px 12px;
-  flex-shrink: 0;
-}

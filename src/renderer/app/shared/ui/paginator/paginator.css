@@ -7,14 +7,18 @@
 .dp-paginator {
   display: inline-flex;
   align-items: center;
-  gap: 4px;
+  gap: 8px;
   height: 52px;
-  padding: 0 8px;
+  padding: 0 12px;
   background: var(--dp-surface, #FFFFFF);
   border: 1px solid var(--dp-border, #E5E7EB);
   border-radius: 100px;
   box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
 }
+
+.dp-paginator__summary { color: var(--dp-text-secondary, #6B7280); font-size: 12px; white-space: nowrap; }
+.dp-paginator__size { display: inline-flex; align-items: center; gap: 6px; color: var(--dp-text-secondary, #6B7280); font-size: 12px; white-space: nowrap; }
+.dp-paginator__size select { border: 1px solid var(--dp-border, #E5E7EB); border-radius: 6px; padding: 5px 8px; background: var(--dp-surface, #fff); color: var(--dp-text, #111827); font: inherit; }
 
 /* ── PREV / NEXT buttons ─────────────────────────────────────────────────────── */
 .dp-paginator__side {

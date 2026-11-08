@@ -3,8 +3,6 @@ import {
   Input,
   Output,
   EventEmitter,
-  computed,
-  signal,
   ChangeDetectionStrategy,
   OnChanges,
   SimpleChanges
@@ -15,6 +13,8 @@ import { MatIconModule } from '@angular/material/icon';
 export type PageItem =
   | { type: 'page'; value: number }
   | { type: 'ellipsis' };
+
+export const PAGINATOR_PAGE_SIZE_OPTIONS = [10, 20, 50] as const;
 
 @Component({
   selector: 'dp-paginator',
@@ -28,16 +28,22 @@ export class PaginatorComponent implements OnChanges {
   @Input({ required: true }) totalItems!: number;
   @Input() pageSize = 10;
   @Input({ required: true }) currentPage!: number;
+  @Input() pageSizeOptions: readonly number[] = PAGINATOR_PAGE_SIZE_OPTIONS;
 
   @Output() pageChanged = new EventEmitter<number>();
+  @Output() pageSizeChanged = new EventEmitter<number>();
 
   // Recomputed whenever inputs change
   pages: PageItem[] = [];
   totalPages = 0;
+  rangeStart = 0;
+  rangeEnd = 0;
 
   ngOnChanges(changes: SimpleChanges): void {
     this.totalPages = Math.max(1, Math.ceil(this.totalItems / this.pageSize));
     this.pages = this.buildPages(this.currentPage, this.totalPages);
+    this.rangeStart = this.totalItems === 0 ? 0 : (this.currentPage - 1) * this.pageSize + 1;
+    this.rangeEnd = Math.min(this.currentPage * this.pageSize, this.totalItems);
   }
 
   /**
@@ -82,6 +88,13 @@ export class PaginatorComponent implements OnChanges {
   go(page: number): void {
     if (page < 1 || page > this.totalPages || page === this.currentPage) return;
     this.pageChanged.emit(page);
+  }
+
+  changePageSize(event: Event): void {
+    const pageSize = Number((event.target as HTMLSelectElement).value);
+    if (Number.isInteger(pageSize) && pageSize > 0 && pageSize !== this.pageSize) {
+      this.pageSizeChanged.emit(pageSize);
+    }
   }
 
   isPage(item: PageItem): item is { type: 'page'; value: number } {

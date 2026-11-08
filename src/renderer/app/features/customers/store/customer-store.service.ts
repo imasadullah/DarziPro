@@ -185,21 +185,24 @@ export class CustomerStoreService {
 
     this.customerService
       .delete(id)
-      .pipe(finalize(() => this.#loading.set(false)))
       .subscribe({
         next: (res) => {
           if (res.success) {
-            // Remove from local list immediately for a snappy UI
-            this.#customers.update((list) => list.filter((c) => c.id !== id));
-            this.#totalCount.update((n) => n - 1);
+            const total = Math.max(0, this.#totalCount() - 1);
+            const page = Math.min(this.#page(), Math.max(1, Math.ceil(total / this.#pageSize())));
+            this.#totalCount.set(total);
+            this.#page.set(page);
             onSuccess();
+            this.loadCustomers({ page });
           } else {
+            this.#loading.set(false);
             const msg = res.error ?? 'Failed to delete customer.';
             this.#error.set(msg);
             onError(msg);
           }
         },
         error: (err) => {
+          this.#loading.set(false);
           const msg = err.message ?? 'Failed to delete customer.';
           this.#error.set(msg);
           onError(msg);
